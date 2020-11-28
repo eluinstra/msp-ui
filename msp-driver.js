@@ -1,6 +1,6 @@
 "use strict"
 const adapt = require('@cycle/run/lib/adapt');
-const SerialPort = require('serialport');
+const serialPort = require('serialport');
 const protocol = require('./protocol');
 
 const mspState =
@@ -42,7 +42,7 @@ const getLength = data => (data[4] << 8) + data[3];
 
 function makeMspDriver(path, baudrate)
 {
-  const port = new SerialPort(path, { baudRate: baudrate });
+  const port = new serialPort(path, { baudRate: baudrate });
   function mspDriver(outgoing$)
   {
     outgoing$.addListener(
