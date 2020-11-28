@@ -1,3 +1,4 @@
+"use strict"
 const SerialPort = require('serialport');
 const Readline = require('@serialport/parser-readline');
 const port = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 });
@@ -25,16 +26,6 @@ const mspMsg =
   buffer: [],
   checksum: 0
 }
-// {
-//   port = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 }),
-//     mspState_e c_state;
-//   uint8_t inBuf[MSP_PORT_INBUF_SIZE];
-//   uint16_t cmdMSP;
-//   uint8_t cmdFlags;
-//   uint_fast16_t offset;
-//   uint_fast16_t dataSize;
-//   uint8_t checksum2;
-// }
 
 const hexInt = (num, width) => num.toString(16).padStart(width,"0").toUpperCase();
 
@@ -71,28 +62,29 @@ function command(cmd, payload)
   return [].concat(protocol.mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)]);
 }
 
-function parseMSPCommand(ch)
+function parseMSPCommand(num)
 {
-  console.log(ch);
+  console.log(num);
+  //console.log(hexInt8(num));
   switch (mspMsg.state)
   {
     case mspState.MSP_IDLE:
-      if (String.fromCharCode(ch) == '$')
+      if (String.fromCharCode(num) == '$')
         mspMsg.state = mspState.MSP_HEADER_START;
       break;
     case mspState.MSP_HEADER_START:
       mspMsg.buffer = [];
       mspMsg.checksum = 0;
-      if (String.fromCharCode(ch) == 'X')
+      if (String.fromCharCode(num) == 'X')
         mspMsg.state = mspState.MSP_HEADER_X;
       break;
     case mspState.MSP_HEADER_X:
-      if (String.fromCharCode(ch) == '>')
+      if (String.fromCharCode(num) == '>')
         mspMsg.state = mspState.MSP_HEADER_V2_NATIVE;
       break;
     case mspState.MSP_HEADER_V2_NATIVE:
-      mspMsg.buffer.push(ch);
-      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, ch);
+      mspMsg.buffer.push(num);
+      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num);
       if (mspMsg.buffer.length == 5)
       {
         mspMsg.flag = getFlag(mspMsg.buffer);
@@ -107,15 +99,15 @@ function parseMSPCommand(ch)
       }
       break;
     case mspState.MSP_PAYLOAD_V2_NATIVE:
-      mspMsg.buffer.push(ch);
-      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, ch);
+      mspMsg.buffer.push(num);
+      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num);
       mspMsg.length--;
       if (mspMsg.length == 0)
         mspMsg.state = mspState.MSP_CHECKSUM_V2_NATIVE;
       break;
     case mspState.MSP_CHECKSUM_V2_NATIVE:
-      console.log(ch + " " + mspMsg.checksum);
-      if (mspMsg.checksum == ch)
+      console.log(num + " " + mspMsg.checksum);
+      if (mspMsg.checksum == num)
         console.log("SUCCESS");
       //   mspMsg.state = MSP_COMMAND_RECEIVED;
       // else
@@ -136,9 +128,9 @@ function parseMSPCommand(ch)
 //   console.log('Data:', data)
 // })
 
-function crc8_dvb_s2(crc, ch)
+function crc8_dvb_s2(crc, num)
 {
-  crc = (crc ^ ch) & 0xFF;
+  crc = (crc ^ num) & 0xFF;
   for (let i = 0; i < 8; ++i)
     if ((crc & 0x80) != 0)
       crc = ((crc << 1) ^ 0xD5) & 0xFF;
@@ -155,15 +147,20 @@ function crc8_dvb_s2_update(crc, data, length)
   return crc;
 }
 
-const CMD = '$X<\x00\x64\x00\x00\x00\x8F';
-console.log(toByteBuffer(CMD));
-port.write(toByteBuffer(CMD));
-
-const CMD1 = command(protocol.mspCMD.MSP_IDENT,[]);
-console.log(Buffer.from(CMD1));
-port.write(Buffer.from(CMD1));
-
+{
+  const CMD = '$X<\x00\x64\x00\x00\x00\x8F';
+  console.log(toByteBuffer(CMD));
+  port.write(toByteBuffer(CMD));
+}
+{
+  const CMD = command(protocol.mspCMD.MSP_IDENT,[]);
+  console.log(Buffer.from(CMD));
+  //port.write(Buffer.from(CMD));
+}
 console.log(int16ToHexStr(1));
 
 console.log(checksum([0x00, 0xFF, 0xFF, 0x07, 0x00, 0x02, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00]));
-console.log(checksum([0x00, 0x64, 0x00, 0x00, 0x00]));
+console.log(hexInt8(checksum([0x00, 0x64, 0x00, 0x00, 0x00])));
+console.log(hexInt8(checksum([0xa5, 0x42, 0x42, 0x12, 0x00, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x66, 0x6c, 0x79, 0x69, 0x6e, 0x67, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64])));
+
+console.log(hexInt(256));
