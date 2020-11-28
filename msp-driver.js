@@ -1,7 +1,6 @@
 "use strict"
-//import {adapt} from '@cycle/run/lib/adapt';
+const adapt = require('@cycle/run/lib/adapt');
 const SerialPort = require('serialport');
-const port = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 });
 const protocol = require('./protocol');
 
 const mspState =
@@ -35,39 +34,51 @@ const hexInt16 = data => [data & 0x00FF, data & 0xFF00];
 
 const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0);
 
-function mspDriver(outgoing$) {
-  outgoing$.addListener(
-  {
-    next: outgoing =>
-    {
-      const cmd = command(outgoing.cmd, outgoing.payload);
-      port.write(Buffer.from(cmd));
-    },
-    error: () => {},
-    complete: () => {},
-  });
+const getFlag = data => data[0];
 
-  const incoming$ = xs.create(
+const getCmd = data => (data[2] << 8) + data[1];
+
+const getLength = data => (data[4] << 8) + data[3];
+
+function makeMspDriver(path, baudrate)
+{
+  const port = new SerialPort(path, { baudRate: baudrate });
+  function mspDriver(outgoing$)
   {
-    start: listener =>
+    outgoing$.addListener(
     {
-      port.on('data', function (data)
+      next: outgoing =>
       {
-        for (var i = 0; i < data.length; i++)
+        const cmd = command(outgoing.cmd, outgoing.payload);
+        port.write(Buffer.from(cmd));
+      },
+      error: () => {},
+      complete: () => {},
+    });
+
+    const incoming$ = xs.create(
+    {
+      start: listener =>
+      {
+        port.on('data', function (data)
         {
-          parseMSPCommand(data.readInt8(i));
-          if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED)
+          for (var i = 0; i < data.length; i++)
           {
-            console.log("SUCCESS");
-            listener.next(msg)
-            mspMsg.state = mspState.MSP_IDLE;
+            parseMSPCommand(data.readInt8(i));
+            if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED)
+            {
+              console.log("cmd " + mspMsg.cmd);
+              listener.next(mspMsg)
+              mspMsg.state = mspState.MSP_IDLE;
+            }
           }
-        }
-      });
-    },
-    stop: () => {},
-  });
-  return adapt(incoming$);
+        });
+      },
+      stop: () => {},
+    });
+    return adapt(incoming$);
+  }
+  return mspDriver;
 }
 
 function command(cmd, payload)
@@ -79,8 +90,6 @@ function command(cmd, payload)
 
 function parseMSPCommand(num)
 {
-  //console.log(num);
-  console.log(hexInt8(num));
   switch (mspMsg.state)
   {
     case mspState.MSP_IDLE:
@@ -129,16 +138,7 @@ function parseMSPCommand(num)
       mspMsg.state = mspState.MSP_IDLE;
       break;
   }
-  console.log("state " + mspMsg.state);
 }
-// port.on('readable', function ()
-// {
-//   console.log('Data:', port.read())
-// })
-// port.on('data', function (data)
-// {
-//   console.log('Data:', data)
-// })
 
 function crc8_dvb_s2(crc, num)
 {
@@ -150,3 +150,7 @@ function crc8_dvb_s2(crc, num)
       crc = (crc << 1) & 0xFF;
   return crc;
 }
+
+module.exports = {
+  makeMspDriver
+};
