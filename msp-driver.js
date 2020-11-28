@@ -1,10 +1,8 @@
 "use strict"
+//import {adapt} from '@cycle/run/lib/adapt';
 const SerialPort = require('serialport');
-const Readline = require('@serialport/parser-readline');
 const port = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 });
-const lineStream = port.pipe(new Readline());
 const protocol = require('./protocol');
-const { FlowFlags } = require('typescript');
 
 const mspState =
 {
@@ -17,6 +15,12 @@ const mspState =
   MSP_COMMAND_RECEIVED: "command received"
 }
 
+const mspCommand =
+{
+  cmd: 0,
+  payload: []
+}
+
 const mspMsg =
 {
   state: mspState.MSP_IDLE,
@@ -27,42 +31,44 @@ const mspMsg =
   checksum: 0
 }
 
-const mspFunctions = [];
-
-const hexInt = (num, width) => num.toString(16).padStart(width,"0").toUpperCase();
-
-const hexInt8 = num => hexInt(num,2);
-
-const int16ToHexStr = num => "0x" + hexInt8(num & 0xFF00) + hexInt8(num & 0x00FF);
-
-const byteArrayToHexStr = bytes => bytes.reduce((acc, b) => acc + "0x" + b.toString(16).padStart(2,"0").toUpperCase(),"");
+const hexInt16 = data => [data & 0x00FF, data & 0xFF00];
 
 const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0);
 
-const hexInt16 = data => [data & 0x00FF, data & 0xFF00];
-
-const toByteArray = str => str.split("").map(ch => ch.charCodeAt(0));
-
-const toByteBuffer = str => Buffer.from(toByteArray(str));
-
-const getFlag = data => data[0];
-
-const getCmd = data => (data[2] << 8) + data[1];
-
-const getLength = data => (data[4] << 8) + data[3];
-
-port.on('data', function (data)
-{
-  for (var i = 0; i < data.length; i++)
+function mspDriver(outgoing$) {
+  outgoing$.addListener(
   {
-    parseMSPCommand(data.readInt8(i));
-    if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED)
+    next: outgoing =>
     {
-      console.log("SUCCESS");
-      mspMsg.state = mspState.MSP_IDLE;
-    }
-  }
-})
+      const cmd = command(outgoing.cmd, outgoing.payload);
+      port.write(Buffer.from(cmd));
+    },
+    error: () => {},
+    complete: () => {},
+  });
+
+  const incoming$ = xs.create(
+  {
+    start: listener =>
+    {
+      port.on('data', function (data)
+      {
+        for (var i = 0; i < data.length; i++)
+        {
+          parseMSPCommand(data.readInt8(i));
+          if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED)
+          {
+            console.log("SUCCESS");
+            listener.next(msg)
+            mspMsg.state = mspState.MSP_IDLE;
+          }
+        }
+      });
+    },
+    stop: () => {},
+  });
+  return adapt(incoming$);
+}
 
 function command(cmd, payload)
 {
@@ -143,23 +149,4 @@ function crc8_dvb_s2(crc, num)
     else
       crc = (crc << 1) & 0xFF;
   return crc;
-}
-
-function crc8_dvb_s2_update(crc, data, length)
-{
-  //return data.reduce((acc, b) => crc8_dvb_s2(crc,data[i]));
-  for (i = 0; i < length; i++)
-    crc = crc8_dvb_s2(crc,data[i]);
-  return crc;
-}
-
-{
-  const CMD = '$X<\x00\x64\x00\x00\x00\x8F';
-  console.log(toByteBuffer(CMD));
-  //port.write(toByteBuffer(CMD));
-}
-{
-  const CMD = command(protocol.mspCMD.MSP_IDENT,[]);
-  console.log(Buffer.from(CMD));
-  port.write(Buffer.from(CMD));
 }

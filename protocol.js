@@ -8,7 +8,7 @@ const mspCMD =
   MSP_NAME:         10,   //out message          Returns user set board name - betaflight
   MSP_SET_NAME:     11,   //in message           Sets board name - betaflight
   //DEPRECATED -
-  MSP_IDENT:        100    //out message         mixerMode + multiwii version + protocol version + capability variable
+  MSP_IDENT:       100    //out message         mixerMode + multiwii version + protocol version + capability variable
 };
 
 const mspCMDHeader = '$X<';
