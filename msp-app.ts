@@ -1,16 +1,24 @@
-const xs = require('xstream').default;
-const run = require('@cycle/run').default;
-const div = require('@cycle/dom').div;
-const input = require('@cycle/dom').input;
-const p = require('@cycle/dom').p;
-const makeDOMDriver = require('@cycle/dom').makeDOMDriver;
+import { Stream, MemoryStream } from 'xstream';
+import { run } from '@cycle/run';
+import { MainDOMSource, VNode, div, input, p, makeDOMDriver } from '@cycle/dom';
 //const makeMspDriver = require('./msp-driver');
 
-function main(sources) {
-  const input$ = sources.DOM.select('input').events('change')
-    .map(ev => ev.target.checked)
+interface Sources {
+  DOM: MainDOMSource;
+}
+
+interface Sinks {
+  DOM: Stream<VNode>;
+}
+
+const main = (sources: Sources): Sinks => {
+  const {
+    DOM
+  } = sources;
+  const input$: Stream<boolean> = DOM.select('input').events('change')
+    .map(ev => (ev.target as HTMLInputElement).checked)
     .startWith(false);
-  const sinks = {
+  const sinks: Sinks = {
     DOM: input$.map(toggled =>
       div([
         input({attrs: {type: 'checkbox'}}), 'Toggle me',

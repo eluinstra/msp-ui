@@ -2,9 +2,10 @@
   "name": "dev.luin.msp",
   "version": "1.0.0",
   "description": "msp ui",
-  "main": "main.js",
+  "main": "build/main.js",
   "scripts": {
-    "start": "electron ."
+    "compile": "tsc && cp index.html build",
+    "start": "npm run compile && electron ."
   },
   "author": "",
   "license": "ISC",
