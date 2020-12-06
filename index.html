@@ -12,9 +12,17 @@
     and Electron <script>document.write(process.versions.electron)</script>.
     <button class="alert">Current Directory</button>
     <div id="app"></div>
+    <select id="mspInput">
+        <option value="100">MSP_IDENT</option>
+        <option value="1">MSP_API_VERSION</option>
+        <option value="2">MSP_FC_VARIANT</option>
+        <option value="3">MSP_FC_VERSION</option>
+    </select>
+    <button id="mspButton">MSP Go</button>
+    <div id="mspOutput"/>
 </body>
 <script>
-    require('./renderer.js');
-    require('./msp-app.js');
+    //require('./renderer.js');
+    require('./msp-app-s.js');
 </script>
 </html>

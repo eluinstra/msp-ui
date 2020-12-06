@@ -1,7 +1,8 @@
-const { xs } = require('xstream')
+const xs = require('xstream').default
 const { run } = require('@cycle/run')
 const {div, input, p, makeDOMDriver } = require('@cycle/dom')
 const { makeMspDriver } = require('./msp-driver')
+const protocol = require('./protocol')
 
 function main(sources) {
   const input$ =  sources.DOM.select('input').events('change')
@@ -13,7 +14,11 @@ function main(sources) {
         input({attrs: {type: 'checkbox'}}), 'Toggle me',
         p(toggled ? 'ON' : 'off')
       ])
-    )
+    ),
+    msp: xs.of({
+      cmd: protocol.mspCMD.MSP_IDENT,
+      payload: []
+    })
   }
   return sinks
 }

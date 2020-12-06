@@ -52,7 +52,7 @@ const getLength = data => (data[4] << 8) + data[3];
 
 port.on('data', function (data)
 {
-  for (var i = 0; i < data.length; i++)
+  for (let i = 0; i < data.length; i++)
   {
     parseMSPCommand(data.readInt8(i));
     if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED)
@@ -113,7 +113,7 @@ function parseMSPCommand(num)
         mspMsg.state = mspState.MSP_CHECKSUM_V2_NATIVE;
       break;
     case mspState.MSP_CHECKSUM_V2_NATIVE:
-      if (mspMsg.checksum == num)
+      if (mspMsg.checksum == (num & 0xFF))
         mspMsg.state = mspState.MSP_COMMAND_RECEIVED;
       else
         mspMsg.state = mspState.MSP_IDLE;
@@ -147,7 +147,7 @@ function crc8_dvb_s2(crc, num)
 function crc8_dvb_s2_update(crc, data, length)
 {
   //return data.reduce((acc, b) => crc8_dvb_s2(crc,data[i]));
-  for (i = 0; i < length; i++)
+  for (let i = 0; i < length; i++)
     crc = crc8_dvb_s2(crc,data[i]);
   return crc;
 }

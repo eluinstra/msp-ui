@@ -2,7 +2,6 @@ const xs = require('xstream').default
 const { remote } = require('electron')
 const SerialPort = remote.require('serialport')
 const { adapt } = require('@cycle/run/lib/adapt')
-// const SerialPort = require('serialport')
 const protocol = require('./protocol')
 
 const mspState =
@@ -45,40 +44,59 @@ const getLength = data => (data[4] << 8) + data[3]
 function makeMspDriver(path, baudrate)
 {
   const port = new SerialPort(path, { baudRate: baudrate })
+  port.on('data', function (data)
+  {
+    console.log('incomming')
+  })
+
+  function toCharArray(str)
+  {
+    var arr = [];
+    for (var i = 0; i < str.length; i ++)
+    {
+      var ch = str.charCodeAt(i);
+      arr.push(ch);
+    }
+    return Buffer.from(arr);
+  }
+
   function mspDriver(outgoing$)
   {
     outgoing$.addListener(
     {
       next: outgoing =>
       {
-        const cmd = command(outgoing.cmd, outgoing.payload)
-        port.write(Buffer.from(cmd))
+        console.log(outgoing.cmd)
+        // const cmd = command(outgoing.cmd, outgoing.payload)
+        // port.write(Buffer.from(cmd))
+        port.write(toCharArray('$X<\x00\x64\x00\x00\x00\x8F'))
       },
       error: () => console.log("error"),
       complete: () => console.log("complete"),
     })
 
-    const incoming$ = xs.create(
-    {
-      start: listener =>
-      {
-        port.on('data', function (data)
-        {
-          for (let i = 0; i < data.length; i++)
-          {
-            parseMSPCommand(data.readInt8(i))
-            if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED)
-            {
-              console.log("cmd " + mspMsg.cmd)
-              listener.next(mspMsg)
-              mspMsg.state = mspState.MSP_IDLE
-            }
-          }
-        })
-      },
-      stop: () => {},
-    })
-    return adapt(incoming$)
+    // const incoming$ = xs.create(
+    // {
+    //   start: listener =>
+    //   {
+    //     port.on('data', function (data)
+    //     {
+    //       console.log('incomming')
+    //       for (let i = 0; i < data.length; i++)
+    //       {
+    //         parseMSPCommand(data.readInt8(i))
+    //         if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED)
+    //         {
+    //           console.log("cmd " + mspMsg.cmd)
+    //           listener.next(mspMsg)
+    //           mspMsg.state = mspState.MSP_IDLE
+    //         }
+    //       }
+    //     })
+    //   },
+    //   stop: () => {},
+    // })
+    // return adapt(incoming$)
   }
   return mspDriver
 }
@@ -131,7 +149,7 @@ function parseMSPCommand(num)
         mspMsg.state = mspState.MSP_CHECKSUM_V2_NATIVE
       break
     case mspState.MSP_CHECKSUM_V2_NATIVE:
-      if (mspMsg.checksum == num)
+      if (mspMsg.checksum == (num & 0xFF))
         mspMsg.state = mspState.MSP_COMMAND_RECEIVED
       else
         mspMsg.state = mspState.MSP_IDLE

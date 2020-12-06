@@ -14,6 +14,8 @@ function createWindow () {
   win.webContents.openDevTools()
 }
 
+// app.allowRendererProcessReuse = false
+
 app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
