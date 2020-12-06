@@ -1,7 +1,9 @@
-"use strict"
-const adapt = require('@cycle/run/lib/adapt');
-const serialPort = require('serialport');
-const protocol = require('./protocol');
+const xs = require('xstream').default
+const { remote } = require('electron')
+const SerialPort = remote.require('serialport')
+const { adapt } = require('@cycle/run/lib/adapt')
+// const SerialPort = require('serialport')
+const protocol = require('./protocol')
 
 const mspState =
 {
@@ -30,31 +32,31 @@ const mspMsg =
   checksum: 0
 }
 
-const hexInt16 = data => [data & 0x00FF, data & 0xFF00];
+const hexInt16 = data => [data & 0x00FF, data & 0xFF00]
 
-const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0);
+const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0)
 
-const getFlag = data => data[0];
+const getFlag = data => data[0]
 
-const getCmd = data => (data[2] << 8) + data[1];
+const getCmd = data => (data[2] << 8) + data[1]
 
-const getLength = data => (data[4] << 8) + data[3];
+const getLength = data => (data[4] << 8) + data[3]
 
 function makeMspDriver(path, baudrate)
 {
-  const port = new serialPort(path, { baudRate: baudrate });
+  const port = new SerialPort(path, { baudRate: baudrate })
   function mspDriver(outgoing$)
   {
     outgoing$.addListener(
     {
       next: outgoing =>
       {
-        const cmd = command(outgoing.cmd, outgoing.payload);
-        port.write(Buffer.from(cmd));
+        const cmd = command(outgoing.cmd, outgoing.payload)
+        port.write(Buffer.from(cmd))
       },
-      error: () => {},
-      complete: () => {},
-    });
+      error: () => console.log("error"),
+      complete: () => console.log("complete"),
+    })
 
     const incoming$ = xs.create(
     {
@@ -62,30 +64,30 @@ function makeMspDriver(path, baudrate)
       {
         port.on('data', function (data)
         {
-          for (var i = 0; i < data.length; i++)
+          for (let i = 0; i < data.length; i++)
           {
-            parseMSPCommand(data.readInt8(i));
+            parseMSPCommand(data.readInt8(i))
             if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED)
             {
-              console.log("cmd " + mspMsg.cmd);
+              console.log("cmd " + mspMsg.cmd)
               listener.next(mspMsg)
-              mspMsg.state = mspState.MSP_IDLE;
+              mspMsg.state = mspState.MSP_IDLE
             }
           }
-        });
+        })
       },
       stop: () => {},
-    });
-    return adapt(incoming$);
+    })
+    return adapt(incoming$)
   }
-  return mspDriver;
+  return mspDriver
 }
 
 function command(cmd, payload)
 {
-  const flag = 0;
-  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload);
-  return [].concat(protocol.mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)]);
+  const flag = 0
+  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload)
+  return [].concat(protocol.mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
 function parseMSPCommand(num)
@@ -94,63 +96,63 @@ function parseMSPCommand(num)
   {
     case mspState.MSP_IDLE:
       if (String.fromCharCode(num) == '$')
-        mspMsg.state = mspState.MSP_HEADER_START;
-      break;
+        mspMsg.state = mspState.MSP_HEADER_START
+      break
     case mspState.MSP_HEADER_START:
-      mspMsg.buffer = [];
-      mspMsg.checksum = 0;
+      mspMsg.buffer = []
+      mspMsg.checksum = 0
       if (String.fromCharCode(num) == 'X')
-        mspMsg.state = mspState.MSP_HEADER_X;
-      break;
+        mspMsg.state = mspState.MSP_HEADER_X
+      break
     case mspState.MSP_HEADER_X:
       if (String.fromCharCode(num) == '>')
-        mspMsg.state = mspState.MSP_HEADER_V2_NATIVE;
-      break;
+        mspMsg.state = mspState.MSP_HEADER_V2_NATIVE
+      break
     case mspState.MSP_HEADER_V2_NATIVE:
-      mspMsg.buffer.push(num);
-      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num);
+      mspMsg.buffer.push(num)
+      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num)
       if (mspMsg.buffer.length == 5)
       {
-        mspMsg.flag = getFlag(mspMsg.buffer);
-        mspMsg.cmd = getCmd(mspMsg.buffer);
-        mspMsg.length = getLength(mspMsg.buffer);
-        mspMsg.buffer = [];
+        mspMsg.flag = getFlag(mspMsg.buffer)
+        mspMsg.cmd = getCmd(mspMsg.buffer)
+        mspMsg.length = getLength(mspMsg.buffer)
+        mspMsg.buffer = []
         if (mspMsg.length > 0)
-          mspMsg.state = mspState.MSP_PAYLOAD_V2_NATIVE;
+          mspMsg.state = mspState.MSP_PAYLOAD_V2_NATIVE
         else
-          mspMsg.state = mspState.MSP_CHECKSUM_V2_NATIVE;
+          mspMsg.state = mspState.MSP_CHECKSUM_V2_NATIVE
       }
-      break;
+      break
     case mspState.MSP_PAYLOAD_V2_NATIVE:
-      mspMsg.buffer.push(num);
-      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num);
-      mspMsg.length--;
+      mspMsg.buffer.push(num)
+      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num)
+      mspMsg.length--
       if (mspMsg.length == 0)
-        mspMsg.state = mspState.MSP_CHECKSUM_V2_NATIVE;
-      break;
+        mspMsg.state = mspState.MSP_CHECKSUM_V2_NATIVE
+      break
     case mspState.MSP_CHECKSUM_V2_NATIVE:
       if (mspMsg.checksum == num)
-        mspMsg.state = mspState.MSP_COMMAND_RECEIVED;
+        mspMsg.state = mspState.MSP_COMMAND_RECEIVED
       else
-        mspMsg.state = mspState.MSP_IDLE;
-      break;
+        mspMsg.state = mspState.MSP_IDLE
+      break
     default:
-      mspMsg.state = mspState.MSP_IDLE;
-      break;
+      mspMsg.state = mspState.MSP_IDLE
+      break
   }
 }
 
 function crc8_dvb_s2(crc, num)
 {
-  crc = (crc ^ num) & 0xFF;
+  crc = (crc ^ num) & 0xFF
   for (let i = 0; i < 8; ++i)
     if ((crc & 0x80) != 0)
-      crc = ((crc << 1) ^ 0xD5) & 0xFF;
+      crc = ((crc << 1) ^ 0xD5) & 0xFF
     else
-      crc = (crc << 1) & 0xFF;
-  return crc;
+      crc = (crc << 1) & 0xFF
+  return crc
 }
 
 module.exports = {
   makeMspDriver
-};
+}
