@@ -22,8 +22,29 @@ const mspMsg = {
 }
 
 const mspFunctions = [];
-mspFunctions[100] = function() {
-
+mspFunctions[1] = function(mspMsg) {
+  return "<div>" +
+    "<div>MSP_API_VERSION</div>" +
+    "<div>" + mspMsg.buffer.map(v => hexInt8(v)) + "</div>" +
+    "</div>"
+}
+mspFunctions[2] = function(mspMsg) {
+  return "<div>" +
+    "<div>MSP_FC_VARIANT</div>" +
+    "<div>" + mspMsg.buffer.reduce((s, v) => s + String.fromCharCode(v),"") + "</div>" +
+    "</div>"
+}
+mspFunctions[3] = function(mspMsg) {
+  return "<div>" +
+    "<div>MSP_FC_VERSION</div>" +
+    "<div>" + mspMsg.buffer.map(v => hexInt8(v)) + "</div>" +
+    "</div>"
+}
+mspFunctions[100] = function(mspMsg) {
+  return "<div>" +
+    "<div>MSP_IDENT</div>" +
+    "<div>" + mspMsg.buffer.map(v => hexInt8(v)) + "</div>" +
+    "</div>"
 }
 
 const hexInt = (num, width) => num.toString(16).padStart(width,"0").toUpperCase();
@@ -57,7 +78,7 @@ port.on('data', function (data) {
     parseMSPCommand(data.readInt8(i))
     if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED) {
       // console.log("SUCCESS")
-      mspOutput.innerHTML = "SUCCESS " + mspMsg.buffer.map(v => hexInt8(v))
+      mspOutput.innerHTML = "SUCCESS " + mspFunctions[mspMsg.cmd](mspMsg)
       mspMsg.state = mspState.MSP_IDLE
     }
   }
