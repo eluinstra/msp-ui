@@ -17,6 +17,8 @@
   "dependencies": {
     "@cycle/dom": "^22.8.0",
     "@cycle/run": "^5.5.0",
+    "rxjs": "^6.6.3",
+    "rxjs-compat": "^6.6.3",
     "serialport": "^9.0.2",
     "xstream": "^11.14.0"
   }

@@ -1,4 +1,6 @@
 const { remote } = require('electron')
+const { fromEvent } = require('rxjs')
+const { map, filter } = require('rxjs/operators');
 const SerialPort = remote.require('serialport')
 const protocol = require('./protocol')
 
@@ -9,7 +11,8 @@ const mspState = {
   MSP_HEADER_V2_NATIVE: "header",
   MSP_PAYLOAD_V2_NATIVE: "payload",
   MSP_CHECKSUM_V2_NATIVE: "checksum",
-  MSP_COMMAND_RECEIVED: "command received"
+  MSP_COMMAND_RECEIVED: "command received",
+  MSP_ERROR_RECEIVED: "error received"
 }
 
 const mspMsg = {
@@ -50,18 +53,24 @@ const getCmd = data => (data[2] << 8) + data[1]
 
 const getLength = data => (data[4] << 8) + data[3]
 
+function command(cmd, payload) {
+  const flag = 0
+  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload)
+  return [].concat(protocol.mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
+}
+
 const port = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 })
 
-port.on('data', function (data) {
-  for (let i = 0; i < data.length; i++) {
-    parseMSPCommand(data.readInt8(i))
-    if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED) {
-      // console.log("SUCCESS")
-      mspOutput.innerHTML = "SUCCESS " + mspMsg.buffer.map(v => hexInt8(v))
-      mspMsg.state = mspState.MSP_IDLE
-    }
-  }
-})
+// port.on('data', function (data) {
+//   for (let i = 0; i < data.length; i++) {
+//     parseMSPCommand(data.readInt8(i))
+//     if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED) {
+//       // console.log("SUCCESS")
+//       mspOutput.innerHTML = "SUCCESS " + mspMsg.buffer.map(v => hexInt8(v))
+//       mspMsg.state = mspState.MSP_IDLE
+//     }
+//   }
+// })
 
 function parseMSPCommand(num) {
   //console.log(num & 0xFF)
@@ -120,16 +129,35 @@ function parseMSPCommand(num) {
 const mspButton = document.getElementById('mspButton')
 const mspInput = document.getElementById('mspInput')
 const mspOutput = document.getElementById('mspOutput')
+const printMspResult = mspMsg => mspOutput.innerHTML = "SUCCESS " + mspMsg.buffer.map(v => hexInt8(v))
 
-function command(cmd, payload) {
-  const flag = 0
-  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload)
-  return [].concat(protocol.mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
-}
 
-mspButton.addEventListener('click', () => {
-  mspOutput.innerHTML = ""
-  const CMD = command(mspInput.value,[])
-  console.log(Buffer.from(CMD))
-  port.write(Buffer.from(CMD))
+const clickStream = fromEvent(mspButton, 'click')
+.pipe(
+  map(event => command(mspInput.value,[]))
+)
+.subscribe(val => {
+  console.log(Buffer.from(val))
+  // port.write(Buffer.from(val))
+  getMSP(val)
+  .then(printMspResult)
+  .catch(error => console.log('Error occurred: ' + error.message))
 })
+
+var getMSP = function (cmd) {
+  return new Promise(function(resolve, reject) {
+    port.on('data', function (data) {
+      for (let i = 0; i < data.length; i++) {
+        parseMSPCommand(data.readInt8(i))
+        if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED) {
+          resolve(mspMsg);
+          mspMsg.state = mspState.MSP_IDLE
+        } else if (mspMsg.state == mspState.MSP_ERROR_RECEIVED) {
+          reject(new Error('MSP error received!'));
+          mspMsg.state = mspState.MSP_IDLE
+        }
+      }
+    })
+    port.write(Buffer.from(cmd))
+  });
+};
