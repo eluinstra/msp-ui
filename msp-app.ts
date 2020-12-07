@@ -1,8 +1,8 @@
-const xs = require('xstream').default
-const { run } = require('@cycle/run')
-const {div, input, p, makeDOMDriver } = require('@cycle/dom')
-const { makeMspDriver } = require('./msp-driver')
-const protocol = require('./protocol')
+import xs from 'xstream'
+import { run } from '@cycle/run'
+import {div, input, p, makeDOMDriver } from '@cycle/dom'
+import { makeMspDriver } from './msp-driver.js'
+import { mspCMD, mspCMDHeader, mspMessageType } from './protocol.js';
 
 function main(sources) {
   const input$ =  sources.DOM.select('input').events('change')
@@ -16,7 +16,7 @@ function main(sources) {
       ])
     ),
     msp: xs.of({
-      cmd: protocol.mspCMD.MSP_IDENT,
+      cmd: mspCMD.MSP_IDENT,
       payload: []
     })
   }

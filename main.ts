@@ -1,4 +1,5 @@
-const { app, path, BrowserWindow } = require('electron')
+import { app, BrowserWindow } from 'electron'
+import path from 'path';
 
 function createWindow () {
   const win = new BrowserWindow({
@@ -9,8 +10,8 @@ function createWindow () {
       enableRemoteModule: true
     }
   })
-
-  win.loadFile('index.html')
+  const indexHTML = path.join(__dirname + '/index.html')
+  win.loadFile(indexHTML)
   win.webContents.openDevTools()
 }
 

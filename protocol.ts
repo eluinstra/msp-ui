@@ -1,4 +1,4 @@
-const mspCMD =
+export const mspCMD =
 {
   MSP_API_VERSION:   1,   //out message
   MSP_FC_VARIANT:    2,   //out message
@@ -11,16 +11,11 @@ const mspCMD =
   MSP_IDENT:       100    //out message         mixerMode + multiwii version + protocol version + capability variable
 };
 
-const mspCMDHeader = '$X<';
+export const mspCMDHeader = '$X<';
 
-const mspMessageType =
+export const mspMessageType =
 {
   OUT: "<",
   IN: ">",
   ERROR: "!"
 }
-module.exports = {
-  mspCMD,
-  mspCMDHeader,
-  mspMessageType
-};

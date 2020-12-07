@@ -1,8 +1,8 @@
-const { remote } = require('electron')
-const { fromEvent } = require('rxjs')
-const { map, filter } = require('rxjs/operators');
+import { remote } from 'electron'
 const SerialPort = remote.require('serialport')
-const protocol = require('./protocol')
+import { fromEvent } from 'rxjs'
+import { map, filter } from 'rxjs/operators'
+import { mspCMD, mspCMDHeader, mspMessageType } from './protocol.js';
 
 const mspState = {
   MSP_IDLE: "idle",
@@ -56,7 +56,7 @@ const getLength = data => (data[4] << 8) + data[3]
 function command(cmd, payload) {
   const flag = 0
   const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload)
-  return [].concat(protocol.mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
+  return [].concat(mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
 const port = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 })
@@ -134,7 +134,8 @@ const printMspResult = mspMsg => mspOutput.innerHTML = "SUCCESS " + mspMsg.buffe
 
 const clickStream = fromEvent(mspButton, 'click')
 .pipe(
-  map(event => command(mspInput.value,[]))
+  // map(event => command(mspInput["value"],[]))
+  map(event => command((mspInput as HTMLInputElement).value,[]))
 )
 .subscribe(val => {
   console.log(Buffer.from(val))

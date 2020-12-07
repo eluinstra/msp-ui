@@ -1,7 +1,5 @@
-"use strict"
-const SerialPort = require('serialport');
-const protocol = require('./protocol');
-const { FlowFlags } = require('typescript');
+import SerialPort from 'serialport';
+import {mspCMD, mspCMDHeader, mspMessageType} from './protocol';
 
 const port = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 });
 
@@ -67,7 +65,7 @@ function command(cmd, payload)
 {
   const flag = 0;
   const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload);
-  return [].concat(protocol.mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)]);
+  return [].concat(mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)]);
 }
 
 function parseMSPCommand(num)
@@ -158,7 +156,7 @@ function crc8_dvb_s2_update(crc, data, length)
   //port.write(toByteBuffer(CMD));
 }
 {
-  const CMD = command(protocol.mspCMD.MSP_IDENT,[]);
+  const CMD = command(mspCMD.MSP_IDENT,[]);
   console.log(Buffer.from(CMD));
   port.write(Buffer.from(CMD));
 }

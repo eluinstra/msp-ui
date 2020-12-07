@@ -1,6 +1,6 @@
-const { remote } = require('electron')
+import { remote } from 'electron'
 const SerialPort = remote.require('serialport')
-const protocol = require('./protocol')
+import { mspCMD, mspCMDHeader, mspMessageType } from './protocol.js';
 
 const mspState = {
   MSP_IDLE: "idle",
@@ -145,12 +145,13 @@ const mspOutput = document.getElementById('mspOutput')
 function command(cmd, payload) {
   const flag = 0
   const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload)
-  return [].concat(protocol.mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
+  return [].concat(mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
 mspButton.addEventListener('click', () => {
   mspOutput.innerHTML = ""
-  const CMD = command(mspInput.value,[])
+  // const CMD = command(mspInput["value"],[])
+  const CMD = command((mspInput as HTMLInputElement).value,[])
   console.log(Buffer.from(CMD))
   port.write(Buffer.from(CMD))
 })

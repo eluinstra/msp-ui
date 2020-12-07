@@ -1,8 +1,8 @@
-const xs = require('xstream').default
-const { remote } = require('electron')
+import xs from 'xstream'
+import { remote } from 'electron'
 const SerialPort = remote.require('serialport')
-const { adapt } = require('@cycle/run/lib/adapt')
-const protocol = require('./protocol')
+import { adapt } from '@cycle/run/lib/adapt'
+import {mspCMD, mspCMDHeader, mspMessageType} from './protocol.js';
 
 const mspState =
 {
@@ -41,7 +41,7 @@ const getCmd = data => (data[2] << 8) + data[1]
 
 const getLength = data => (data[4] << 8) + data[3]
 
-function makeMspDriver(path, baudrate)
+export function makeMspDriver(path, baudrate)
 {
   const port = new SerialPort(path, { baudRate: baudrate })
   port.on('data', function (data)
@@ -105,7 +105,7 @@ function command(cmd, payload)
 {
   const flag = 0
   const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload)
-  return [].concat(protocol.mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
+  return [].concat(mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
 function parseMSPCommand(num)
@@ -169,8 +169,4 @@ function crc8_dvb_s2(crc, num)
     else
       crc = (crc << 1) & 0xFF
   return crc
-}
-
-module.exports = {
-  makeMspDriver
 }
