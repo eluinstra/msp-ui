@@ -5,7 +5,7 @@ import { map, filter } from 'rxjs/operators'
 import { mspMsg, mspState, port, command, parseMSPCommand } from './msp.js'
 import { mspOutputFunctions } from './msp-view.js'
 
-const clearMspResult = () => ReactDOM.render(<div></div>,document.querySelector('#mspOutput'))
+const clearMspResult = () => ReactDOM.render(<div/>,document.querySelector('#mspOutput'))
 const printMspResult = mspMsg => ReactDOM.render(mspOutputFunctions[mspMsg.cmd](mspMsg),document.querySelector('#mspOutput'))
 
 const click$ = fromEvent(document.getElementById('mspButton'), 'click')
@@ -14,11 +14,10 @@ const click$ = fromEvent(document.getElementById('mspButton'), 'click')
     map(event => command((document.getElementById('mspInput') as HTMLInputElement).value,[])))
   .subscribe(val => {
     clearMspResult()
-    console.log(Buffer.from(val))
     port.write(Buffer.from(val))
   })
 
-var mspObservable = new Subject();
+const mspObservable = new Subject();
 mspObservable.subscribe(printMspResult)
 
 port.on('data', function (data) {
