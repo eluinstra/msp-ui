@@ -1,3 +1,4 @@
+import React from 'react'
 import { mspCMD } from './protocol.js'
 
 const hexInt = (num, width) => num.toString(16).padStart(width,"0").toUpperCase();

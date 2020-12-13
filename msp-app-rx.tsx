@@ -1,14 +1,12 @@
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { fromEvent, Subject } from 'rxjs'
 import { map, filter } from 'rxjs/operators'
 import { mspMsg, mspState, port, command, parseMSPCommand } from './msp.js'
-// import { mspOutputFunctions } from './msp-view.jsx'
+import { mspOutputFunctions } from './msp-view.js'
 
-const hexInt = (num, width) => num.toString(16).padStart(width,"0").toUpperCase();
-const hexInt8 = num => hexInt(num & 0xFF,2);
-
-const clearMspResult = () => document.getElementById('mspOutput').innerHTML = ""
-const printMspResult = mspMsg => document.getElementById('mspOutput').innerHTML = "SUCCESS " + mspMsg.buffer.map(v => hexInt8(v))
-// const printMspResult = mspMsg => document.getElementById('mspOutput').innerHTML = "SUCCESS " + mspOutputFunctions[mspMsg.cmd](mspMsg)
+const clearMspResult = () => ReactDOM.render(<div></div>,document.querySelector('#mspOutput'))
+const printMspResult = mspMsg => ReactDOM.render(mspOutputFunctions[mspMsg.cmd](mspMsg),document.querySelector('#mspOutput'))
 
 const click$ = fromEvent(document.getElementById('mspButton'), 'click')
   .pipe(
