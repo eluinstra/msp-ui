@@ -5,13 +5,15 @@ import { makeMspDriver } from './msp-driver.js'
 import { mspCMD, mspCMDHeader, mspMessageType } from './protocol.js';
 
 function main(sources) {
-  const input$ =  sources.DOM.select('input').events('change')
-  .map(ev => ev.target.checked)
-  .startWith(false)
+  const input$ = sources.DOM.select('input').events('change')
+    .map(ev => ev.target.checked)
+    .startWith(false)
+  const cmd$ = sources.DOM.select('mspButton').events('click')
+    .startWith({})
   const sinks = {
     DOM: input$.map(toggled =>
       div([
-        input({attrs: {type: 'checkbox'}}), 'Toggle me',
+        input({attrs: {id: 'toggle', type: 'checkbox'}}), 'Toggle me',
         p(toggled ? 'ON' : 'off')
       ])
     ),

@@ -10,7 +10,6 @@
     We are using node <script>document.write(process.versions.node)</script>,
     Chrome <script>document.write(process.versions.chrome)</script>,
     and Electron <script>document.write(process.versions.electron)</script>.
-    <button class="alert">Current Directory</button>
     <div id="app"></div>
     <select id="mspInput">
         <option value="100">MSP_IDENT</option>
@@ -22,7 +21,6 @@
     <div id="mspOutput"/>
 </body>
 <script>
-    //require('./renderer.js');
-    require('./msp-app-s.js');
+    require('./msp-app-rx.js');
 </script>
 </html>
