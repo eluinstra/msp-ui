@@ -25,7 +25,7 @@ export const mspMsg = {
 const hexInt16 = data => [data & 0x00FF, data & 0xFF00]
 
 const getFlag = data => data[0]
-
+ 
 const getCmd = data => (data[2] << 8) + data[1]
 
 const getLength = data => (data[4] << 8) + data[3]
@@ -42,7 +42,7 @@ function crc8_dvb_s2(crc, num) {
   return crc
 }
 
-export const port = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 })
+export const serialPort = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 })
 
 export function command(cmd, payload) {
   const flag = 0

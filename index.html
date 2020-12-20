@@ -2,25 +2,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>MSP UI</title>
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
     </head>
 <body>
-    <h1>Hello World!</h1>
-    We are using node <script>document.write(process.versions.node)</script>,
-    Chrome <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
     <div id="app"></div>
-    <select id="mspInput">
-        <option value="100">MSP_IDENT</option>
-        <option value="1">MSP_API_VERSION</option>
-        <option value="2">MSP_FC_VARIANT</option>
-        <option value="3">MSP_FC_VERSION</option>
-    </select>
-    <button id="mspButton">MSP Go</button>
-    <div id="mspOutput"/>
 </body>
 <script>
-    require('./msp-app-rx.js');
+    require('./msp-app.js');
 </script>
 </html>
