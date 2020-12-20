@@ -10,7 +10,7 @@ import { Home } from './home'
 import { MSP } from './msp'
 import { About } from './about'
 
-export default function App() {
+export const App = () => {
   return (
     <Router>
       <div>
@@ -43,4 +43,4 @@ export default function App() {
   );
 }
 
-ReactDOM.render(<App />,document.querySelector('#app'))
+ReactDOM.render(<App />, document.querySelector('#app'))

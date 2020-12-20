@@ -5,7 +5,7 @@ import { useObservable } from './rx-tools'
 import { serialPort, command, mspCmdResponse$, mspMsg } from './msp-driver'
 import { mspOutputFunctions } from './msp-view'
 import { MspCmd } from './msp-protocol';
-import { Button } from '@material-ui/core';
+import { Button, NativeSelect } from '@material-ui/core';
 
 export const MspComponent = (props) => {
   const mspOutput = useObservable(mspCmdResponse$
@@ -24,13 +24,12 @@ export const MspComponent = (props) => {
     return () => sub.unsubscribe()
   });
   return <div>
-    <select id="mspInput">
-      {Object.keys(MspCmd).map(key =>
-        <option key={MspCmd[key]} value={MspCmd[key]}>{key}</option>
-      )}
-    </select>
-    <Button id="mspButton" color="primary">MSP Go</Button>
-    {/* <button id="mspButton">MSP Go</button> */}
-    <div>{mspOutput}</div>
-  </div> 
+      <NativeSelect id="mspInput">
+        {Object.keys(MspCmd).map(key =>
+          <option key={MspCmd[key]} value={MspCmd[key]}>{key}</option>
+        )}
+      </NativeSelect>
+      <Button id="mspButton" color="primary">MSP Go</Button>
+      <div>{mspOutput}</div>
+    </div> 
 }
