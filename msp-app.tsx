@@ -4,6 +4,7 @@ import { fromEvent, Subject } from 'rxjs'
 import { map, filter } from 'rxjs/operators'
 import { mspMsg, mspState, serialPort, command, parseMSPCommand } from './msp.js'
 import { mspOutputFunctions } from './msp-view.js'
+import { MspCmd } from './protocol';
 
 const renderMspComponent = () => ReactDOM.render(<MspComponent />,document.querySelector('#app'))
 const clearMspResult = () => ReactDOM.render(<div/>,document.querySelector('#mspOutput'))
@@ -23,10 +24,9 @@ const MspComponent = (props) => {
   });
   return <div>
     <select id="mspInput">
-      <option value="100">MSP_IDENT</option>
-      <option value="1">MSP_API_VERSION</option>
-      <option value="2">MSP_FC_VARIANT</option>
-      <option value="3">MSP_FC_VERSION</option>
+      {Object.keys(MspCmd).map(key =>
+        <option key={MspCmd[key]} value={MspCmd[key]}>{key}</option>
+      )}
     </select>
     <button id="mspButton">MSP Go</button>
     <div id="mspOutput"/>

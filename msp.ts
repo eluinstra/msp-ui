@@ -1,6 +1,6 @@
 import { remote } from 'electron'
 const SerialPort = remote.require('serialport')
-import { mspCMDHeader } from './protocol';
+import { mspCmdHeader } from './protocol';
 
 export const mspState = {
   MSP_IDLE: 0,
@@ -47,7 +47,7 @@ export const serialPort = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 })
 export function command(cmd, payload) {
   const flag = 0
   const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload)
-  return [].concat(mspCMDHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
+  return [].concat(mspCmdHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
 export function parseMSPCommand(num) {
