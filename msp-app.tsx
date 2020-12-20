@@ -7,8 +7,6 @@ import { mspOutputFunctions } from './msp-view.js'
 import { MspCmd } from './protocol';
 
 const renderMspComponent = () => ReactDOM.render(<MspComponent />,document.querySelector('#app'))
-const clearMspResult = () => ReactDOM.render(<div/>,document.querySelector('#mspOutput'))
-const printMspResult = mspMsg => ReactDOM.render(mspOutputFunctions[mspMsg.cmd](mspMsg),document.querySelector('#mspOutput'))
 
 const useObservable = observable => {
   const [state, setState] = useState();
@@ -20,9 +18,9 @@ const useObservable = observable => {
 };
 
 const MspComponent = (props) => {
-  //const mspOutput = useObservable(mspCmdResponse$.pipe(startWith("")))
-  const [mspOutput, setMspOutput] = useState(<div/>);
-
+  const mspOutput = useObservable(mspCmdResponse$
+    .pipe(
+      map(mspMsg  => mspOutputFunctions[mspMsg['cmd']](mspMsg))))
   useEffect(() => {
     const mspButton = document.getElementById('mspButton')
     const mspInput = document.getElementById('mspInput')
@@ -31,17 +29,9 @@ const MspComponent = (props) => {
         map(event => command(mspInput["value"],[])))
     const sub = click$
       .subscribe(val => {
-        setMspOutput(<div/>)
         serialPort.write(Buffer.from(val))
       })
-    const sub1 = mspCmdResponse$
-      .pipe(
-        map(mspMsg  => mspOutputFunctions[mspMsg['cmd']](mspMsg)))
-      .subscribe(setMspOutput);
-    return () => {
-      sub.unsubscribe()
-      sub1.unsubscribe()
-    }
+    return () => sub.unsubscribe()
   });
   return <div>
     <select id="mspInput">
@@ -50,11 +40,8 @@ const MspComponent = (props) => {
       )}
     </select>
     <button id="mspButton">MSP Go</button>
-    {/* <div id="mspOutput"/> */}
-    <div id="mspOutput">{mspOutput}</div>
+    <div>{mspOutput}</div>
   </div> 
 }
-
-//mspCmdResponse$.subscribe(printMspResult)
 
 renderMspComponent()
