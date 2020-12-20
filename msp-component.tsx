@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import ReactDOM from 'react-dom'
 import { fromEvent, Subject } from 'rxjs'
 import { map, filter, startWith } from 'rxjs/operators'
-import { serialPort, command, mspCmdResponse$, mspMsg } from './msp.js'
-import { mspOutputFunctions } from './msp-view.js'
-import { MspCmd } from './protocol';
+import { useObservable } from './rx-tools'
+import { serialPort, command, mspCmdResponse$, mspMsg } from './msp-driver'
+import { mspOutputFunctions } from './msp-view'
+import { MspCmd } from './msp-protocol';
 
-const renderMspComponent = () => ReactDOM.render(<MspComponent />,document.querySelector('#app'))
-
-const useObservable = observable => {
-  const [state, setState] = useState();
-  useEffect(() => {
-    const sub = observable.subscribe(setState);
-    return () => sub.unsubscribe();
-  }, [observable]);
-  return state;
-};
-
-const MspComponent = (props) => {
+export const MspComponent = (props) => {
   const mspOutput = useObservable(mspCmdResponse$
     .pipe(
       map(mspMsg  => mspOutputFunctions[mspMsg['cmd']](mspMsg))))
@@ -43,5 +32,3 @@ const MspComponent = (props) => {
     <div>{mspOutput}</div>
   </div> 
 }
-
-renderMspComponent()

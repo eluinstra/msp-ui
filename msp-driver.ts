@@ -1,7 +1,7 @@
 import { remote } from 'electron'
 import { fromEvent, Subject } from 'rxjs'
 const SerialPort = remote.require('serialport')
-import { mspCmdHeader } from './protocol';
+import { mspCmdHeader } from './msp-protocol';
 
 export const mspState = {
   MSP_IDLE: 0,
