@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import { fromEvent, Subject } from 'rxjs'
-import { map, filter } from 'rxjs/operators'
-import { mspMsg, mspState, serialPort, command, parseMSPCommand } from './msp.js'
+import { map, filter, startWith } from 'rxjs/operators'
+import { serialPort, command, mspCmdResponse$, mspMsg } from './msp.js'
 import { mspOutputFunctions } from './msp-view.js'
 import { MspCmd } from './protocol';
 
@@ -10,17 +10,38 @@ const renderMspComponent = () => ReactDOM.render(<MspComponent />,document.query
 const clearMspResult = () => ReactDOM.render(<div/>,document.querySelector('#mspOutput'))
 const printMspResult = mspMsg => ReactDOM.render(mspOutputFunctions[mspMsg.cmd](mspMsg),document.querySelector('#mspOutput'))
 
-const MspComponent = (props) => {
+const useObservable = observable => {
+  const [state, setState] = useState();
   useEffect(() => {
-    const subscription = fromEvent(document.getElementById('mspButton'), 'click')
-    .pipe(
-      // map(event => command(mspInput["value"],[]))
-      map(event => command((document.getElementById('mspInput') as HTMLInputElement).value,[])))
-    .subscribe(val => {
-      clearMspResult()
-      serialPort.write(Buffer.from(val))
-    })
-    return () => subscription.unsubscribe()
+    const sub = observable.subscribe(setState);
+    return () => sub.unsubscribe();
+  }, [observable]);
+  return state;
+};
+
+const MspComponent = (props) => {
+  //const mspOutput = useObservable(mspCmdResponse$.pipe(startWith("")))
+  const [mspOutput, setMspOutput] = useState(<div/>);
+
+  useEffect(() => {
+    const mspButton = document.getElementById('mspButton')
+    const mspInput = document.getElementById('mspInput')
+    const click$ = fromEvent(mspButton, 'click')
+      .pipe(
+        map(event => command(mspInput["value"],[])))
+    const sub = click$
+      .subscribe(val => {
+        setMspOutput(<div/>)
+        serialPort.write(Buffer.from(val))
+      })
+    const sub1 = mspCmdResponse$
+      .pipe(
+        map(mspMsg  => mspOutputFunctions[mspMsg['cmd']](mspMsg)))
+      .subscribe(setMspOutput);
+    return () => {
+      sub.unsubscribe()
+      sub1.unsubscribe()
+    }
   });
   return <div>
     <select id="mspInput">
@@ -29,24 +50,11 @@ const MspComponent = (props) => {
       )}
     </select>
     <button id="mspButton">MSP Go</button>
-    <div id="mspOutput"/>
+    {/* <div id="mspOutput"/> */}
+    <div id="mspOutput">{mspOutput}</div>
   </div> 
 }
 
-const mspCmdObservable = new Subject();
-mspCmdObservable.subscribe(printMspResult)
-
-serialPort.on('data', function (data) {
-  for (let i = 0; i < data.length; i++) {
-    parseMSPCommand(data.readInt8(i))
-    if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED) {
-      mspCmdObservable.next(mspMsg)
-      mspMsg.state = mspState.MSP_IDLE
-    } else if (mspMsg.state == mspState.MSP_ERROR_RECEIVED) {
-      mspCmdObservable.error(new Error('MSP error received!'))
-      mspMsg.state = mspState.MSP_IDLE
-    }
-  }
-})
+//mspCmdResponse$.subscribe(printMspResult)
 
 renderMspComponent()

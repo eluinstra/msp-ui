@@ -1,4 +1,5 @@
 import { remote } from 'electron'
+import { fromEvent, Subject } from 'rxjs'
 const SerialPort = remote.require('serialport')
 import { mspCmdHeader } from './protocol';
 
@@ -50,7 +51,21 @@ export function command(cmd, payload) {
   return [].concat(mspCmdHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
-export function parseMSPCommand(num) {
+export const mspCmdResponse$ = new Subject();
+serialPort.on('data', function (data) {
+  for (let i = 0; i < data.length; i++) {
+    parseMSPCommand(data.readInt8(i))
+    if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED) {
+      mspCmdResponse$.next(mspMsg)
+      mspMsg.state = mspState.MSP_IDLE
+    } else if (mspMsg.state == mspState.MSP_ERROR_RECEIVED) {
+      mspCmdResponse$.error(new Error('MSP error received!'))
+      mspMsg.state = mspState.MSP_IDLE
+    }
+  }
+})
+
+function parseMSPCommand(num) {
   //console.log(num & 0xFF)
   //console.log(hexInt8(num & 0xFF))
   switch (mspMsg.state) {
