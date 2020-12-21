@@ -10,9 +10,9 @@ const createWindow = () => {
       enableRemoteModule: true
     }
   })
-  const indexHTML = path.join(__dirname + '/index.html')
+  const indexHTML = path.join('index.html')
   win.loadFile(indexHTML)
-  //win.webContents.openDevTools()
+  win.webContents.openDevTools()
 }
 
 // app.allowRendererProcessReuse = false
