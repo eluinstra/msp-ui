@@ -10,6 +10,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@types/serialport": "^8.0.1",
     "electron": "^11.0.0",
     "electron-rebuild": "^2.3.4",
     "html-webpack-plugin": "^4.5.0",
