@@ -42,5 +42,3 @@ export const App = () => {
     </Router>
   );
 }
-
-//ReactDOM.render(<App />, document.querySelector('#app'))
