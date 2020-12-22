@@ -15,7 +15,12 @@ const electronConfiguration = {
     rules: [{
       test: /\.ts$/,
       include: /src/,
-      use: [{ loader: 'ts-loader' }]
+      use: [{ 
+        loader: 'ts-loader',
+        options: {
+          transpileOnly: true
+        }
+      }]
     }]
   },
   output: {
@@ -40,7 +45,12 @@ const reactConfiguration = {
       {
         test: /\.ts(x?)$/,
         include: /src/,
-        use: [{ loader: 'ts-loader' }]
+        use: [{
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true
+          }
+        }]
       }
     ]
   },
