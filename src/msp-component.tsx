@@ -33,7 +33,7 @@ export const MspComponent = (props) => {
           <option key={MspCmd[key]} value={MspCmd[key]}>{key}</option>
         )}
       </NativeSelect>
-      <Button id="mspButton" variant="contained">MSP Go</Button>
+      <Button id="mspButton" variant="contained" color="secondary">MSP Go</Button>
       <div>{mspOutput}</div>
     </div> 
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { makeStyles } from '@material-ui/core/styles'
+import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Divider, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
 import HomeTwoToneIcon from '@material-ui/icons/HomeTwoTone';
 import SettingsApplicationsTwoToneIcon from '@material-ui/icons/SettingsApplicationsTwoTone';
@@ -16,6 +16,19 @@ import { MSP } from './msp'
 import { About } from './about'
 
 const drawerWidth = 240;
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      light: '#4a6572',
+      main: '#344955',
+      dark: '#232f34'
+    },
+    secondary: {
+      main: '#f9aa33'
+    }
+  }
+});
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,44 +66,46 @@ export const App = () => {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar position="fixed" className={classes.appBar}>
-        <Toolbar>
-          <Typography variant="h6" noWrap>
-            MSP
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Router>
-        <Drawer
-          className={classes.drawer}
-          variant="permanent"
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-        >
-          <Toolbar />
-          <div className={classes.drawerContainer}>
-            <List>
-              <MyMenuItem text="Home" to="/" icon={<HomeTwoToneIcon />} />
-              <MyMenuItem text="MSP" to="/msp" icon={<SettingsApplicationsTwoToneIcon />} />
-              <MyMenuItem text="About" to="/about" icon={<InfoTwoToneIcon />} />
-            </List>
-          </div>
-        </Drawer>
-        <main className={classes.content}>
-          <Switch>
-            <Route path="/msp">
-              <MSP />
-            </Route>
-            <Route path="/about">
-              <About />
-            </Route>
-            <Route path="/">
-              <Home />
-            </Route>
-          </Switch>
-        </main>
-      </Router>
+      <ThemeProvider theme={theme}>
+        <AppBar position="fixed" className={classes.appBar}>
+          <Toolbar>
+            <Typography variant="h6" noWrap>
+              MSP
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Router>
+          <Drawer
+            className={classes.drawer}
+            variant="permanent"
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+          >
+            <Toolbar />
+            <div className={classes.drawerContainer}>
+              <List>
+                <MyMenuItem text="Home" to="/" icon={<HomeTwoToneIcon />} />
+                <MyMenuItem text="MSP" to="/msp" icon={<SettingsApplicationsTwoToneIcon />} />
+                <MyMenuItem text="About" to="/about" icon={<InfoTwoToneIcon />} />
+              </List>
+            </div>
+          </Drawer>
+          <main className={classes.content}>
+            <Switch>
+              <Route path="/msp">
+                <MSP />
+              </Route>
+              <Route path="/about">
+                <About />
+              </Route>
+              <Route path="/">
+                <Home />
+              </Route>
+            </Switch>
+          </main>
+        </Router>
+      </ThemeProvider>
     </div>
   )
 }
