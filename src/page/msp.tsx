@@ -1,5 +1,5 @@
 import React from 'react'
-import { MspComponent } from './msp-component'
+import { MspComponent } from '@/component/msp/msp-component'
 
 export const MSP = () => {
   return <React.Fragment>

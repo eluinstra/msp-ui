@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { fromEvent, Subject } from 'rxjs'
 import { map, filter, tap, startWith } from 'rxjs/operators'
-import { useObservable } from './rx-tools'
-import { serialPort, command, mspCmdResponse$, mspMsg } from './msp-driver'
-import { mspOutputFunctions } from './msp-view'
-import { MspCmd } from './msp-protocol';
+import { useObservable } from '@/common/rx-tools'
+import { serialPort, command, mspCmdResponse$, mspMsg } from '@/component/msp/msp-driver'
+import { mspOutputFunctions } from '@/component/msp/msp-view'
+import { MspCmd } from '@/component/msp/msp-protocol';
 import { Button, NativeSelect } from '@material-ui/core';
 
 export const MspComponent = (props) => {
@@ -26,7 +26,7 @@ export const MspComponent = (props) => {
       })
     return () => sub.unsubscribe()
   });
-  return <div>
+  return <React.Fragment>
       <NativeSelect id="mspInput">
         <option aria-label="None" value="">None</option>
         {Object.keys(MspCmd).map(key =>
@@ -35,5 +35,5 @@ export const MspComponent = (props) => {
       </NativeSelect>
       <Button id="mspButton" variant="contained" color="secondary">MSP Go</Button>
       <div>{mspOutput}</div>
-    </div> 
+    </React.Fragment>
 }

@@ -2,18 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Divider, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
-import HomeIcon from '@material-ui/icons/Home';
-import SettingsIcon from '@material-ui/icons/Settings';
-import InfoIcon from '@material-ui/icons/Info';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
-} from 'react-router-dom'
-import { Home } from './home'
-import { MSP } from './msp'
-import { About } from './about'
+import { Home as HomeIcon, Info as InfoIcon, List as ListIcon, Settings as SettingsIcon } from '@material-ui/icons';
+import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
+import { Home } from '@/page/home'
+import { MSP } from '@/page/msp'
+import { Ports } from '@/page/ports'
+import { About } from '@/page/about'
 
 const drawerWidth = 240;
 
@@ -53,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MyMenuItem = (props) => {
+const MenuListItem = (props) => {
   return <ListItem button key={props.text} component={Link} to={props.to}>
       <ListItemIcon>{props.icon}</ListItemIcon>
       <ListItemText primary={props.text} />
@@ -62,7 +56,6 @@ const MyMenuItem = (props) => {
 
 export const App = () => {
   const classes = useStyles();
-
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -79,22 +72,27 @@ export const App = () => {
             className={classes.drawer}
             variant="permanent"
             classes={{
-              paper: classes.drawerPaper,
+              paper: classes.drawerPaper
             }}
           >
             <Toolbar />
             <div className={classes.drawerContainer}>
               <List>
-                <MyMenuItem text="Home" to="/" icon={<HomeIcon />} />
-                <MyMenuItem text="MSP" to="/msp" icon={<SettingsIcon />} />
-                <MyMenuItem text="About" to="/about" icon={<InfoIcon />} />
+                <MenuListItem text="Home" to="/" icon={<HomeIcon />} />
+                <MenuListItem text="MSP" to="/msp" icon={<SettingsIcon />} />
+                <MenuListItem text="Ports" to="/ports" icon={<ListIcon />} />
+                <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
               </List>
             </div>
           </Drawer>
           <main className={classes.content}>
+            <Toolbar />
             <Switch>
               <Route path="/msp">
                 <MSP />
+              </Route>
+              <Route path="/ports">
+                <Ports />
               </Route>
               <Route path="/about">
                 <About />

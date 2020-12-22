@@ -1,5 +1,5 @@
 import React from 'react'
-import { MspCmd } from './msp-protocol'
+import { MspCmd } from '@/component/msp/msp-protocol'
 
 const hexInt = (num, width) => num.toString(16).padStart(width,"0").toUpperCase();
 const hexInt8 = num => hexInt(num & 0xFF, 2);
