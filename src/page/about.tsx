@@ -1,7 +1,6 @@
 import { remote } from 'electron'
 import React from 'react'
 import { Paper, Typography } from '@material-ui/core'
-const SerialPort = remote.require('serialport')
 
 const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1)
 
