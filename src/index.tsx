@@ -2,9 +2,9 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Divider, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
-import HomeTwoToneIcon from '@material-ui/icons/HomeTwoTone';
-import SettingsApplicationsTwoToneIcon from '@material-ui/icons/SettingsApplicationsTwoTone';
-import InfoTwoToneIcon from '@material-ui/icons/InfoTwoTone';
+import HomeIcon from '@material-ui/icons/Home';
+import SettingsIcon from '@material-ui/icons/Settings';
+import InfoIcon from '@material-ui/icons/Info';
 import {
   BrowserRouter as Router,
   Switch,
@@ -85,9 +85,9 @@ export const App = () => {
             <Toolbar />
             <div className={classes.drawerContainer}>
               <List>
-                <MyMenuItem text="Home" to="/" icon={<HomeTwoToneIcon />} />
-                <MyMenuItem text="MSP" to="/msp" icon={<SettingsApplicationsTwoToneIcon />} />
-                <MyMenuItem text="About" to="/about" icon={<InfoTwoToneIcon />} />
+                <MyMenuItem text="Home" to="/" icon={<HomeIcon />} />
+                <MyMenuItem text="MSP" to="/msp" icon={<SettingsIcon />} />
+                <MyMenuItem text="About" to="/about" icon={<InfoIcon />} />
               </List>
             </div>
           </Drawer>
