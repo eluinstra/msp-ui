@@ -4,7 +4,7 @@ import path from 'path';
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 1400,
-    height: 700,
+    height: 900,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true
