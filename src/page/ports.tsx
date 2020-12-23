@@ -8,37 +8,58 @@ import { makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHe
 const SerialPort = remote.require('serialport')
 
 const useStyles = makeStyles({
-  table: {
-    minWidth: 650,
-  },
-});
+  tableRow: {
+    "&.MuiTableRow-head": {
+      "& > .MuiTableCell-head": {
+        fontWeight: "bold"
+      }
+    }
+  }
+  });
 
 export const Ports = () => {
   const classes = useStyles();
   const ports$ = from(SerialPort.list())
-  const output = useObservable(ports$
+  const portInfo = useObservable(ports$
     .pipe(
       map(p => (p as PortInfo[])
         .filter(o => o.manufacturer != undefined)
-        .map(o => <TableCell>{o.path}</TableCell>))
+        .map(o => <TableRow key={o.path}>
+            <TableCell component="th" scope="row">{o.path}</TableCell>
+            <TableCell>{o.manufacturer}</TableCell>
+            <TableCell>{o.serialNumber}</TableCell>
+            <TableCell>{o.pnpId}</TableCell>
+            <TableCell>{o.locationId}</TableCell>
+            <TableCell>{o.productId}</TableCell>
+            <TableCell>{o.vendorId}</TableCell>
+          </TableRow>))
     ))
   return <React.Fragment>
       <h2>Ports</h2>
       <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="simple table">
+        <Table size="small">
           <TableHead>
-            <TableRow>
+            <TableRow className={classes.tableRow}>
               <TableCell>path</TableCell>
-              {/* <TableCell>manufacturer</TableCell>
+              <TableCell>manufacturer</TableCell>
               <TableCell>serialNumber</TableCell>
               <TableCell>pnpId</TableCell>
               <TableCell>locationId</TableCell>
               <TableCell>productId</TableCell>
-              <TableCell>vendorId</TableCell> */}
+              <TableCell>vendorId</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {output}
+            {/* {rows.map(o => <TableRow key={o.path}>
+              <TableCell component="th" scope="row">{o.path}</TableCell>
+              <TableCell>{o.manufacturer}</TableCell>
+              <TableCell>{o.serialNumber}</TableCell>
+              <TableCell>{o.pnpId}</TableCell>
+              <TableCell>{o.locationId}</TableCell>
+              <TableCell>{o.productId}</TableCell>
+              <TableCell>{o.vendorId}</TableCell>
+            </TableRow>)} */}
+            {portInfo}
           </TableBody>
         </Table>
       </TableContainer>
