@@ -15,7 +15,7 @@ const useStyles = makeStyles({
       }
     }
   }
-  });
+});
 
 export const Ports = () => {
   const classes = useStyles();
@@ -27,7 +27,7 @@ export const Ports = () => {
         .filter(o => o.manufacturer != undefined)
         .map(o =>
           <TableRow key={o.path}>
-            <TableCell component="th" scope="row">{o.path}</TableCell>
+            <TableCell>{o.path}</TableCell>
             <TableCell>{o.manufacturer}</TableCell>
             <TableCell>{o.serialNumber}</TableCell>
             <TableCell>{o.pnpId}</TableCell>

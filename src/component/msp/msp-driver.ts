@@ -1,7 +1,6 @@
-import { remote } from 'electron'
 import { fromEvent, Subject } from 'rxjs'
-const SerialPort = remote.require('serialport')
 import { mspCmdHeader } from '@/component/msp/msp-protocol';
+import { serialPort } from '../serialport/serialport-driver';
 
 export enum MspState {
   MSP_IDLE,
@@ -52,23 +51,25 @@ function crc8_dvb_s2(crc, num) {
   return crc
 }
 
-export const serialPort = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 })
-
-export function command(cmd, payload) {
+function command(cmd, payload) {
   const flag = 0
   const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload)
   return [].concat(mspCmdHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
-export const mspCmdResponse$ = new Subject();
+export const mspRequest = (cmd, payload) => {
+  serialPort.write(Buffer.from(command(cmd, payload)))
+}
+
+export const mspResponse$ = new Subject();
 serialPort.on('data', function (data) {
   for (let i = 0; i < data.length; i++) {
     parseMSPCommand(data.readInt8(i))
     if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
-      mspCmdResponse$.next(mspMsg)
+      mspResponse$.next(mspMsg)
       mspMsg.state = MspState.MSP_IDLE
     } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
-      mspCmdResponse$.error(new Error('MSP error received!'))
+      mspResponse$.error(new Error('MSP error received!'))
       mspMsg.state = MspState.MSP_IDLE
     }
   }

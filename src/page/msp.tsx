@@ -1,11 +1,11 @@
 import React from 'react'
-import { MspComponent } from '@/component/msp/msp-component'
+import { MspInput } from '@/component/msp/msp-input'
 
 export const MSP = () => {
   return (
     <React.Fragment>
       <h2>MSP</h2>
-      <MspComponent />
+      <MspInput />
     </React.Fragment>
   )
 }

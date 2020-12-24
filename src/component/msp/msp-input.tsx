@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { fromEvent, Subject } from 'rxjs'
 import { map, filter, tap, startWith } from 'rxjs/operators'
 import { useObservable } from '@/common/rx-tools'
-import { serialPort, command, mspCmdResponse$, MspMsg } from '@/component/msp/msp-driver'
+import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/msp-driver'
 import { mspOutputFunctions } from '@/component/msp/msp-view'
 import { MspCmd } from '@/component/msp/msp-protocol';
 import { Button, NativeSelect } from '@material-ui/core';
 
-export const MspComponent = (props) => {
-  const mspOutput = useObservable(mspCmdResponse$
+export const MspInput = props => {
+  const mspOutput = useObservable(mspResponse$
     .pipe(
       map(mspMsg  => mspOutputFunctions[(mspMsg as MspMsg).cmd](mspMsg))))
   useEffect(() => {
@@ -17,12 +17,11 @@ export const MspComponent = (props) => {
     const click$ = fromEvent(mspButton, 'click')
       .pipe(
         map(event => (mspInput as HTMLInputElement).value),
-        filter(value => value != ""),
-        map(value => command(value,[]))
+        filter(value => value != "")
       )
     const sub = click$
       .subscribe(val => {
-        serialPort.write(Buffer.from(val))
+        mspRequest(val,[])
       })
     return () => sub.unsubscribe()
   });
