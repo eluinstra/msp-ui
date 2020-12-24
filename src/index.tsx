@@ -5,12 +5,13 @@ import { AppBar, CssBaseline, Divider, Drawer, IconButton, List, ListItem, ListI
 import { BatteryStd as BatteryStdIcon, Build as BuildIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Settings as SettingsIcon, SettingsInputHdmi as SettingsInputHdmiIcon } from '@material-ui/icons';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { About } from '@/page/about'
-import { Configuration } from './page/configuration';
+import { Configuration } from '@/page/configuration';
 import { Home } from '@/page/home'
 import { MSP } from '@/page/msp'
 import { Ports } from '@/page/ports'
-import { Settings } from './page/settings';
-import { Power } from './page/power';
+import { Settings } from '@/page/settings';
+import { Power } from '@/page/power';
+import { SerialPortInput } from '@/component/serialport/serialport-input';
 
 const drawerWidth = 240;
 
@@ -86,6 +87,7 @@ const MSPAppBar = props => {
         <Typography variant="h6" className={props.classes.title}>
           MSP
         </Typography>
+        <SerialPortInput />
         <IconButton
           aria-controls="menu-appbar"
           aria-haspopup="true"

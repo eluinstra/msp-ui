@@ -1,11 +1,10 @@
-import { remote } from 'electron'
 import React from 'react'
 import { from, Observable, Subject } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { PortInfo } from 'serialport';
 import { useObservable } from '@/common/rx-tools';
 import { makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
-const SerialPort = remote.require('serialport')
+import { portInfo$ } from '@/component/serialport/serialport-driver';
 
 const useStyles = makeStyles({
   tableRow: {
@@ -19,8 +18,7 @@ const useStyles = makeStyles({
 
 export const Ports = () => {
   const classes = useStyles();
-  const ports$ = from(SerialPort.list() as Promise<PortInfo[]>)
-  const portInfo = useObservable(ports$
+  const portInfo = useObservable(portInfo$()
     .pipe(
       // startWith([]),
       map(p => (p as PortInfo[])
@@ -35,7 +33,7 @@ export const Ports = () => {
             <TableCell>{o.productId}</TableCell>
             <TableCell>{o.vendorId}</TableCell>
           </TableRow>)
-    )))
+  )))
   return (
     <React.Fragment>
       <h2>Ports</h2>

@@ -4,8 +4,8 @@ import { map, filter, tap, startWith } from 'rxjs/operators'
 import { useObservable } from '@/common/rx-tools'
 import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/msp-driver'
 import { mspOutputFunctions } from '@/component/msp/msp-view'
-import { MspCmd } from '@/component/msp/msp-protocol';
-import { Button, NativeSelect } from '@material-ui/core';
+import { MspCmd } from '@/component/msp/msp-protocol'
+import { Button, NativeSelect } from '@material-ui/core'
 
 export const MspInput = props => {
   const mspOutput = useObservable(mspResponse$
