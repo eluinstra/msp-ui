@@ -7,15 +7,19 @@ const hexInt8 = num => hexInt(num & 0xFF, 2);
 export const mspOutputFunctions = [];
 
 const renderDefault = mspMsg => {
-  return <div>
+  return (
+    <div>
       <div>{mspMsg.buffer.map(v => hexInt8(v))}</div>
     </div>
+  )
 }
 
 const renderString = mspMsg => {
-  return <div>
+  return (
+    <div>
       <div>{mspMsg.buffer.filter(n => n != 0).reduce((s, n) => s + String.fromCharCode(n),"")}</div>
     </div>
+  )
 }
 
 Object.keys(MspCmd).forEach(k => mspOutputFunctions[MspCmd[k]] = renderDefault)

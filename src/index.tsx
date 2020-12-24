@@ -60,80 +60,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MenuListItem = (props) => {
-  return <ListItem button key={props.text} component={Link} to={props.to}>
-      <ListItemIcon>{props.icon}</ListItemIcon>
-      <ListItemText primary={props.text} />
-    </ListItem>
-}
-
 export const App = () => {
   const classes = useStyles();
   return (
     <div className={classes.root}>
       <CssBaseline />
       <ThemeProvider theme={theme}>
-        <AppBar position="fixed" className={classes.appBar}>
-          <Toolbar className={classes.toolbar}>
-            <Typography variant="h6" className={classes.title}>
-              MSP
-            </Typography>
-            <IconButton
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              color="inherit"
-            >
-              <SettingsInputHdmiIcon />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
+        <MSPAppBar classes={classes} />
         <Router>
-          <Drawer
-            className={classes.drawer}
-            variant="permanent"
-            classes={{
-              paper: classes.drawerPaper
-            }}
-          >
-            <Toolbar className={classes.toolbar} />
-            <div className={classes.drawerContainer}>
-              <List>
-                <MenuListItem text="Home" to="/" icon={<HomeIcon />} />
-                <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} />
-                <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} />
-                <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} />
-                <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} />
-                <MenuListItem text="MSP" to="/msp" icon={<InputIcon />} />
-                <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
-              </List>
-            </div>
-          </Drawer>
+          <MSPDrawer classes={classes} />
           <main className={classes.content}>
             <Toolbar className={classes.toolbar} />
-            <Switch>
-              <Route path="/settings">
-                <Settings />
-              </Route>
-              <Route path="/ports">
-                <Ports />
-              </Route>
-              <Route path="/configuration">
-                <Configuration />
-              </Route>
-              <Route path="/power">
-                <Power />
-              </Route>
-              <Route path="/msp">
-                <MSP />
-              </Route>
-              <Route path="/about">
-                <About />
-              </Route>
-              <Route path="/">
-                <Home />
-              </Route>
-            </Switch>
+            <MSPRouter />
           </main>
         </Router>
       </ThemeProvider>
@@ -141,3 +79,83 @@ export const App = () => {
   )
 }
 
+const MSPAppBar = props => {
+  return (
+    <AppBar position="fixed" className={props.classes.appBar}>
+      <Toolbar className={props.classes.toolbar}>
+        <Typography variant="h6" className={props.classes.title}>
+          MSP
+        </Typography>
+        <IconButton
+          aria-controls="menu-appbar"
+          aria-haspopup="true"
+          color="inherit"
+        >
+          <SettingsInputHdmiIcon />
+        </IconButton>
+      </Toolbar>
+    </AppBar>
+  )
+}
+
+const MSPDrawer = props => {
+  return (
+    <Drawer
+      className={props.classes.drawer}
+      variant="permanent"
+      classes={{
+        paper: props.classes.drawerPaper
+      }}
+    >
+      <Toolbar className={props.classes.toolbar} />
+      <div className={props.classes.drawerContainer}>
+        <List>
+          <MenuListItem text="Home" to="/" icon={<HomeIcon />} />
+          <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} />
+          <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} />
+          <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} />
+          <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} />
+          <MenuListItem text="MSP" to="/msp" icon={<InputIcon />} />
+          <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
+        </List>
+      </div>
+    </Drawer>
+  )
+}
+
+const MenuListItem = props => {
+  return (
+    <ListItem button key={props.text} component={Link} to={props.to}>
+      <ListItemIcon>{props.icon}</ListItemIcon>
+      <ListItemText primary={props.text} />
+    </ListItem>
+  )
+}
+
+const MSPRouter = () => {
+  return (
+    <Switch>
+      <Route path="/settings">
+        <Settings />
+      </Route>
+      <Route path="/ports">
+        <Ports />
+      </Route>
+      <Route path="/configuration">
+        <Configuration />
+      </Route>
+      <Route path="/power">
+        <Power />
+      </Route>
+      <Route path="/msp">
+        <MSP />
+      </Route>
+      <Route path="/about">
+        <About />
+      </Route>
+      <Route path="/">
+        <Home />
+      </Route>
+    </Switch>
+  )
+}

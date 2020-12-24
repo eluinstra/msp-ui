@@ -1,5 +1,7 @@
 import React from 'react'
 
 export const Power = () => {
-  return <h2>Power & Battery</h2>
+  return (
+    <h2>Power & Battery</h2>
+  )
 }

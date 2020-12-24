@@ -5,7 +5,8 @@ import { Paper, Typography } from '@material-ui/core'
 const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1)
 
 export const About = () => {
-  return <React.Fragment>
+  return (
+    <React.Fragment>
       <h2>About</h2>
       <Paper>
         <Typography variant="body2" component="p">
@@ -14,4 +15,5 @@ export const About = () => {
         </Typography>
       </Paper>
     </React.Fragment>
+  )
 }

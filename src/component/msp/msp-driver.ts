@@ -3,19 +3,28 @@ import { fromEvent, Subject } from 'rxjs'
 const SerialPort = remote.require('serialport')
 import { mspCmdHeader } from '@/component/msp/msp-protocol';
 
-export const mspState = {
-  MSP_IDLE: 0,
-  MSP_HEADER_START: 1,
-  MSP_HEADER_X: 2,
-  MSP_HEADER_V2_NATIVE: 3,
-  MSP_PAYLOAD_V2_NATIVE: 4,
-  MSP_CHECKSUM_V2_NATIVE: 5,
-  MSP_COMMAND_RECEIVED: 6,
-  MSP_ERROR_RECEIVED: 7
+export enum MspState {
+  MSP_IDLE,
+  MSP_HEADER_START,
+  MSP_HEADER_X,
+  MSP_HEADER_V2_NATIVE,
+  MSP_PAYLOAD_V2_NATIVE,
+  MSP_CHECKSUM_V2_NATIVE,
+  MSP_COMMAND_RECEIVED,
+  MSP_ERROR_RECEIVED
 }
 
-export const mspMsg = {
-  state: mspState.MSP_IDLE,
+export interface MspMsg {
+  state: MspState,
+  flag: number,
+  cmd: number,
+  length: number,
+  buffer: number[],
+  checksum: number
+}
+
+const mspMsg : MspMsg = {
+  state: MspState.MSP_IDLE,
   flag: 0,
   cmd: 0,
   length: 0,
@@ -55,12 +64,12 @@ export const mspCmdResponse$ = new Subject();
 serialPort.on('data', function (data) {
   for (let i = 0; i < data.length; i++) {
     parseMSPCommand(data.readInt8(i))
-    if (mspMsg.state == mspState.MSP_COMMAND_RECEIVED) {
+    if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
       mspCmdResponse$.next(mspMsg)
-      mspMsg.state = mspState.MSP_IDLE
-    } else if (mspMsg.state == mspState.MSP_ERROR_RECEIVED) {
+      mspMsg.state = MspState.MSP_IDLE
+    } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
       mspCmdResponse$.error(new Error('MSP error received!'))
-      mspMsg.state = mspState.MSP_IDLE
+      mspMsg.state = MspState.MSP_IDLE
     }
   }
 })
@@ -69,23 +78,23 @@ function parseMSPCommand(num) {
   //console.log(num & 0xFF)
   //console.log(hexInt8(num & 0xFF))
   switch (mspMsg.state) {
-    case mspState.MSP_IDLE:
+    case MspState.MSP_IDLE:
       if (String.fromCharCode(num) == '$')
-        mspMsg.state = mspState.MSP_HEADER_START
+        mspMsg.state = MspState.MSP_HEADER_START
       break
-    case mspState.MSP_HEADER_START:
+    case MspState.MSP_HEADER_START:
       mspMsg.buffer = []
       mspMsg.checksum = 0
       if (String.fromCharCode(num) == 'X')
-        mspMsg.state = mspState.MSP_HEADER_X
+        mspMsg.state = MspState.MSP_HEADER_X
       break
-    case mspState.MSP_HEADER_X:
+    case MspState.MSP_HEADER_X:
       if (String.fromCharCode(num) == '>')
-        mspMsg.state = mspState.MSP_HEADER_V2_NATIVE
+        mspMsg.state = MspState.MSP_HEADER_V2_NATIVE
       else if (String.fromCharCode(num) == '!')
-        mspMsg.state = mspState.MSP_ERROR_RECEIVED
+        mspMsg.state = MspState.MSP_ERROR_RECEIVED
       break
-    case mspState.MSP_HEADER_V2_NATIVE:
+    case MspState.MSP_HEADER_V2_NATIVE:
       mspMsg.buffer.push(num & 0xFF)
       mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num)
       if (mspMsg.buffer.length == 5) {
@@ -94,29 +103,29 @@ function parseMSPCommand(num) {
         mspMsg.length = getLength(mspMsg.buffer)
         mspMsg.buffer = []
         if (mspMsg.length > 0)
-          mspMsg.state = mspState.MSP_PAYLOAD_V2_NATIVE
+          mspMsg.state = MspState.MSP_PAYLOAD_V2_NATIVE
         else
-          mspMsg.state = mspState.MSP_CHECKSUM_V2_NATIVE
+          mspMsg.state = MspState.MSP_CHECKSUM_V2_NATIVE
       }
       break
-    case mspState.MSP_PAYLOAD_V2_NATIVE:
+    case MspState.MSP_PAYLOAD_V2_NATIVE:
       mspMsg.buffer.push(num & 0xFF)
       mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num)
       mspMsg.length--
       if (mspMsg.length == 0)
-        mspMsg.state = mspState.MSP_CHECKSUM_V2_NATIVE
+        mspMsg.state = MspState.MSP_CHECKSUM_V2_NATIVE
       break
-    case mspState.MSP_CHECKSUM_V2_NATIVE:
+    case MspState.MSP_CHECKSUM_V2_NATIVE:
       if (mspMsg.checksum == (num & 0xFF))
-        mspMsg.state = mspState.MSP_COMMAND_RECEIVED
+        mspMsg.state = MspState.MSP_COMMAND_RECEIVED
       else
-        mspMsg.state = mspState.MSP_IDLE
+        mspMsg.state = MspState.MSP_IDLE
       break
-    case mspState.MSP_ERROR_RECEIVED:
-      mspMsg.state = mspState.MSP_IDLE
+    case MspState.MSP_ERROR_RECEIVED:
+      mspMsg.state = MspState.MSP_IDLE
       break
     default:
-      mspMsg.state = mspState.MSP_IDLE
+      mspMsg.state = MspState.MSP_IDLE
       break
   }
   //console.log("state " + mspMsg.state)

@@ -1,7 +1,7 @@
 import { remote } from 'electron'
 import React from 'react'
 import { from, Observable, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, startWith } from 'rxjs/operators';
 import { PortInfo } from 'serialport';
 import { useObservable } from '@/common/rx-tools';
 import { makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
@@ -19,12 +19,14 @@ const useStyles = makeStyles({
 
 export const Ports = () => {
   const classes = useStyles();
-  const ports$ = from(SerialPort.list())
+  const ports$ = from(SerialPort.list() as Promise<PortInfo[]>)
   const portInfo = useObservable(ports$
     .pipe(
+      // startWith([]),
       map(p => (p as PortInfo[])
         .filter(o => o.manufacturer != undefined)
-        .map(o => <TableRow key={o.path}>
+        .map(o =>
+          <TableRow key={o.path}>
             <TableCell component="th" scope="row">{o.path}</TableCell>
             <TableCell>{o.manufacturer}</TableCell>
             <TableCell>{o.serialNumber}</TableCell>
@@ -32,9 +34,10 @@ export const Ports = () => {
             <TableCell>{o.locationId}</TableCell>
             <TableCell>{o.productId}</TableCell>
             <TableCell>{o.vendorId}</TableCell>
-          </TableRow>))
-    ))
-  return <React.Fragment>
+          </TableRow>)
+    )))
+  return (
+    <React.Fragment>
       <h2>Ports</h2>
       <TableContainer component={Paper}>
         <Table size="small">
@@ -50,7 +53,7 @@ export const Ports = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* {rows.map(o => <TableRow key={o.path}>
+            {/* {portInfo.map(o => <TableRow key={o.path}>
               <TableCell component="th" scope="row">{o.path}</TableCell>
               <TableCell>{o.manufacturer}</TableCell>
               <TableCell>{o.serialNumber}</TableCell>
@@ -64,4 +67,5 @@ export const Ports = () => {
         </Table>
       </TableContainer>
     </React.Fragment>
+  )
 }
