@@ -58,22 +58,24 @@ function command(cmd, payload) {
 }
 
 export const mspRequest = (cmd, payload) => {
-  serialPort.value?.write(Buffer.from(command(cmd, payload)))
+  serialPort?.value.write(Buffer.from(command(cmd, payload)))
 }
 
 export const mspResponse$ = new Subject();
-serialPort.value?.on('data', function (data) {
-  for (let i = 0; i < data.length; i++) {
-    parseMSPCommand(data.readInt8(i))
-    if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
-      mspResponse$.next(mspMsg)
-      mspMsg.state = MspState.MSP_IDLE
-    } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
-      mspResponse$.error(new Error('MSP error received!'))
-      mspMsg.state = MspState.MSP_IDLE
+export const registerPort = () => {
+  serialPort?.value.on('data', function (data) {
+    for (let i = 0; i < data.length; i++) {
+      parseMSPCommand(data.readInt8(i))
+      if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
+        mspResponse$.next(mspMsg)
+        mspMsg.state = MspState.MSP_IDLE
+      } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
+        mspResponse$.error(new Error('MSP error received!'))
+        mspMsg.state = MspState.MSP_IDLE
+      }
     }
-  }
-})
+  })
+}
 
 function parseMSPCommand(num) {
   //console.log(num & 0xFF)
