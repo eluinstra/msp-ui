@@ -1,9 +1,11 @@
 import { remote } from 'electron'
-import { from } from 'rxjs'
+import { BehaviorSubject, from } from 'rxjs'
 import { PortInfo } from 'serialport'
 const SerialPort = remote.require('serialport')
 
-export const serialPort = new SerialPort('/dev/ttyUSB0', { baudRate: 115200 })
+export const serialPort = new BehaviorSubject(undefined);
+serialPort.next(new SerialPort('/dev/ttyUSB0', { baudRate: 115200 }))
+
 export const baudrates = [9600, 19200, 38400, 57600, 115200]
 export const defaultBaudrate = 115200
 export const portInfo$ = () => {

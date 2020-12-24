@@ -58,11 +58,11 @@ function command(cmd, payload) {
 }
 
 export const mspRequest = (cmd, payload) => {
-  serialPort.write(Buffer.from(command(cmd, payload)))
+  serialPort.value?.write(Buffer.from(command(cmd, payload)))
 }
 
 export const mspResponse$ = new Subject();
-serialPort.on('data', function (data) {
+serialPort.value?.on('data', function (data) {
   for (let i = 0; i < data.length; i++) {
     parseMSPCommand(data.readInt8(i))
     if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
