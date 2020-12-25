@@ -6,10 +6,12 @@ import { filter, map, startWith } from 'rxjs/operators';
 import { baudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/serialport-driver'
 import { useObservable } from '@/common/rx-tools'
 import { PortInfo } from 'serialport'
-import { registerPort } from '../msp/msp-driver';
+import { registerPort } from '@/component/msp/msp-driver';
 
 export const SerialPortInput = () => {
-  const [state, setState] = React.useState(false);
+  const [state, setState] = React.useState({
+    checked: false
+  });
   const portInfo = useObservable(portInfo$()
     .pipe(
       // startWith([]),
@@ -29,13 +31,13 @@ export const SerialPortInput = () => {
       )
     const sub = click$
       .subscribe(val => {
-        if (!state) {
+        if (!state.checked) {
           openPort((port as HTMLInputElement).value, Number((baudrate as HTMLInputElement).value))
           registerPort()
         } else {
           closePort()
         }
-        setState(!state)
+        setState({ ...state, checked: !state.checked })
       })
     return () => sub.unsubscribe()
   })
@@ -54,7 +56,7 @@ export const SerialPortInput = () => {
         )}
       </NativeSelect>
       <FormControlLabel
-        control={<Switch id="connected" checked={state} color="secondary" />}
+        control={<Switch id="connected" checked={state.checked} color="secondary" />}
         label="Connect"
       />
     </React.Fragment>
