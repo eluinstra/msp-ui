@@ -14,7 +14,7 @@ export const MspInput = () => {
   const mspCmdChange = v => mspCmdSubject.next(v)
   const mspMsg = useObservable(mspResponse$
     .pipe(
-      distinctUntilChanged()
+      map(mspMsg  => mspOutputFunctions[(mspMsg as MspMsg).cmd](mspMsg))
   ))
   useEffect(() => {
     const click$ = mspActionSubject
@@ -38,7 +38,7 @@ export const MspInput = () => {
         )}
       </NativeSelect>
       <Button variant="contained" color="secondary" onClick={e => mspActionClick()}>MSP Go</Button>
-      {mspMsg ? mspOutputFunctions[mspMsg.cmd](mspMsg) : <React.Fragment />}
+      {mspMsg}
     </React.Fragment>
   )
 }
