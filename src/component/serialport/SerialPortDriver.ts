@@ -1,5 +1,6 @@
 import { remote } from 'electron'
-import { BehaviorSubject, from } from 'rxjs'
+import { BehaviorSubject, from, Subject } from 'rxjs'
+import { startWith } from 'rxjs/operators'
 import { PortInfo } from 'serialport'
 const SerialPort = remote.require('serialport')
 
@@ -7,12 +8,10 @@ export const serialPort = new BehaviorSubject(undefined)
 // serialPort.next(new SerialPort('/dev/ttyUSB0', { baudRate: 115200 }))
 
 export const openPort = (port, baudrate) => {
-  console.log(port)
   serialPort.next(new SerialPort(port, { baudRate: baudrate }))
 }
 
 export const closePort = () => {
-  console.log(2)
   serialPort.value.close()
   serialPort.next(undefined)
 }

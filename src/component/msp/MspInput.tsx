@@ -8,17 +8,17 @@ import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, NativeSelect, TextField } from '@material-ui/core'
 
 export const MspInput = () => {
-  const mspButton = new Subject()
-  const mspButtonClick = () => mspButton.next()
-  const mspInput = new BehaviorSubject("")
-  const setMspInput = v => mspInput.next(v)
+  const mspButtonSubject = new Subject()
+  const mspButtonClick = () => mspButtonSubject.next()
+  const mspInputSubject = new BehaviorSubject("")
+  const MspInputChange = v => mspInputSubject.next(v)
   const mspOutput = useObservable(mspResponse$
     .pipe(
       map(mspMsg  => mspOutputFunctions[(mspMsg as MspMsg).cmd](mspMsg))))
   useEffect(() => {
-    const click$ = mspButton
+    const click$ = mspButtonSubject
       .pipe(
-        mergeMap(e => mspInput),
+        mergeMap(e => mspInputSubject),
         filter(v => v != "")
       )
     const sub = click$
@@ -26,11 +26,11 @@ export const MspInput = () => {
         mspRequest(val,[])
       })
     return () => sub.unsubscribe()
-  });
+  }, [mspButtonSubject]);
   return (
     <React.Fragment>
       {/* <TextField label="cmd" onChange={e => setMspInput(e.target.value)} /> */}
-      <NativeSelect onChange={e => setMspInput(e.target.value)}>
+      <NativeSelect onChange={e => MspInputChange(e.target.value)}>
         <option aria-label="None" value="">None</option>
         {Object.keys(MspCmd).map(key =>
           <option key={MspCmd[key]} value={MspCmd[key]}>{key}</option>

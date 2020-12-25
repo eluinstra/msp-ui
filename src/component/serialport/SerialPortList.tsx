@@ -1,6 +1,6 @@
 import React from 'react'
-import { from, Observable, Subject } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { from, interval, Observable, of, Subject } from 'rxjs';
+import { distinctUntilChanged, map, mergeMap, startWith, take, tap,  } from 'rxjs/operators';
 import { PortInfo } from 'serialport';
 import { useObservable } from '@/common/RxTools';
 import { makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
@@ -18,21 +18,13 @@ const useStyles = makeStyles({
 
 export const PortList = () => {
   const classes = useStyles();
-  const portInfo = useObservable(portInfo$()
+  const portInfo = useObservable(interval(500).pipe(take(1))
     .pipe(
-      // startWith([]),
+      tap(e => console.log("INFO")),
+      mergeMap(e => portInfo$()),
+      distinctUntilChanged(),
       map(p => (p as PortInfo[])
         .filter(o => o.manufacturer != undefined)
-        .map(o =>
-          <TableRow key={o.path}>
-            <TableCell>{o.path}</TableCell>
-            <TableCell>{o.manufacturer}</TableCell>
-            <TableCell>{o.serialNumber}</TableCell>
-            <TableCell>{o.pnpId}</TableCell>
-            <TableCell>{o.locationId}</TableCell>
-            <TableCell>{o.productId}</TableCell>
-            <TableCell>{o.vendorId}</TableCell>
-          </TableRow>)
   )))
   return (
     <TableContainer component={Paper}>
@@ -49,7 +41,7 @@ export const PortList = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {/* {portInfo.map(o => <TableRow key={o.path}>
+          {portInfo?.map(o => <TableRow key={o.path}>
             <TableCell component="th" scope="row">{o.path}</TableCell>
             <TableCell>{o.manufacturer}</TableCell>
             <TableCell>{o.serialNumber}</TableCell>
@@ -57,8 +49,8 @@ export const PortList = () => {
             <TableCell>{o.locationId}</TableCell>
             <TableCell>{o.productId}</TableCell>
             <TableCell>{o.vendorId}</TableCell>
-          </TableRow>)} */}
-          {portInfo}
+          </TableRow>)}
+          {/* {portInfo} */}
         </TableBody>
       </Table>
     </TableContainer>

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { Button, FormControlLabel, NativeSelect, Switch } from '@material-ui/core'
 import { MspCmd } from '@/component/msp/MspProtocol'
-import { from, fromEvent, Observable } from 'rxjs'
-import { filter, map, startWith } from 'rxjs/operators';
+import { from, fromEvent, Observable, Subject } from 'rxjs'
+import { filter, map, mergeMap, startWith } from 'rxjs/operators';
 import { baudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
 import { useObservable } from '@/common/RxTools'
 import { PortInfo } from 'serialport'
@@ -12,14 +12,13 @@ export const SerialPortConnect = () => {
   const [state, setState] = React.useState({
     checked: false
   });
-  const portInfo = useObservable(portInfo$()
+  const mspButtonSubject = new Subject()
+  const mspButtonClick = () => mspButtonSubject.next()
+  const portInfo = useObservable(mspButtonSubject
     .pipe(
-      // startWith([]),
+      mergeMap(e => portInfo$()),
       map(p => (p as PortInfo[])
         .filter(o => o.manufacturer != undefined)
-        .map(o =>
-          <option key={o.path} value={o.path}>{o.path}</option>
-        )
   )))
   useEffect(() => {
     const connected = document.getElementById('connected')
@@ -43,12 +42,11 @@ export const SerialPortConnect = () => {
   })
   return (
     <React.Fragment>
-      <NativeSelect id="port">
+      <NativeSelect id="port" onClick={e => mspButtonClick()}>
         <option aria-label="Manual" value="">Manual</option>
-        {/* {portInfo.map(o =>
+        {portInfo?.map(o =>
           <option key={o.path} value={o.path}>{o.path}</option>
-        )} */}
-        {portInfo}
+        )}
       </NativeSelect>
       <NativeSelect id="baudrate" value={defaultBaudrate}>
         {baudrates.map(val =>
