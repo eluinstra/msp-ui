@@ -5,7 +5,6 @@ import { PortInfo } from 'serialport'
 const SerialPort = remote.require('serialport')
 
 export const serialPort = new BehaviorSubject(undefined)
-// serialPort.next(new SerialPort('/dev/ttyUSB0', { baudRate: 115200 }))
 
 export const openPort = (port, baudrate) => {
   serialPort.next(new SerialPort(port, { baudRate: baudrate }))

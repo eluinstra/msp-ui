@@ -12,9 +12,9 @@ export const SerialPortConnect = () => {
   const [state, setState] = React.useState({
     checked: false
   });
-  const mspButtonSubject = new Subject()
-  const mspButtonClick = () => mspButtonSubject.next()
-  const portInfo = useObservable(mspButtonSubject
+  const mspPortSubject = new Subject()
+  const mspPortClick = () => mspPortSubject.next()
+  const portInfo = useObservable(mspPortSubject
     .pipe(
       mergeMap(e => portInfo$()),
       map(p => (p as PortInfo[])
@@ -42,7 +42,7 @@ export const SerialPortConnect = () => {
   })
   return (
     <React.Fragment>
-      <NativeSelect id="port" onClick={e => mspButtonClick()}>
+      <NativeSelect id="port" onClick={e => mspPortClick()}>
         <option aria-label="Manual" value="">Manual</option>
         {portInfo?.map(o =>
           <option key={o.path} value={o.path}>{o.path}</option>

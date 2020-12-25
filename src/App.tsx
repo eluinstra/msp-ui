@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Divider, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
-import { BatteryStd as BatteryStdIcon, Build as BuildIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Settings as SettingsIcon, SettingsInputHdmi as SettingsInputHdmiIcon } from '@material-ui/icons';
+import { BatteryStd as BatteryStdIcon, Build as BuildIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Settings as SettingsIcon } from '@material-ui/icons';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { About } from '@/page/About'
 import { Configuration } from '@/page/Configuration';
@@ -85,7 +85,7 @@ const MSPAppBar = props => {
     <AppBar position="fixed" className={props.classes.appBar}>
       <Toolbar className={props.classes.toolbar}>
         <Typography variant="h6" className={props.classes.title}>
-          MSP
+          Alpha|BOT
         </Typography>
         <SerialPortConnect />
         <IconButton
@@ -93,7 +93,6 @@ const MSPAppBar = props => {
           aria-haspopup="true"
           color="inherit"
         >
-          <SettingsInputHdmiIcon />
         </IconButton>
       </Toolbar>
     </AppBar>

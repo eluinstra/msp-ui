@@ -20,7 +20,6 @@ export const PortList = () => {
   const classes = useStyles();
   const portInfo = useObservable(interval(500).pipe(take(1))
     .pipe(
-      tap(e => console.log("INFO")),
       mergeMap(e => portInfo$()),
       distinctUntilChanged(),
       map(p => (p as PortInfo[])
@@ -54,5 +53,5 @@ export const PortList = () => {
         </TableBody>
       </Table>
     </TableContainer>
-  )  
+  )
 }
