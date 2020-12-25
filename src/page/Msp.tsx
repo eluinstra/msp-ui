@@ -1,5 +1,5 @@
 import React from 'react'
-import { MspInput } from '@/component/msp/msp-input'
+import { MspInput } from '@/component/msp/MspInput'
 
 export const MSP = () => {
   return (

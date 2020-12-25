@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { fromEvent, Subject } from 'rxjs'
 import { map, filter, tap, startWith } from 'rxjs/operators'
-import { useObservable } from '@/common/rx-tools'
-import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/msp-driver'
-import { mspOutputFunctions } from '@/component/msp/msp-view'
-import { MspCmd } from '@/component/msp/msp-protocol'
+import { useObservable } from '@/common/RxTools'
+import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
+import { mspOutputFunctions } from '@/component/msp/MspView'
+import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, NativeSelect } from '@material-ui/core'
 
 export const MspInput = props => {

@@ -1,6 +1,6 @@
 import { fromEvent, Subject } from 'rxjs'
-import { mspCmdHeader } from '@/component/msp/msp-protocol';
-import { serialPort } from '../serialport/serialport-driver';
+import { mspCmdHeader } from '@/component/msp/MspProtocol';
+import { serialPort } from '../serialport/SerialPortDriver';
 
 export enum MspState {
   MSP_IDLE,

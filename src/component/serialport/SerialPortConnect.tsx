@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react'
 import { Button, FormControlLabel, NativeSelect, Switch } from '@material-ui/core'
-import { MspCmd } from '@/component/msp/msp-protocol'
+import { MspCmd } from '@/component/msp/MspProtocol'
 import { from, fromEvent, Observable } from 'rxjs'
 import { filter, map, startWith } from 'rxjs/operators';
-import { baudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/serialport-driver'
-import { useObservable } from '@/common/rx-tools'
+import { baudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
+import { useObservable } from '@/common/RxTools'
 import { PortInfo } from 'serialport'
-import { registerPort } from '@/component/msp/msp-driver';
+import { registerPort } from '@/component/msp/MspDriver';
 
-export const SerialPortInput = () => {
+export const SerialPortConnect = () => {
   const [state, setState] = React.useState({
     checked: false
   });
