@@ -1,7 +1,7 @@
 import React from 'react'
 import { MspInput } from '@/component/msp/MspInput'
 
-export const MSP = () => {
+export const MspInputPage = () => {
   return (
     <React.Fragment>
       <h2>MSP</h2>

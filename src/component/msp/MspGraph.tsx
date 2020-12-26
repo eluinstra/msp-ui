@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react'
-import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
-import { distinctUntilChanged, map, filter, tap, startWith, mergeMap } from 'rxjs/operators'
+import React, { useEffect } from 'react'
+import { BehaviorSubject, merge, Subject } from 'rxjs'
+import { map, filter, mergeMap, delay, tap } from 'rxjs/operators'
 import { useObservable } from '@/common/RxTools'
 import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
 import { mspOutputFunctions } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, NativeSelect, TextField } from '@material-ui/core'
 
-export const MspInput = () => {
+export const MspGraph = () => {
   const mspActionSubject = new Subject()
   const mspActionClick = () => mspActionSubject.next()
   const mspCmdSubject = new Subject()
@@ -18,8 +18,10 @@ export const MspInput = () => {
       map(mspMsg  => mspOutputFunctions[(mspMsg as MspMsg).cmd](mspMsg))
   ))
   useEffect(() => {
-    const click$ = mspActionSubject
+    const click$ = merge(mspActionSubject,mspResponse$)
       .pipe(
+        delay(1000),
+        tap(e => console.log("START")),
         map(e => mspCmd),
         filter(v => v != "")
       )

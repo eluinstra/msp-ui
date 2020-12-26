@@ -4,7 +4,7 @@ import { Paper, Typography } from '@material-ui/core'
 
 const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1)
 
-export const About = () => {
+export const AboutPage = () => {
   return (
     <React.Fragment>
       <h2>About</h2>

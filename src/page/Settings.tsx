@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const Settings = () => {
+export const SettingsPage = () => {
   return (
     <h2>Settings</h2>
   )

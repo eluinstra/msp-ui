@@ -2,15 +2,16 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Divider, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
-import { BatteryStd as BatteryStdIcon, Build as BuildIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Settings as SettingsIcon } from '@material-ui/icons';
+import { BatteryStd as BatteryStdIcon, Build as BuildIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
-import { About } from '@/page/About'
-import { Configuration } from '@/page/Configuration';
-import { Home } from '@/page/Home'
-import { MSP } from '@/page/Msp'
-import { Ports } from '@/page/Ports'
-import { Settings } from '@/page/Settings';
-import { Power } from '@/page/Power';
+import { AboutPage } from '@/page/About';
+import { ConfigurationPage } from '@/page/Configuration';
+import { HomePage } from '@/page/Home'
+import { MspInputPage } from '@/page/MspInput'
+import { MspGraphPage } from '@/page/MspGraph';
+import { PortsPage } from '@/page/Ports'
+import { SettingsPage } from '@/page/Settings';
+import { PowerAndBatteryPage } from '@/page/Power';
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect';
 
 const drawerWidth = 240;
@@ -116,7 +117,8 @@ const MSPDrawer = props => {
           <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} />
           <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} />
           <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} />
-          <MenuListItem text="MSP" to="/msp" icon={<InputIcon />} />
+          <MenuListItem text="MSP Input" to="/msp-input" icon={<InputIcon />} />
+          <MenuListItem text="MSP Graph" to="/msp-graph" icon={<ShowChartIcon />} />
           <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
         </List>
       </div>
@@ -137,25 +139,28 @@ const MSPRouter = () => {
   return (
     <Switch>
       <Route path="/settings">
-        <Settings />
+        <SettingsPage />
       </Route>
       <Route path="/ports">
-        <Ports />
+        <PortsPage />
       </Route>
       <Route path="/configuration">
-        <Configuration />
+        <ConfigurationPage />
       </Route>
       <Route path="/power">
-        <Power />
+        <PowerAndBatteryPage />
       </Route>
-      <Route path="/msp">
-        <MSP />
+      <Route path="/msp-input">
+        <MspInputPage />
+      </Route>
+      <Route path="/msp-graph">
+        <MspGraphPage />
       </Route>
       <Route path="/about">
-        <About />
+        <AboutPage />
       </Route>
       <Route path="/">
-        <Home />
+        <HomePage />
       </Route>
     </Switch>
   )
