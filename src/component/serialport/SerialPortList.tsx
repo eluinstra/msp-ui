@@ -2,7 +2,7 @@ import React from 'react'
 import { from, interval, Observable, of, Subject } from 'rxjs';
 import { distinctUntilChanged, map, mergeMap, startWith, take, tap,  } from 'rxjs/operators';
 import { PortInfo } from 'serialport';
-import { useObservable } from '@/common/RxTools';
+import { useStatefulObservable } from '@/common/RxTools';
 import { makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import { portInfo$ } from '@/component/serialport/SerialPortDriver';
 
@@ -18,10 +18,9 @@ const useStyles = makeStyles({
 
 export const PortList = () => {
   const classes = useStyles();
-  const portInfo = useObservable(interval(500).pipe(take(1))
+  const portInfo = useStatefulObservable(interval(1000).pipe(take(1))
     .pipe(
-      mergeMap(e => portInfo$()),
-      distinctUntilChanged(),
+      mergeMap(_ => portInfo$()),
       map(p => (p as PortInfo[])
         .filter(o => o.manufacturer != undefined)
   )))

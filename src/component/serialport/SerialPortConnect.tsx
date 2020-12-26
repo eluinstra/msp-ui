@@ -1,24 +1,25 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, FormControlLabel, NativeSelect, Switch } from '@material-ui/core'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { from, fromEvent, Observable, Subject } from 'rxjs'
 import { filter, map, mergeMap, startWith } from 'rxjs/operators';
 import { baudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
-import { useObservable } from '@/common/RxTools'
+import { useStatefulObservable, useSubject } from '@/common/RxTools'
 import { PortInfo } from 'serialport'
 import { registerPort } from '@/component/msp/MspDriver';
 
+export const usedPort = v => v.manufacturer != undefined
+
 export const SerialPortConnect = () => {
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     checked: false
   });
-  const mspPortSubject = new Subject()
-  const mspPortClick = () => mspPortSubject.next()
-  const portInfo = useObservable(mspPortSubject
+  const [ mspPortClick, mspPortSubject ] = useSubject()
+  const portInfo = useStatefulObservable(mspPortSubject
     .pipe(
-      mergeMap(e => portInfo$()),
+      mergeMap(_ => portInfo$()),
       map(p => (p as PortInfo[])
-        .filter(o => o.manufacturer != undefined)
+        .filter(usedPort)
   )))
   useEffect(() => {
     const connected = document.getElementById('connected')

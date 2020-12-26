@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { Observable } from 'rxjs';
+import { useState, useEffect } from 'react'
+import { Observable, Subject } from 'rxjs';
 
-export function useObservable<T>(observable: Observable<T>): T {
+export function useStatefulObservable<T>(observable: Observable<T>): T {
   const [state, setState] = useState<T>();
   useEffect(() => {
     const sub = observable.subscribe(setState);
@@ -9,3 +9,14 @@ export function useObservable<T>(observable: Observable<T>): T {
   }, [observable]);
   return state;
 };
+
+export function useStatefulSubject<T>(subject: Subject<T> = new Subject<T>()): [T, (v: T) => void, Subject<T>] {
+  const onChange = (v: T) => subject.next(v)
+  const observable = useStatefulObservable(subject)
+  return [observable, onChange, subject];
+};
+
+export function useSubject(subject: Subject<any> = new Subject()): [() => void, Subject<any>] {
+  const onNext = () => subject.next()
+  return [onNext, subject]
+}
