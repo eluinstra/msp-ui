@@ -37,7 +37,7 @@ export const MspInput = () => {
           <option key={MspCmd[key]} value={MspCmd[key]}>{key}</option>
         )}
       </NativeSelect>
-      <Button variant="contained" color="secondary" onClick={e => onClick()}>MSP Go</Button>
+      <Button variant="contained" color="secondary" onClick={_ => onClick()}>MSP Go</Button>
       {mspMsg}
     </React.Fragment>
   )

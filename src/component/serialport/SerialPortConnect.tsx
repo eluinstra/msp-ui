@@ -12,27 +12,27 @@ export const usedPort = v => v.manufacturer != undefined
 
 export const SerialPortConnect = () => {
   const [state, setState] = useState({
-    checked: false
+    checked: false,
+    port: "",
+    baudrate: defaultBaudrate
   });
-  const [ mspPortClick, mspPortSubject ] = useSubject()
-  const portInfo = useStatefulObservable(mspPortSubject
+  const [ onPortClick, portSubject ] = useSubject()
+  const portInfo = useStatefulObservable(portSubject
     .pipe(
       mergeMap(_ => portInfo$()),
       map(p => (p as PortInfo[])
         .filter(usedPort)
   )))
+  const [ onConnectClick, connectSubject ] = useSubject()
   useEffect(() => {
-    const connected = document.getElementById('connected')
-    const port = document.getElementById('port')
-    const baudrate = document.getElementById('baudrate')
-    const click$ = fromEvent(connected, 'click')
+    const click$ = connectSubject
       .pipe(
-        filter(event => port != undefined)
+        filter(event => state.port != "")
       )
     const sub = click$
       .subscribe(val => {
         if (!state.checked) {
-          openPort((port as HTMLInputElement).value, Number((baudrate as HTMLInputElement).value))
+          openPort(state.port, state.baudrate)
           registerPort()
         } else {
           closePort()
@@ -43,19 +43,19 @@ export const SerialPortConnect = () => {
   })
   return (
     <React.Fragment>
-      <NativeSelect id="port" onClick={e => mspPortClick()}>
+      <NativeSelect value={state.port} onClick={_ => onPortClick()} onChange={e => setState({ ...state, port: e.target.value })}>
         <option aria-label="Manual" value="">Manual</option>
-        {portInfo?.map(o =>
-          <option key={o.path} value={o.path}>{o.path}</option>
+        {portInfo?.map(v =>
+          <option key={v.path} value={v.path}>{v.path}</option>
         )}
       </NativeSelect>
-      <NativeSelect id="baudrate" value={defaultBaudrate}>
-        {baudrates.map(val =>
-          <option key={val} value={val}>{val}</option>
+      <NativeSelect value={state.baudrate} onChange={e => setState({ ...state, baudrate: Number(e.target.value) })}>
+        {baudrates.map(v =>
+          <option key={v} value={v}>{v}</option>
         )}
       </NativeSelect>
       <FormControlLabel
-        control={<Switch id="connected" checked={state.checked} color="secondary" />}
+        control={<Switch checked={state.checked} color="secondary" onClick={_ => onConnectClick()}/>}
         label="Connect"
       />
     </React.Fragment>

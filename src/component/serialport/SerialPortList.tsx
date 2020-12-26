@@ -48,7 +48,6 @@ export const PortList = () => {
             <TableCell>{o.productId}</TableCell>
             <TableCell>{o.vendorId}</TableCell>
           </TableRow>)}
-          {/* {portInfo} */}
         </TableBody>
       </Table>
     </TableContainer>
