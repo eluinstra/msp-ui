@@ -13,6 +13,7 @@ import { MspGraphPage } from '@/page/MspGraph';
 import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings';
 import { PowerAndBatteryPage } from '@/page/Power';
+import { TestPage } from '@/page/Test1';
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect';
 
 const drawerWidth = 240;
@@ -123,6 +124,7 @@ const MSPDrawer = props => {
           <MenuListItem text="MSP Input" to="/msp-input" icon={<InputIcon />} />
           <MenuListItem text="MSP Graph" to="/msp-graph" icon={<ShowChartIcon />} />
           <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
+          <MenuListItem text="Test" to="/test" icon={<InfoIcon />} />
         </List>
       </div>
     </Drawer>
@@ -141,6 +143,9 @@ const MenuListItem = props => {
 const MSPRouter = () => {
   return (
     <Switch>
+      <Route path="/test">
+        <TestPage />
+      </Route>
       <Route path="/settings">
         <SettingsPage />
       </Route>
