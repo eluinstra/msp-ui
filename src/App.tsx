@@ -4,6 +4,7 @@ import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/sty
 import { AppBar, CssBaseline, Divider, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
 import { BatteryStd as BatteryStdIcon, Build as BuildIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
+import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
 import { AboutPage } from '@/page/About';
 import { ConfigurationPage } from '@/page/Configuration';
 import { HomePage } from '@/page/Home'
@@ -65,6 +66,7 @@ const useStyles = makeStyles((theme) => ({
 export const App = () => {
   const classes = useStyles();
   return (
+    <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
     <div className={classes.root}>
       <CssBaseline />
       <ThemeProvider theme={theme}>
@@ -78,6 +80,7 @@ export const App = () => {
         </Router>
       </ThemeProvider>
     </div>
+    </SnackbarProvider>
   )
 }
 

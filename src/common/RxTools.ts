@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react'
 import { Observable, Subject } from 'rxjs';
 
-export function useStatefulObservable<T>(observable: Observable<T>): T {
-  const [state, setState] = useState<T>()
+export function useStatefulObservable<T>(observable: Observable<T>, initState?: T): T {
+  const [state, setState] = initState == undefined ? useState<T>() : useState(initState)
   useEffect(() => {
     const sub = observable.subscribe(setState)
     return () => sub.unsubscribe()
   }, [observable])
   return state
+}
+
+export function useObservableState<T>(observable: Subject<T> = new Subject<T>()): [T, (v: T) => void, Observable<T>] {
+  const state = useStatefulObservable(observable)
+  const setState = (v: T) => observable.next(v)
+  return [state, setState, observable]
 }
 
 export function useBehaviour<T>(props: T): [T, (v: Partial<T>) => void] {
@@ -16,13 +22,19 @@ export function useBehaviour<T>(props: T): [T, (v: Partial<T>) => void] {
   return [state, changeState]
 }
 
-export function useObservableBehaviour<T>(subject: Subject<T> = new Subject<T>()): [T, (v: Partial<T>) => void, Subject<T>] {
-  const state = useStatefulObservable(subject)
-  const changeState = (v: Partial<T>) => subject.next({ ...state, ...v })
-  return [state, changeState, subject]
+export function useObservableBehaviour<T>(observable: Subject<T> = new Subject<T>()): [T, (v: Partial<T>) => void, Observable<T>] {
+  const state = useStatefulObservable(observable)
+  const changeState = (v: Partial<T>) => observable.next({ ...state, ...v })
+  return [state, changeState, observable]
 }
 
-export function useObservableEvent(subject: Subject<any> = new Subject()): [() => void, Subject<any>] {
-  const next = () => subject.next()
-  return [next, subject]
+export function useObservableBehaviourOf<T>(initState: T, observable: Subject<T> = new Subject<T>()): [T, (v: Partial<T>) => void, Observable<T>] {
+  const state = useStatefulObservable(observable, initState)
+  const changeState = (v: Partial<T>) => observable.next({ ...state, ...v })
+  return [state, changeState, observable]
+}
+
+export function useObservableEvent(observable: Subject<any> = new Subject()): [() => void, Observable<any>] {
+  const next = () => observable.next()
+  return [next, observable]
 }

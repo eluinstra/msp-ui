@@ -32,23 +32,22 @@ const mspMsg : MspMsg = {
   checksum: 0
 }
 
-const hexInt16 = data => [data & 0x00FF, data & 0xFF00]
+const hexInt16 = v => [v & 0x00FF, v & 0xFF00]
 
-const getFlag = data => data[0]
+const getFlag = v => v[0]
  
-const getCmd = data => (data[2] << 8) + data[1]
+const getCmd = v => (v[2] << 8) + v[1]
 
-const getLength = data => (data[4] << 8) + data[3]
+const getLength = v => (v[4] << 8) + v[3]
 
 const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0)
 
 function crc8_dvb_s2(crc, num) {
   crc = (crc ^ num) & 0xFF
   for (let i = 0; i < 8; i++)
-    if ((crc & 0x80) != 0)
-      crc = ((crc << 1) ^ 0xD5) & 0xFF
-    else
-      crc = (crc << 1) & 0xFF
+    crc = ((crc & 0x80) != 0) 
+      ? ((crc << 1) ^ 0xD5) & 0xFF
+      : (crc << 1) & 0xFF
   return crc
 }
 

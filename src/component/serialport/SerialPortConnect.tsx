@@ -6,7 +6,7 @@ import { filter, map, mergeMap, startWith } from 'rxjs/operators';
 import { baudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { PortInfo } from 'serialport'
-import { registerPort } from '@/component/msp/MspDriver';
+import { registerPort } from '@/component/msp/MspDriver'
 
 const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
@@ -16,7 +16,7 @@ export const SerialPortConnect = () => {
     checked: false,
     port: "",
     baudrate: defaultBaudrate
-  });
+  })
   const [portClick, portClick$] = useObservableEvent()
   const portInfo = useStatefulObservable(portClick$
     .pipe(
@@ -43,7 +43,7 @@ export const SerialPortConnect = () => {
   return (
     <React.Fragment>
       <NativeSelect value={state.port} onClick={_ => portClick()} onChange={e => changeState({ port: e.target.value })}>
-        <option aria-label="Manual" value="">Manual</option>
+        <option value="">Manual</option>
         {portInfo?.map(v =>
           <option key={v.path} value={v.path}>{v.path}</option>
         )}

@@ -1,15 +1,18 @@
+import { Notification } from 'electron'
 import React, { useState, useEffect } from 'react'
 import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
-import { distinctUntilChanged, map, filter, tap, startWith, mergeMap } from 'rxjs/operators'
+import { distinctUntilChanged, map, filter, tap, startWith, mergeMap, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviour, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
 import { mspOutputFunctions } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, NativeSelect, TextField } from '@material-ui/core'
+import { useSnackbar } from 'notistack';
 
 const notEmpty = v => v != ""
 
 export const MspInput = () => {
+  const { enqueueSnackbar } = useSnackbar();
   const [state, changeState] = useBehaviour({
     cmd: ""
   });
@@ -21,11 +24,16 @@ export const MspInput = () => {
   useEffect(() => {
     const sub = mspClick$
       .pipe(
-        map(_ => state.cmd),
+        mapTo(state.cmd),
         filter(notEmpty)
       )
       .subscribe(val => {
-        mspRequest(val,[])
+        try {
+          mspRequest(val,[])
+        } catch(e) {
+          console.log(e)
+          enqueueSnackbar(e.message, { variant: 'error' })
+        }
       })
     return () => sub.unsubscribe()
   }, [mspClick$]);
