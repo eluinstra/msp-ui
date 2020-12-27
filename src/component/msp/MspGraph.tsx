@@ -12,6 +12,7 @@ const notEmpty = v => v != ""
 export const MspGraph = () => {
   const [state, changeState, state$] = useObservableBehaviourOf({
     checked: false,
+    interval: 100,
     cmd: ""
   });
   const mspMsg = useStatefulObservable<MspMsg>(mspResponse$
@@ -26,21 +27,22 @@ export const MspGraph = () => {
   //       mapTo(state.cmd),
   //       filter(notEmpty)
   //     )
-  //     .subscribe(val => {
-  //       mspRequest(val,[])
+  //     .subscribe(v => {
+  //       mspRequest(v,[])
   //     })
   //   return () => sub.unsubscribe()
   // }, [state$])
-  const interval$ = interval(1000).pipe(mapTo(-1));
   useEffect(() => {
     const sub = state$
-    .pipe(
-      startWith(state.checked),
-      switchMap(v => (v ? interval$ : NEVER)),
-    )
-    .subscribe(v => {
-      v => console.log(v)
-    })
+      .pipe(
+        startWith(state.checked),
+        switchMap(v => (v ? interval(state.interval) : NEVER)),
+        mapTo(state.cmd),
+      )
+      .subscribe(v => {
+        console.log(v)
+        mspRequest(v,[])
+      })
     return () => sub.unsubscribe()
   }, [state$])
   return (
@@ -53,7 +55,7 @@ export const MspGraph = () => {
         )}
       </NativeSelect>
       <FormControlLabel
-        control={<Switch checked={state.checked} color="secondary" onChange={e => changeState({ checked: !state.checked })}/>}
+        control={<Switch checked={state.checked} color="secondary" onChange={_ => changeState({ checked: !state.checked })}/>}
         label="Connect"
       />
       {mspMsg}
