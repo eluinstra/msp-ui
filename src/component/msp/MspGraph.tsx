@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react'
-import { BehaviorSubject, empty, from, interval, merge, NEVER, of, Subject } from 'rxjs'
-import { map, filter, mergeMap, delay, tap, mapTo, startWith, switchMap } from 'rxjs/operators'
+import { BehaviorSubject, from, interval, merge, NEVER, of, Subject } from 'rxjs'
+import { map, filter, mergeMap, delay, tap, mapTo, startWith, switchMap, throttle, delayWhen } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviourOf, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
 import { mspOutputFunctions } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, FormControlLabel, NativeSelect, Switch, TextField } from '@material-ui/core'
+import { Line } from 'react-chartjs-2'
 
 const notEmpty = v => v != ""
 
@@ -15,36 +16,53 @@ export const MspGraph = () => {
     interval: 100,
     cmd: ""
   });
-  const mspMsg = useStatefulObservable<MspMsg>(mspResponse$
+  const mspMsg = useStatefulObservable<number>(mspResponse$
     .pipe(
-      map(mspMsg  => mspOutputFunctions[mspMsg.cmd](mspMsg))
+      // map(mspMsg  => mspOutputFunctions[mspMsg.cmd](mspMsg))
+      mapTo(Math.random())
   ))
   // useEffect(() => {
   //   const sub = state$
   //     .pipe(
-  //       delay(1000),
-  //       tap(e => console.log("START")),
+  //       startWith(state.checked),
+  //       switchMap(v => (v ? interval(state.interval) : NEVER)),
   //       mapTo(state.cmd),
-  //       filter(notEmpty)
   //     )
   //     .subscribe(v => {
+  //       console.log(v)
   //       mspRequest(v,[])
   //     })
   //   return () => sub.unsubscribe()
   // }, [state$])
+  // useEffect(() => {
+  //   const sub = state$
+  //     .pipe(
+  //       startWith(state.checked),
+  //       switchMap(v => (v ? interval(state.interval) : NEVER)),
+  //       mapTo(state.cmd),
+  //       tap(v => mspRequest(v,[])),
+  //       switchMap(_ => mspResponse$),
+  //     )
+  //     .subscribe(v => {
+  //       console.log(v.cmd)
+  //     })
+  //   return () => sub.unsubscribe()
+  // }, [state$])
   useEffect(() => {
-    const sub = state$
+    const sub = merge(state$,mspResponse$)
       .pipe(
         startWith(state.checked),
-        switchMap(v => (v ? interval(state.interval) : NEVER)),
+        filter(v => v == true),
+        delayWhen(_ => interval(state.interval)),
         mapTo(state.cmd),
+        tap(v => mspRequest(v,[])),
+        switchMap(_ => mspResponse$),
       )
       .subscribe(v => {
-        console.log(v)
-        mspRequest(v,[])
+        console.log(v.cmd)
       })
     return () => sub.unsubscribe()
-  }, [state$])
+  }, [state$, mspResponse$])
   return (
     <React.Fragment>
       {/* <TextField label="cmd" value={state.cmd} onChange={e => changeState({ cmd: e.target.value })} /> */}
@@ -59,6 +77,38 @@ export const MspGraph = () => {
         label="Connect"
       />
       {mspMsg}
+      <Line
+        data={{
+          datasets: [{
+            label: 'Dataset 1',
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            lineTension: 0,
+            borderDash: [8, 4]
+          }, {
+            label: 'Dataset 2',
+            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(54, 162, 235, 0.5)'
+          }]
+        }}
+        options={{
+          scales: {
+            xAxes: [{
+              realtime: {
+                onRefresh: function(chart) {
+                  chart.data.datasets.forEach(function(dataset) {
+                    dataset.data.push({
+                      x: Date.now(),
+                      y: Math.random()
+                    });
+                  });
+                },
+                delay: 2000
+              }
+            }]
+          }
+        }}
+      />
     </React.Fragment>
   )
 }
