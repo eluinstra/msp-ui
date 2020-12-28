@@ -4,7 +4,8 @@
   "description": "msp ui",
   "main": "dist/main.js",
   "scripts": {
-    "build": "webpack",
+    "build": "tsc && copyfiles -f src/index.html dist",
+    "watch": "tsc -w",
     "start": "npm run build && electron dist/main.js"
   },
   "author": "",
@@ -30,6 +31,8 @@
     "@react-rxjs/core": "^0.6.1",
     "chart.js": "^2.8.0",
     "chartjs-plugin-streaming": "^1.8.0",
+    "copyfiles": "^2.4.1",
+    "module-alias": "^2.2.2",
     "node-notifier": "^9.0.0",
     "notistack": "^1.0.3",
     "react": "^17.0.1",
@@ -39,5 +42,8 @@
     "rxjs": "^6.6.3",
     "rxjs-compat": "^6.6.3",
     "serialport": "^9.0.2"
+  },
+  "_moduleAliases": {
+    "@": "dist"
   }
 }
