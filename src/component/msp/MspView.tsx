@@ -1,14 +1,12 @@
 import React from 'react'
+import { Card, CardContent, Paper } from '@material-ui/core';
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { MspMsg } from '@/component/msp/MspDriver';
-import { Card, CardContent, Paper } from '@material-ui/core';
 import { parseMspMsg } from '@/component/msp/MspModel';
 
 export const viewMspMsg = (msg: MspMsg) => {
   return mspOutputFunctions[msg.cmd](parseMspMsg(msg))
 }
-
-const mspOutputFunctions = [];
 
 const renderDefault = (msg: string) => {
   return (
@@ -20,15 +18,7 @@ const renderDefault = (msg: string) => {
   )
 }
 
-const renderString = (msg: string) => {
-  return (
-    <Card>
-      <CardContent>
-        {msg}
-      </CardContent>
-    </Card>
-  )
-}
+const mspOutputFunctions = [];
 
 Object.values(MspCmd).forEach(v => mspOutputFunctions[v] = renderDefault)
 
@@ -44,4 +34,22 @@ mspOutputFunctions[MspCmd.MSP_API_VERSION] = (msg: { protocolVersion: string, ap
   )
 }
 
-mspOutputFunctions[MspCmd.MSP_FC_VARIANT] = renderString
+mspOutputFunctions[MspCmd.MSP_FC_VARIANT] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Variant: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_FC_VERSION] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Version: {msg}
+      </CardContent>
+    </Card>
+  )
+}
