@@ -9,10 +9,11 @@ export const TestPage = () => {
   useEffect(() => {
     const sub = btnSubject
     .pipe(
-      scan(count => count + 1, 0)
+      scan(c => c + 1, 0)
     )
-    .subscribe(count => {
-      console.log(`Clicked ${count} times`)
+    .subscribe(v => {
+      console.log(`Clicked ${v} times`)
+      count.innerHTML = v.toString()
     });
     return () => sub.unsubscribe()
   }, [btnSubject]);
