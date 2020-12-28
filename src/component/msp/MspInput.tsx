@@ -4,7 +4,7 @@ import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
 import { distinctUntilChanged, map, filter, tap, startWith, mergeMap, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviour, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
-import { mspOutputFunctions } from '@/component/msp/MspView'
+import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, NativeSelect, TextField } from '@material-ui/core'
 import { useSnackbar } from 'notistack';
@@ -19,7 +19,7 @@ export const MspInput = () => {
   const [mspClick, mspClick$] = useObservableEvent()
   const mspMsg = useStatefulObservable<MspMsg>(mspResponse$
     .pipe(
-      map(mspMsg  => mspOutputFunctions[mspMsg.cmd](mspMsg))
+      map(mspMsg  => viewMspMsg(mspMsg))
   ))
   useEffect(() => {
     const sub = mspClick$

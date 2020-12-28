@@ -3,7 +3,7 @@ import { BehaviorSubject, from, interval, merge, NEVER, of, Subject } from 'rxjs
 import { map, filter, mergeMap, delay, tap, mapTo, startWith, switchMap, throttle, delayWhen } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviourOf, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
-import { mspOutputFunctions } from '@/component/msp/MspView'
+import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, FormControlLabel, NativeSelect, Switch, TextField } from '@material-ui/core'
 import { Line } from 'react-chartjs-2'
@@ -18,7 +18,7 @@ export const MspGraph = () => {
   });
   const mspMsg = useStatefulObservable<number>(mspResponse$
     .pipe(
-      // map(mspMsg  => mspOutputFunctions[mspMsg.cmd](mspMsg))
+      // map(mspMsg  => viewMspMsg[mspMsg.cmd](mspMsg))
       mapTo(Math.random())
   ))
   // useEffect(() => {

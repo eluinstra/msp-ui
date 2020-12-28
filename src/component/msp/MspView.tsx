@@ -1,27 +1,47 @@
 import React from 'react'
 import { MspCmd } from '@/component/msp/MspProtocol'
+import { MspMsg } from '@/component/msp/MspDriver';
+import { Card, CardContent, Paper } from '@material-ui/core';
+import { parseMspMsg } from '@/component/msp/MspModel';
 
-const hexInt = (num, width) => num.toString(16).padStart(width,"0").toUpperCase();
-const hexInt8 = num => hexInt(num & 0xFF, 2);
+export const viewMspMsg = (msg: MspMsg) => {
+  return mspOutputFunctions[msg.cmd](parseMspMsg(msg))
+}
 
-export const mspOutputFunctions = [];
+const mspOutputFunctions = [];
 
-const renderDefault = mspMsg => {
+const renderDefault = (msg: string) => {
   return (
-    <div>
-      <div>{mspMsg.buffer.map(v => hexInt8(v))}</div>
-    </div>
+    <Card>
+      <CardContent>
+        Raw output: {msg}
+      </CardContent>
+    </Card>
   )
 }
 
-const renderString = mspMsg => {
+const renderString = (msg: string) => {
   return (
-    <div>
-      <div>{mspMsg.buffer.filter(n => n != 0).reduce((s, n) => s + String.fromCharCode(n),"")}</div>
-    </div>
+    <Card>
+      <CardContent>
+        {msg}
+      </CardContent>
+    </Card>
   )
 }
 
-Object.keys(MspCmd).forEach(k => mspOutputFunctions[MspCmd[k]] = renderDefault)
+Object.values(MspCmd).forEach(v => mspOutputFunctions[v] = renderDefault)
+
+mspOutputFunctions[MspCmd.MSP_API_VERSION] = (msg: { protocolVersion: string, apiVersion: string }) => {
+  return (
+    <Card>
+      <CardContent>
+        Protocol version: {msg.protocolVersion}
+        <br />
+        API version: {msg.apiVersion}
+      </CardContent>
+    </Card>
+  )
+}
 
 mspOutputFunctions[MspCmd.MSP_FC_VARIANT] = renderString
