@@ -5,10 +5,14 @@ import imuMsgAngle from "../component/imu/imu-driver";
 import Chart from "./cchart"
 import { Line } from "react-chartjs-2";
 import 'chartjs-plugin-streaming';
+import { interval } from "rxjs";
+import { map } from "rxjs/operators";
+import { sample } from "rxjs/operators";
+import { ImuMsg, imuRequest, imuResponse$ } from '../component/imu/imu-driver'
 
-class CChart extends React.Component {
- state = {
-    lineChartData: {
+var createReactClass = require("create-react-class");
+
+ const state = {
       labels: [],
       datasets: [
         {
@@ -36,8 +40,9 @@ class CChart extends React.Component {
           data: []
         }
       ]
-    },
-    lineChartOptions: {
+  }
+
+  const options = {
       responsive: true,
       maintainAspectRatio: false,
       tooltips: {
@@ -45,118 +50,68 @@ class CChart extends React.Component {
       },
       plugins: {
         streaming: {
-            // onRefresh: function(chart) {
-            //     chart.data.datasets[0].data.push({
-            //         x: Date.now(),
-            //         y: Math.random() * 100,
-            //         r: 5
-            //     });
-            // },
             delay: 2000,
             //refresh: 1000,
             //frameRate: 30,
             //duration: 3600000 // 3600000 = 1hour
         }
       },
+      events: ['click'],
       scales: {
         xAxes: [
           {
             type: "realtime"
-            //ticks: {
-            //   autoSkip: true,
-            //   maxTicksLimit: 10
-            //}
           }
         ]
       }
-    }
-  };
-
-  componentDidMount() {
-    const subscribe = {
-      type: "subscribe",
-      channels: [
-        {
-          name: "ticker",
-          product_ids: ["Sensors"]
-        }
-      ]
-    };
-
-    setInterval(() => {
-
-    var roll:number = ((imuMsgAngle.RollH.valueOf() << 8)|imuMsgAngle.RollL.valueOf())/32768*180;
-    var pitch:number = ((imuMsgAngle.PitchH.valueOf() << 8)|imuMsgAngle.PitchL.valueOf())/32768*180;
-    var yaw:number = ((imuMsgAngle.YawH.valueOf() << 8)|imuMsgAngle.YawL.valueOf())/32768*180;
-
-    //const oldBtcDataSet1 = this.state.lineChartData.datasets[0];
-
-    var dateWithoutSecond = new Date();
-    var datum = dateWithoutSecond.toLocaleTimeString([], {year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'});
-    
-    //const newBtcDataSet1 = { ...oldBtcDataSet1 };
-    this.state.lineChartData.datasets[0].data.push({
-        x: Date.now(),
-        y: roll
-    });
-
-    //const oldBtcDataSet2 = this.state.lineChartData.datasets[1];
-    
-    //const newBtcDataSet2 = { ...oldBtcDataSet2 };
-    this.state.lineChartData.datasets[1].data.push({
-        x: Date.now(),
-        y: pitch
-    });
-
-    //const oldBtcDataSet3 = this.state.lineChartData.datasets[2];
-    
-    //const newBtcDataSet3 = { ...oldBtcDataSet3 };
-    this.state.lineChartData.datasets[2].data.push({
-        x: Date.now(),
-        y: yaw
-    });
-    //newBtcDataSet.data.push(pitch);
-         
-    const newChartData = {
-            ...this.state.lineChartData,
-            datasets: [this.state.lineChartData.datasets[0], this.state.lineChartData.datasets[1], this.state.lineChartData.datasets[2]],
-            labels: this.state.lineChartData.labels.concat(
-               1
-            )
-          };
-          
-          
-          
-    //const newData = useState({ lineChartData: newChartData });
-    
-    const data = {
-      labels: [
-        1
-      ],
-      datasets: [this.state.lineChartData.datasets[0], this.state.lineChartData.datasets[1], this.state.lineChartData.datasets[2]]
-    }
-
-      this.setState({ lineChartData: newChartData });
-
-  }, 1000);
-
-
-};
-
-  componentWillUnmount() {
-    //
   }
 
+
+    // var roll:number = ((imuMsgAngle.RollH.valueOf() << 8)|imuMsgAngle.RollL.valueOf())/32768*180;
+    // var pitch:number = ((imuMsgAngle.PitchH.valueOf() << 8)|imuMsgAngle.PitchL.valueOf())/32768*180;
+    // var yaw:number = ((imuMsgAngle.YawH.valueOf() << 8)|imuMsgAngle.YawL.valueOf())/32768*180;
+
+    imuResponse$
+    .pipe(
+      sample(interval(500)),
+      map(imuMsgAngle =>
+        ((imuMsgAngle.RollH.valueOf() << 8)|imuMsgAngle.RollL.valueOf())/32768*180
+        //pitch: ((imuMsgAngle.PitchH.valueOf() << 8)|imuMsgAngle.PitchL.valueOf())/32768*180,
+         //yaw: ((imuMsgAngle.YawH.valueOf() << 8)|imuMsgAngle.YawL.valueOf())/32768*180       
+      
+      ),
+    )
+    .subscribe(value => 
+      state.datasets[0].data.push({
+        x: Date.now(), 
+        y: value
+      })
+    );
+
+    // interval(500).pipe(
+    //   map(() => (
+    //   {
+    //     x: Date.now(), 
+    //     y: pitch
+    //   }
+    //   )),
+    // ).subscribe(value => {
+    //   state.datasets[1].data.push({
+    //     x: Date.now(), 
+    //     y: value
+    //   })
+    // })
+
+export default createReactClass({
+  displayName: "LineExample",
   render() {
     return (
       <div id='mychart' style={{"height": 300}}>
-        <Line 
-           data={this.state.lineChartData}
-           options={this.state.lineChartOptions}
+        <Line key="lineid"
+           data={state}
+           options={options}
         />
       </div>
     );
   }
-}
-
-export default CChart;
+});

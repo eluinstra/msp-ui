@@ -105,7 +105,7 @@ export interface IImuMsgAngle {
   SUM: Number
 }
 
-const imuMsgAngle : IImuMsgAngle = {
+export const imuMsgAngle : IImuMsgAngle = {
   enable: false,
   RollL: 0,
   RollH: 0,
@@ -152,7 +152,7 @@ export const imuRequest = (cmd, payload) => {
   serialPort?.value.write(Buffer.from(command(cmd, payload)))
 }
 
-export const imuResponse$ = new Subject();
+export const imuResponse$ = new Subject<IImuMsgAngle>();
 export const registerPortIMU = () => {
   serialPort?.value.on('data', function (data) {
     let counter = 0
@@ -160,13 +160,13 @@ export const registerPortIMU = () => {
       //if 0x55 is found unpack messages till next 0x55
       parseIMUAngle(data.readInt8(i))
 
-      // if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-      //    imuResponse$.next(imuMsg)
-      //    imuMsg.state = ImuState.IMU_IDLE
-      //  } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
-      //    imuResponse$.error(new Error('MSP error received!'))
-      //    imuMsg.state = ImuState.IMU_IDLE
-      //  }
+      if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
+          imuResponse$.next(imuMsgAngle)
+          imuMsg.state = ImuState.IMU_IDLE
+        } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
+          imuResponse$.error(new Error('MSP error received!'))
+          imuMsg.state = ImuState.IMU_IDLE
+        }
 
       counter++;
     }
@@ -238,6 +238,7 @@ function parseIMUData(num: Number) {
   datasegmentcounter++;
   if (imuMsgAcc.enable)
      {
+       
        switch(datasegmentcounter)
        {
           case 1: break;
@@ -254,6 +255,7 @@ function parseIMUData(num: Number) {
        var ax:number = ((imuMsgAcc.AxH.valueOf() << 8)|imuMsgAcc.AxL.valueOf())/32768*16*9.8;
        var ay:number = ((imuMsgAcc.AyH.valueOf() << 8)|imuMsgAcc.AyL.valueOf())/32768*16*9.8;
        var az:number = ((imuMsgAcc.AzH.valueOf() << 8)|imuMsgAcc.AzL.valueOf())/32768*16*9.8;
+       
        //console.log("aX:" + ax + "\n");
        //console.log("aY:" + ax + "\n");
        //console.log("aZ:" + ax + "\n");
@@ -283,6 +285,7 @@ function parseIMUAngle(num: Number) {
   datasegmentcounter++;
   if (imuMsgAngle.enable)
      {
+       imuMsg.state = ImuState.IMU_IDLE;
        switch(datasegmentcounter)
        {
           case 1: break;
@@ -299,6 +302,7 @@ function parseIMUAngle(num: Number) {
        var roll:number = ((imuMsgAngle.RollH.valueOf() << 8)|imuMsgAngle.RollL.valueOf())/32768*180;
        var pitch:number = ((imuMsgAngle.PitchH.valueOf() << 8)|imuMsgAngle.PitchL.valueOf())/32768*180;
        var yaw:number = ((imuMsgAngle.YawH.valueOf() << 8)|imuMsgAngle.YawL.valueOf())/32768*180;
+       imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
        //console.log("roll:" + roll + "\n");
        //console.log("pitch:" + pitch + "\n");
        //console.log("yaw:" + yaw + "\n");

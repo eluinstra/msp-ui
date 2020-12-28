@@ -1,9 +1,11 @@
 export const ImuCmd =
 {
+  IMU_IDLE: 0,
   IMU_TIME:   1,   //out message
   IMU_ACC: 2,
   IMU_ANGLULAR: 3,
   IMU_ANGLE: 4,
+  IMU_MSG_RECEIVED: 96,
   IMU_COMMAND_RECEIVED: 97,
   IMU_COMMAND_IDLE: 98,
   IMU_ERROR_RECEIVED: 99,

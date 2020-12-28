@@ -61,7 +61,7 @@ export const mspRequest = (cmd, payload) => {
   serialPort?.value.write(Buffer.from(command(cmd, payload)))
 }
 
-export const mspResponse$ = new Subject();
+export const mspResponse$ = new Subject<MspMsg>();
 export const registerPort = () => {
   serialPort?.value.on('data', function (data) {
     for (let i = 0; i < data.length; i++) {
