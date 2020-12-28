@@ -75,17 +75,36 @@ var createReactClass = require("create-react-class");
     .pipe(
       sample(interval(500)),
       map(imuMsgAngle =>
-        ((imuMsgAngle.RollH.valueOf() << 8)|imuMsgAngle.RollL.valueOf())/32768*180
+        {
+          const imuResults = {
+            roll: ((imuMsgAngle.RollH.valueOf() << 8)|imuMsgAngle.RollL.valueOf())/32768*180,
+            pitch: ((imuMsgAngle.PitchH.valueOf() << 8)|imuMsgAngle.PitchL.valueOf())/32768*180,
+            yaw: ((imuMsgAngle.YawH.valueOf() << 8)|imuMsgAngle.YawL.valueOf())/32768*180
+          }
+          return imuResults;
+        }
         //pitch: ((imuMsgAngle.PitchH.valueOf() << 8)|imuMsgAngle.PitchL.valueOf())/32768*180,
          //yaw: ((imuMsgAngle.YawH.valueOf() << 8)|imuMsgAngle.YawL.valueOf())/32768*180       
       
       ),
     )
     .subscribe(value => 
-      state.datasets[0].data.push({
-        x: Date.now(), 
-        y: value
-      })
+      {
+        const waarde = Object.values(value);
+        var counter = 0;
+        waarde.forEach( key => 
+          {
+
+            state.datasets[counter].data.push({
+               x: Date.now(), 
+               y: key
+            }),
+
+            //console.log(key + ":" + counter);
+            counter++
+          }
+        )
+      }
     );
 
     // interval(500).pipe(
