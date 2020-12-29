@@ -27,15 +27,26 @@ mspOutputFunctions[MspCmd.MSP_RAW_IMU] = (msg: { acc_x: number, acc_y: number, a
                                                  gyro_x: number, gyro_y: number, gyro_z: number,
                                                  mag_x: number, mag_y: number, mag_z: number }) => {
   const datasets = [{
-    label: 'Dataset 1',
-    borderColor: 'rgb(255, 99, 132)',
-    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-    lineTension: 0,
-    borderDash: [8, 4]
-  }, {
-    label: 'Dataset 2',
-    borderColor: 'rgb(54, 162, 235)',
-    backgroundColor: 'rgba(54, 162, 235, 0.5)'
+      type: "line",
+      label: "Roll",
+      backgroundColor: "green",
+      borderWidth: "2",
+      lineTension: 0.45,
+      data: []
+    }, {
+      type: "line",
+      label: "Pitch",
+      backgroundColor: "blue",
+      borderWidth: "2",
+      lineTension: 0.45,
+      data: []
+    }, {
+      type: "line",
+      label: "Yaw",
+      backgroundColor: "cyan",
+      borderWidth: "2",
+      lineTension: 0.45,
+      data: []
   }]
   return (
     <Graph datasets={datasets} />
