@@ -1,10 +1,10 @@
 export const MspCmd =
 {
-  MSP_API_VERSION:                 1,    //out message
-  MSP_FC_VARIANT:                  2,    //out message
-  MSP_FC_VERSION:                  3,    //out message
-  MSP_BOARD_INFO:                  4,    //out message
-  MSP_BUILD_INFO:                  5,    //out message
+  MSP_API_VERSION:                 1,    //out message *
+  MSP_FC_VARIANT:                  2,    //out message *
+  MSP_FC_VERSION:                  3,    //out message *
+  MSP_BOARD_INFO:                  4,    //out message *
+  MSP_BUILD_INFO:                  5,    //out message *
   
   MSP_NAME:                        10,   //out message          Returns user set board name - betaflight
   MSP_SET_NAME:                    11,   //in message           Sets board name - betaflight
@@ -70,7 +70,7 @@ export const MspCmd =
   // DEPRECATED - MSP_BF_CONFIG:                   66 //out message baseflight-specific settings that aren't covered elsewhere
   // DEPRECATED - MSP_SET_BF_CONFIG:               67 //in message baseflight-specific settings save
   
-  MSP_REBOOT:                      68, //in message reboot settings
+  MSP_REBOOT:                      68, //in message reboot settings *
   
   // Use MSP_BUILD_INFO instead
   // DEPRECATED - MSP_BF_BUILD_INFO               69 //out message build date as well as some space for future expansion
@@ -149,8 +149,8 @@ export const MspCmd =
   MSP_IDENT:                100,    //out message         mixerMode + multiwii version + protocol version + capability variable
   
   
-  MSP_STATUS:               101,    //out message         cycletime & errors_count & sensor present & box activation & current setting number
-  MSP_RAW_IMU:              102,    //out message         9 DOF
+  MSP_STATUS:               101,    //out message *       cycletime & errors_count & sensor present & box activation & current setting number
+  MSP_RAW_IMU:              102,    //out message *       9 DOF
   MSP_SERVO:                103,    //out message         servos
   MSP_MOTOR:                104,    //out message         motors
   MSP_RC:                   105,    //out message         rc channels and more
@@ -158,7 +158,7 @@ export const MspCmd =
   MSP_COMP_GPS:             107,    //out message         distance home, direction home
   MSP_ATTITUDE:             108,    //out message         2 angles 1 heading
   MSP_ALTITUDE:             109,    //out message         altitude, variometer
-  MSP_ANALOG:               110,    //out message         vbat, powermetersum, rssi if available on RX
+  MSP_ANALOG:               110,    //out message *       vbat, powermetersum, rssi if available on RX
   MSP_RC_TUNING:            111,    //out message         rc rate, rc expo, rollpitch rate, yaw rate, dyn throttle PID
   MSP_PID:                  112,    //out message         P I D coeff (9 are used currently)
   // Legacy Multiicommand that was never used.
