@@ -58,17 +58,16 @@ mspOutputParser[MspCmd.MSP_REBOOT] = parseString
 mspOutputParser[MspCmd.MSP_STATUS] = parseString
 
 mspOutputParser[MspCmd.MSP_RAW_IMU] = (msg: MspMsg) => {
-  const [head, ...tail] = msg.buffer;
   return {
-    acc_x: head.toString(),
-    acc_y: head.toString(),
-    acc_z: head.toString(),
-    gyro_x: head.toString(),
-    gyro_y: head.toString(),
-    gyro_z: head.toString(),
-    mag_x: head.toString(),
-    mag_y: head.toString(),
-    mag_z: tail.join(".")
+    acc_x: (msg.buffer[1] << 8) + msg.buffer[0],
+    acc_y: (msg.buffer[3] << 8) + msg.buffer[2],
+    acc_z: (msg.buffer[5] << 8) + msg.buffer[4],
+    gyro_x: (msg.buffer[7] << 8) + msg.buffer[6],
+    gyro_y: (msg.buffer[9] << 8) + msg.buffer[8],
+    gyro_z: (msg.buffer[11] << 8) + msg.buffer[10],
+    mag_x: (msg.buffer[13] << 8) + msg.buffer[12],
+    mag_y: (msg.buffer[15] << 8) + msg.buffer[14],
+    mag_z: (msg.buffer[17] << 8) + msg.buffer[16],
   }
 }
 
