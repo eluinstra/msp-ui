@@ -74,12 +74,12 @@ mspOutputParser[MspCmd.MSP_RAW_IMU] = (msg: MspMsg) => {
 }
 
 mspOutputParser[MspCmd.MSP_ANALOG] = (msg: MspMsg) => {
-  const [head, ...tail] = msg.buffer;
   return {
-    battery_voltage: head,
-    mah_drawn: head,
-    rssi: head,
+    battery_voltage: msg.buffer[0] / 10.0,
+    mah_drawn: int16(msg.buffer,1) / 1000.0,
+    rssi: int16(msg.buffer,3),
      /// Current in 0.01A steps, range is -320A to 320A
-    amperage: tail.join(".")
+    amperage: int16(msg.buffer,5) / 10.0,
+    amperage_1: int16(msg.buffer,7) / 10.0
   }
 }
