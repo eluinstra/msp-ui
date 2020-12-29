@@ -111,17 +111,17 @@ mspOutputFunctions[MspCmd.MSP_RAW_IMU] = (msg: { acc_x: number, acc_y: number, a
 }
 
 mspOutputFunctions[MspCmd.MSP_ANALOG] = (msg: { battery_voltage: number, mah_drawn: number, rssi: number, amperage: number}) => {
-return (
-<Card>
-<CardContent>
-Battery voltage: {msg.battery_voltage}
-<br />
-mAh drawn: {msg.mah_drawn}
-<br />
-RSSI: {msg.rssi}
-<br />
-Amperage: {msg.amperage}
-</CardContent>
-</Card>
-)
+  return (
+    <Card>
+      <CardContent>
+        Battery voltage: {msg.battery_voltage}
+        <br />
+        mAh drawn: {msg.mah_drawn}
+        <br />
+        RSSI: {msg.rssi}
+        <br />
+        Amperage: {msg.amperage}
+      </CardContent>
+    </Card>
+  )
 }

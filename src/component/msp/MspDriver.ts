@@ -35,10 +35,16 @@ const mspMsg : MspMsg = {
 const hexInt16 = v => [v & 0x00FF, v & 0xFF00]
 
 const getFlag = v => v[0]
- 
-const getCmd = v => (v[2] << 8) + v[1]
+const getCmd = v => v[1] + (v[2] << 8)
+const getLength = v => v[3] + (v[4] << 8)
 
-const getLength = v => (v[4] << 8) + v[3]
+const parseCmd = (b: number[]) => {
+  return {
+    flag: b[0],
+    cmd: b[1] + (b[2] << 8),
+    length: b[3] + (b[4] << 8)
+  }
+}
 
 const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0)
 
@@ -71,7 +77,7 @@ export const registerPort = () => {
     for (let i = 0; i < data.length; i++) {
       parseMSPCommand(data.readInt8(i))
       if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
-        mspResponseSubject.next(mspMsg)
+        mspResponseSubject.next({...mspMsg})
         mspMsg.state = MspState.MSP_IDLE
       } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
         mspResponseSubject.error(new Error('MSP error received!'))
