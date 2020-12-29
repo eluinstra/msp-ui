@@ -6,16 +6,16 @@ import { useStatefulObservable, useObservableBehaviour, useObservableEvent, useB
 import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
-import { Button, NativeSelect, TextField } from '@material-ui/core'
+import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField, Theme } from '@material-ui/core'
 import { useSnackbar } from 'notistack';
+import { Autocomplete } from '@material-ui/lab'
 
 const notEmpty = v => v != ""
 
 export const MspInput = () => {
   const { enqueueSnackbar } = useSnackbar();
-  const [state, changeState] = useBehaviour({
-    cmd: ""
-  });
+  const [cmd, setCmd] = useState(null);
+  const [inputValue, setInputValue] = useState('');
   const [mspClick, mspClick$] = useObservableEvent()
   const mspMsg = useStatefulObservable<MspMsg>(mspResponse$
     .pipe(
@@ -24,7 +24,7 @@ export const MspInput = () => {
   useEffect(() => {
     const sub = mspClick$
       .pipe(
-        mapTo(state.cmd),
+        mapTo(MspCmd[cmd]),
         filter(notEmpty)
       )
       .subscribe(val => {
@@ -39,14 +39,21 @@ export const MspInput = () => {
   }, [mspClick$]);
   return (
     <React.Fragment>
-      {/* <TextField label="cmd" value={state.cmd} onChange={e => changeState({ cmd: e.target.value })} /> */}
-      <NativeSelect value={state.cmd} onChange={e => changeState({ cmd: e.target.value })}>
-        <option aria-label="None" value="">None</option>
-        {Object.keys(MspCmd).map(key =>
-          <option key={MspCmd[key]} value={MspCmd[key]}>{key}</option>
-        )}
-      </NativeSelect>
-      <Button variant="contained" color="secondary" onClick={_ => mspClick()}>MSP Go</Button>
+      <FormControl>
+        <Autocomplete
+          value={cmd}
+          onChange={(_, v: string) => { setCmd(v) }}
+          inputValue={inputValue}
+          onInputChange={(_, v) => setInputValue(v)}
+          options={Object.keys(MspCmd)}
+          getOptionLabel={option => option}
+          renderInput={params => <TextField {...params} variant="standard" />}
+          style={{ width: 350 }}
+        />
+      </FormControl>
+      <FormControl>
+        <Button variant="contained" color="secondary" onClick={_ => mspClick()}>MSP Go</Button>
+      </FormControl>
       {mspMsg}
     </React.Fragment>
   )

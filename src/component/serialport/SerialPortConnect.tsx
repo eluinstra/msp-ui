@@ -42,13 +42,13 @@ export const SerialPortConnect = () => {
   }, [connectClick$])
   return (
     <React.Fragment>
-      <NativeSelect value={state.port} onClick={_ => portClick()} onChange={e => changeState({ port: e.target.value })}>
+      <NativeSelect value={state.port} disabled={state.checked} onClick={_ => portClick()} onChange={e => changeState({ port: e.target.value })}>
         <option value="">Manual</option>
         {portInfo?.map(v =>
           <option key={v.path} value={v.path}>{v.path}</option>
         )}
       </NativeSelect>
-      <NativeSelect value={state.baudrate} onChange={e => changeState({ baudrate: Number(e.target.value) })}>
+      <NativeSelect value={state.baudrate} disabled={state.checked} onChange={e => changeState({ baudrate: Number(e.target.value) })}>
         {baudrates.map(v =>
           <option key={v} value={v}>{v}</option>
         )}
