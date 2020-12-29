@@ -54,6 +54,34 @@ mspOutputFunctions[MspCmd.MSP_FC_VERSION] = (msg: string) => {
   )
 }
 
+mspOutputFunctions[MspCmd.MSP_BOARD_INFO] = (msg: { boardId: string, hardwareRevision: number, fcType: number }) => {
+  return (
+    <Card>
+      <CardContent>
+        Board ID: {msg.boardId}
+        <br />
+        Hardware Revision: {msg.hardwareRevision}
+        <br />
+        FC Type: {msg.fcType}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_BUILD_INFO] = (msg: { buildDate: string, buildTime: string, shortGitRevision: string }) => {
+  return (
+    <Card>
+      <CardContent>
+        Build Date: {msg.buildDate}
+        <br />
+        Build Time: {msg.buildTime}
+        <br />
+        Git Revision: {msg.shortGitRevision}
+      </CardContent>
+    </Card>
+  )
+}
+
 mspOutputFunctions[MspCmd.MSP_RAW_IMU] = (msg: { acc_x: number, acc_y: number, acc_z: number,
                                                  gyro_x: number, gyro_y: number, gyro_z: number,
                                                  mag_x: number, mag_y: number, mag_z: number }) => {

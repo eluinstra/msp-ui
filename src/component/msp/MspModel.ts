@@ -4,8 +4,11 @@ import { MspMsg } from '@/component/msp//MspDriver';
 
 const hexInt = (num: number, width: number) => num.toString(16).padStart(width,"0").toUpperCase();
 const hexInt8 = (num: number) => hexInt(num & 0xFF, 2);
-
 const int16 = (buffer: number[], index: number) => (buffer[index + 1] << 8) + buffer[index]
+const string = (buffer: number[]) =>
+  _.takeWhile(buffer, n => n != 0).reduce((s, n) => s + String.fromCharCode(n),"")
+const substring = (buffer: number[], start: number, num: number) =>
+  _.take(_.drop(buffer, start), num).reduce((s, n) => s + String.fromCharCode(n),"")
 
 export const parseMspMsg = (msg: MspMsg) => {
   return mspOutputParser[msg.cmd](msg)
@@ -16,7 +19,7 @@ const parseDefault = (msg: MspMsg) => {
 }
 
 const parseString = (msg: MspMsg) => {
-  return _.takeWhile(msg.buffer, n => n != 0).reduce((s, n) => s + String.fromCharCode(n),"")
+  return string(msg.buffer)
 }
 
 const mspOutputParser = [];
@@ -38,20 +41,18 @@ mspOutputParser[MspCmd.MSP_FC_VERSION] = (msg: MspMsg) => {
 }
 
 mspOutputParser[MspCmd.MSP_BOARD_INFO] = (msg: MspMsg) => {
-   const [head, ...tail] = msg.buffer;
     return {
-      board_id: head.toString(),
-      hardware_revision: head.toString(),
-      fc_type: tail.join(".")
+      boardId: substring(msg.buffer, 0, 4),
+      hardwareRevision: int16(msg.buffer,4),
+      fcType: msg.buffer[6]
     }
 }
 
 mspOutputParser[MspCmd.MSP_BUILD_INFO] = (msg: MspMsg) => {
-    const [head, ...tail] = msg.buffer;
     return {
-      date_str: head.toString(),
-      time_str: head.toString(),
-      git_str: tail.join(".")
+      buildDate: substring(msg.buffer, 0, 11),
+      buildTime: substring(msg.buffer, 11, 8),
+      shortGitRevision: substring(msg.buffer, 19, 7)
     }
 }
 
