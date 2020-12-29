@@ -60,14 +60,14 @@ mspOutputParser[MspCmd.MSP_STATUS] = parseString
 mspOutputParser[MspCmd.MSP_RAW_IMU] = (msg: MspMsg) => {
   const [head, ...tail] = msg.buffer;
   return {
-    acc_x: head,
-    acc_y: head,
-    acc_z: head,
-    gyro_x: head,
-    gyro_y: head,
-    gyro_z: head,
-    mag_x: head,
-    mag_y: head,
+    acc_x: head.toString(),
+    acc_y: head.toString(),
+    acc_z: head.toString(),
+    gyro_x: head.toString(),
+    gyro_y: head.toString(),
+    gyro_z: head.toString(),
+    mag_x: head.toString(),
+    mag_y: head.toString(),
     mag_z: tail.join(".")
   }
 }

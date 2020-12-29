@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "type": "electron",
+          "request": "launch",
+          "name": "Launch something",
+          "appDir": "${workspaceFolder}",
+          "sourceMaps": true
+      }
+      ,
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch npm",
+        "program": "${workspaceFolder}",
+        "console": "integratedTerminal",
+        "sourceMaps": true,
+        "resolveSourceMapLocations": [
+          "${workspaceFolder}/**",
+          "!**/node_modules/**"
+        ],
+        "runtimeExecutable": "npm",
+        "runtimeArgs": [
+          "run-script", "--inspect", "start"
+        ]
+      }
+  ]
+}

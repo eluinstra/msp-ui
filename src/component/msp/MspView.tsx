@@ -53,3 +53,47 @@ mspOutputFunctions[MspCmd.MSP_FC_VERSION] = (msg: string) => {
     </Card>
   )
 }
+
+mspOutputFunctions[MspCmd.MSP_RAW_IMU] = (msg: { acc_x: number, acc_y: number, acc_z: number,
+                                                 gyro_x: number, gyro_y: number, gyro_z: number,
+                                                 mag_x: number, mag_y: number, mag_z: number }) => {
+  return (
+    <Card>
+      <CardContent>
+        AX: {msg.acc_x}
+        <br />
+        AY: {msg.acc_y}
+        <br />
+        AZ: {msg.acc_z}
+        <br />
+        GYROX: {msg.gyro_x}
+        <br />
+        GYROY: {msg.gyro_y}
+        <br />
+        GYROZ: {msg.gyro_z}
+        <br />
+        MAGX: {msg.mag_x}
+        <br />
+        MAGY: {msg.mag_y}
+        <br />
+        MAGZ: {msg.mag_z}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_ANALOG] = (msg: { battery_voltage: number, mah_drawn: number, rssi: number, amperage: number}) => {
+return (
+<Card>
+<CardContent>
+Battery voltage: {msg.battery_voltage}
+<br />
+mAh drawn: {msg.mah_drawn}
+<br />
+RSSI: {msg.rssi}
+<br />
+Amperage: {msg.amperage}
+</CardContent>
+</Card>
+)
+}
