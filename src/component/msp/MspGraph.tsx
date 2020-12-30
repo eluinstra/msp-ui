@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { BehaviorSubject, from, interval, merge, NEVER, of, Subject } from 'rxjs'
-import { map, filter, mergeMap, delay, tap, mapTo, startWith, switchMap, throttle, delayWhen } from 'rxjs/operators'
-import { useStatefulObservable, useObservableBehaviourOf, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
+import { interval, merge, NEVER } from 'rxjs'
+import { map, filter, tap, mapTo, startWith, switchMap, delayWhen } from 'rxjs/operators'
+import { useStatefulObservable, useObservableBehaviourOf } from '@/common/RxTools'
+import { mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
 import { MspCmd } from '@/component/msp/MspProtocol'
-import { Button, FormControl, FormControlLabel, NativeSelect, Switch, TextField } from '@material-ui/core'
+import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/core'
 import { viewMspGraph } from '@/component/msp/MspGraphView'
 import { Autocomplete } from '@material-ui/lab'
-
-const notEmpty = v => v != ""
 
 export const MspGraph = () => {
   const [state, changeState, state$] = useObservableBehaviourOf({

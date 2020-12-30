@@ -1,10 +1,9 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
-import { AppBar, CssBaseline, Divider, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, StylesProvider, Toolbar, Typography } from '@material-ui/core'
+import { AppBar, CssBaseline, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
 import { BatteryStd as BatteryStdIcon, Build as BuildIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
-import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
+import { SnackbarProvider } from 'notistack';
 import { AboutPage } from '@/page/About';
 import { ConfigurationPage } from '@/page/Configuration';
 import { HomePage } from '@/page/Home'
@@ -29,6 +28,12 @@ const theme = createMuiTheme({
     },
   },
   props: {
+    MuiAppBar: {
+      color: 'primary',
+      style: {
+        color: 'white'
+      }
+    },
     MuiButton: {
       color: 'secondary',
     },
@@ -40,9 +45,9 @@ const theme = createMuiTheme({
     MuiTableCell: {
       head: {
           fontWeight: "bold",
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 const useStyles = makeStyles((theme) => ({
@@ -60,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
-    alignSelf: 'flex-end',
+    alignSelf: 'center',
   },
   drawer: {
     width: drawerWidth,
@@ -81,7 +86,6 @@ const useStyles = makeStyles((theme) => ({
 export const App = () => {
   const classes = useStyles();
   return (
-  <StylesProvider injectFirst>
   <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
     <CssBaseline />
     <ThemeProvider theme={theme}>
@@ -97,7 +101,6 @@ export const App = () => {
       </div>
     </ThemeProvider>
   </SnackbarProvider>
-  </StylesProvider>
   )
 }
 
@@ -109,12 +112,6 @@ const MSPAppBar = props => {
           Alpha|BOT
         </Typography>
         <SerialPortConnect />
-        <IconButton
-          aria-controls="menu-appbar"
-          aria-haspopup="true"
-          color="inherit"
-        >
-        </IconButton>
       </Toolbar>
     </AppBar>
   )
