@@ -3,21 +3,10 @@ import { from, interval, Observable, of, Subject } from 'rxjs';
 import { distinctUntilChanged, map, mergeMap, startWith, take, tap,  } from 'rxjs/operators';
 import { PortInfo } from 'serialport';
 import { useStatefulObservable } from '@/common/RxTools';
-import { makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import { portInfo$ } from '@/component/serialport/SerialPortDriver';
 
-const useStyles = makeStyles({
-  tableRow: {
-    "&.MuiTableRow-head": {
-      "& > .MuiTableCell-head": {
-        fontWeight: "bold"
-      }
-    }
-  }
-});
-
 export const PortList = () => {
-  const classes = useStyles();
   const portInfo = useStatefulObservable(interval(1000).pipe(take(1))
     .pipe(
       mergeMap(_ => portInfo$()),
@@ -28,7 +17,7 @@ export const PortList = () => {
     <TableContainer component={Paper}>
       <Table size="small">
         <TableHead>
-          <TableRow className={classes.tableRow}>
+          <TableRow>
             <TableCell>path</TableCell>
             <TableCell>manufacturer</TableCell>
             <TableCell>serialNumber</TableCell>

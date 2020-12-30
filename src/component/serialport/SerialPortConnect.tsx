@@ -54,7 +54,7 @@ export const SerialPortConnect = () => {
         )}
       </NativeSelect>
       <FormControlLabel
-        control={<Switch checked={state.checked} color="secondary" onClick={_ => connectClick()}/>}
+        control={<Switch checked={state.checked} onClick={_ => connectClick()}/>}
         label="Connect"
       />
     </React.Fragment>

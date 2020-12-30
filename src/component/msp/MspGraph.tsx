@@ -80,7 +80,7 @@ export const MspGraph = () => {
       </FormControl>
       <FormControl>
         <FormControlLabel
-          control={<Switch checked={state.checked} color="secondary" onChange={_ => changeState({ checked: !state.checked })}/>}
+          control={<Switch checked={state.checked} onChange={_ => changeState({ checked: !state.checked })}/>}
           label="Run"
         />
       </FormControl>

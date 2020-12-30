@@ -52,7 +52,7 @@ export const MspInput = () => {
         />
       </FormControl>
       <FormControl>
-        <Button variant="contained" color="secondary" onClick={_ => mspClick()}>MSP Go</Button>
+        <Button variant="contained" onClick={_ => mspClick()}>MSP Go</Button>
       </FormControl>
       {mspMsg}
     </React.Fragment>

@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
-import { AppBar, CssBaseline, Divider, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
+import { AppBar, CssBaseline, Divider, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, StylesProvider, Toolbar, Typography } from '@material-ui/core'
 import { BatteryStd as BatteryStdIcon, Build as BuildIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
@@ -22,10 +22,25 @@ const theme = createMuiTheme({
     primary: {
       light: '#4a6572',
       main: '#344955',
-      dark: '#232f34'
+      dark: '#232f34',
     },
     secondary: {
-      main: '#f9aa33'
+      main: '#f9aa33',
+    },
+  },
+  props: {
+    MuiButton: {
+      color: 'secondary',
+    },
+    MuiSwitch: {
+      color: 'secondary',
+    },
+  },
+  overrides: {
+    MuiTableCell: {
+      head: {
+          fontWeight: "bold",
+      }
     }
   }
 });
@@ -45,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
-    alignSelf: 'flex-end'
+    alignSelf: 'flex-end',
   },
   drawer: {
     width: drawerWidth,
@@ -66,10 +81,11 @@ const useStyles = makeStyles((theme) => ({
 export const App = () => {
   const classes = useStyles();
   return (
-    <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
-    <div className={classes.root}>
-      <CssBaseline />
-      <ThemeProvider theme={theme}>
+  <StylesProvider injectFirst>
+  <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
+    <CssBaseline />
+    <ThemeProvider theme={theme}>
+      <div className={classes.root}>
         <MSPAppBar classes={classes} />
         <Router>
           <MSPDrawer classes={classes} />
@@ -78,9 +94,10 @@ export const App = () => {
             <MSPRouter />
           </main>
         </Router>
-      </ThemeProvider>
-    </div>
-    </SnackbarProvider>
+      </div>
+    </ThemeProvider>
+  </SnackbarProvider>
+  </StylesProvider>
   )
 }
 
