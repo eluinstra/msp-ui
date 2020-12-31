@@ -2,8 +2,8 @@ import { stat } from "fs";
 import React, { useEffect, useState } from "react"
 import { fromEvent } from 'rxjs'
 import { distinctUntilChanged, filter, map, takeUntil } from 'rxjs/operators'
-import { LatLngExpression, LatLngTuple, Polyline as LeafletPolyline, PolylineOptions } from 'leaflet'
-import { MapContainer, Polyline, TileLayer } from 'react-leaflet'
+import L, { LatLngExpression, LatLngTuple, Polyline as LeafletPolyline, PolylineOptions } from 'leaflet'
+import { MapContainer, Polyline, TileLayer, useMap } from 'react-leaflet'
 import readline from 'readline'
 import fs from'fs'
 
@@ -37,7 +37,26 @@ const sub = fromEvent(rl, 'line')
   () => console.log(pointList)
 )
 
-  export const Map = () => {
+const MyPolyline = () => {
+  const map = useMap()
+  useEffect(() => {
+    const polyline = L.polyline(
+      pointList,
+      {
+          color: 'blue',
+          weight: 3,
+          opacity: .7,
+          lineJoin: 'round'
+      }
+    )
+    polyline.addTo(map);
+    map.fitBounds(polyline.getBounds())
+    return () => sub.unsubscribe()
+  }, [])
+  return <></>
+}
+
+export const Map = () => {
   const [state, setState] = useState({
     currentLocation: { lat: 53.21917, lng: 6.56667 },
     zoom: 12,
@@ -49,7 +68,8 @@ const sub = fromEvent(rl, 'line')
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
       />
-      <Polyline positions={state.latlngs} color={'red'} />
+      <MyPolyline />
+      {/* <Polyline positions={state.latlngs} color={'red'} /> */}
     </MapContainer>
-  );
+  )
 }
