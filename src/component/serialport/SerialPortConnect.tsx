@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { FormControl, FormControlLabel, NativeSelect, Switch } from '@material-ui/core'
+import { FormControl, FormControlLabel, FormGroup, NativeSelect, Switch } from '@material-ui/core'
 import { filter, map, mergeMap } from 'rxjs/operators';
 import { baudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
@@ -40,23 +40,29 @@ export const SerialPortConnect = () => {
   }, [connectClick$])
   return (
     <React.Fragment>
-      <FormControl>
-        <NativeSelect value={state.port} disabled={state.checked} onClick={_ => portClick()} onChange={e => changeState({ port: e.target.value })}>
-          <option value="">Manual</option>
-          {portInfo?.map(v =>
-            <option key={v.path} value={v.path}>{v.path}</option>
-          )}
-        </NativeSelect>
-        <NativeSelect value={state.baudrate} disabled={state.checked} onChange={e => changeState({ baudrate: Number(e.target.value) })}>
-          {baudrates.map(v =>
-            <option key={v} value={v}>{v}</option>
-          )}
-        </NativeSelect>
-        <FormControlLabel
-          control={<Switch checked={state.checked} onClick={_ => connectClick()}/>}
-          label="Connect"
-        />
-      </FormControl>
+      <FormGroup>
+        <FormControl>
+          <NativeSelect value={state.port} disabled={state.checked} onClick={_ => portClick()} onChange={e => changeState({ port: e.target.value })}>
+            <option value="">Manual</option>
+            {portInfo?.map(v =>
+              <option key={v.path} value={v.path}>{v.path}</option>
+            )}
+          </NativeSelect>
+        </FormControl>
+        <FormControl>
+          <NativeSelect value={state.baudrate} disabled={state.checked} onChange={e => changeState({ baudrate: Number(e.target.value) })}>
+            {baudrates.map(v =>
+              <option key={v} value={v}>{v}</option>
+            )}
+          </NativeSelect>
+        </FormControl>
+        <FormControl>
+          <FormControlLabel
+            control={<Switch checked={state.checked} onClick={_ => connectClick()}/>}
+            label="Connect"
+          />
+        </FormControl>
+      </FormGroup>
     </React.Fragment>
   )
 }
