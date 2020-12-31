@@ -4,7 +4,7 @@
   "description": "msp ui",
   "main": "dist/main.js",
   "scripts": {
-    "build": "tsc && copyfiles -f src/index.html dist",
+    "build": "tsc && copyfiles -f node_modules/leaflet/dist/leaflet.css node_modules/leaflet/dist/leaflet.js src/index.html dist",
     "watch": "tsc -w",
     "start": "npm run build && electron dist/main.js"
   },
