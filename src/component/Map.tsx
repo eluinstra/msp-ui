@@ -1,7 +1,7 @@
 import { stat } from "fs";
 import React, { useEffect, useState } from "react"
 import { fromEvent } from 'rxjs'
-import { distinctUntilChanged, filter, map, takeUntil } from 'rxjs/operators'
+import { delay, distinctUntilChanged, filter, map, takeUntil } from 'rxjs/operators'
 import L, { LatLngExpression, LatLngTuple, Polyline as LeafletPolyline, PolylineOptions } from 'leaflet'
 import { MapContainer, Polyline, TileLayer, useMap } from 'react-leaflet'
 import readline from 'readline'
@@ -23,7 +23,7 @@ const rl = readline.createInterface({
   input: fs.createReadStream('/home/user/test.txt')
 })
 
-const sub = fromEvent(rl, 'line')
+const point$ = fromEvent(rl, 'line')
 .pipe(
   takeUntil(fromEvent(rl, 'close')),
   filter(isValid),
@@ -31,17 +31,18 @@ const sub = fromEvent(rl, 'line')
   distinctUntilChanged(comparePoints),
   map(pointToList)
 )
-.subscribe(
+
+point$.subscribe(
   v => pointList.push(v),
   err => console.log("Error: %s", err),
-  () => console.log(pointList)
+  () => console.log("Complete: " + pointList)
 )
 
 const MyPolyline = () => {
   const map = useMap()
   useEffect(() => {
     const polyline = L.polyline(
-      pointList,
+      [],
       {
           color: 'blue',
           weight: 3,
@@ -50,8 +51,9 @@ const MyPolyline = () => {
       }
     )
     polyline.addTo(map);
-    map.fitBounds(polyline.getBounds())
-    return () => sub.unsubscribe()
+    pointList.forEach(p => polyline.addLatLng(p))
+    if (!polyline.isEmpty())
+      map.fitBounds(polyline.getBounds())
   }, [])
   return <></>
 }
@@ -60,7 +62,6 @@ export const Map = () => {
   const [state, setState] = useState({
     currentLocation: { lat: 53.21917, lng: 6.56667 },
     zoom: 12,
-    latlngs: pointList
   })
   return (
     <MapContainer center={state.currentLocation} zoom={state.zoom} style={{ width: '100%', height: '600px'}}>
@@ -69,7 +70,6 @@ export const Map = () => {
         attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
       />
       <MyPolyline />
-      {/* <Polyline positions={state.latlngs} color={'red'} /> */}
     </MapContainer>
   )
 }
