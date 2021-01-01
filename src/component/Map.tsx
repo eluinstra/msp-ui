@@ -8,7 +8,7 @@ import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import readline from 'readline'
 import fs from'fs'
 
-const isValid = (s: string) => !s.startsWith('nan')
+const isValidPoint = p => !(isNaN(p.lat) || isNaN(p.lng))
 const lineToPointParser = (re: RegExp, s: string) => {
   const m = s.match(re)
   return {
@@ -27,8 +27,8 @@ const MyPolyline = props => {
   const [ point$ ] = useState(fromEvent(rl, 'line')
     .pipe(
       takeUntil(fromEvent(rl, 'close')),
-      filter(isValid),
       map(lineToPoint),
+      filter(isValidPoint),
       distinctUntilChanged(comparePoints),
       map(pointToLatLng))
   )

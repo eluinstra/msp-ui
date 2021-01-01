@@ -9,7 +9,7 @@ var rl = readline.createInterface({
   input: fs.createReadStream('/home/user/test.txt')
 })
 
-const isValid = l => !l.startsWith('nan')
+const isValidPoint = p => !(isNaN(p.lat) || isNaN(p.lng))
 const lineToPoint = l => {
   const m = l.match(/^(\d*\.\d*)\^(\d*.\d*)|/)
   return {
@@ -23,8 +23,8 @@ const pointToList = p => [p.lat, p.lng]
 const point$ = Rx.fromEvent(rl, 'line')
   .pipe(
     takeUntil(Rx.fromEvent(rl, 'close')),
-    filter(isValid),
     map(lineToPoint),
+    filter(isValidPoint),
     distinctUntilChanged(comparePoints),
     map(pointToList)
   )
