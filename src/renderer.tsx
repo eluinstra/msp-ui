@@ -1,6 +1,7 @@
 import 'module-alias/register';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { App } from './App';
+import { Msp3d } from '@/component/msp/Msp3d';
+//import { App } from '@/App';
 
-ReactDOM.render(<App />, document.getElementById('app'));
+ReactDOM.render(<Msp3d />, document.getElementById('app'));

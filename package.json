@@ -44,9 +44,11 @@
     "react-dom": "^17.0.1",
     "react-leaflet": "^3.0.5",
     "react-router-dom": "^5.2.0",
+    "react-three-fiber": "^5.3.10",
     "rxjs": "^6.6.3",
     "rxjs-compat": "^6.6.3",
-    "serialport": "^9.0.2"
+    "serialport": "^9.0.2",
+    "three": "^0.124.0"
   },
   "_moduleAliases": {
     "@": "dist"

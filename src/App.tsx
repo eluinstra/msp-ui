@@ -1,13 +1,14 @@
 import React from 'react'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
-import { BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons';
+import { BatteryStd as BatteryStdIcon, Build as BuildIcon, Drafts as DraftsIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons';
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack';
 import { AboutPage } from '@/page/About';
 import { ConfigurationPage } from '@/page/Configuration';
-import { GPSPage } from './page/GPS';
+import { GPSPage } from '@/page/GPS';
 import { HomePage } from '@/page/Home'
+import { Msp3dPage } from '@/page/Msp3d';
 import { MspInputPage } from '@/page/MspInput'
 import { MspGraphPage } from '@/page/MspGraph';
 import { PortsPage } from '@/page/Ports'
@@ -137,6 +138,7 @@ const MSPDrawer = props => {
           <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} />
           <MenuListItem text="MSP Input" to="/msp-input" icon={<InputIcon />} />
           <MenuListItem text="MSP Graph" to="/msp-graph" icon={<ShowChartIcon />} />
+          <MenuListItem text="MPS 3D" to="/msp-3d" icon={<DraftsIcon />} />
           <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} />
           <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
         </List>
@@ -174,6 +176,9 @@ const MSPRouter = () => {
       </Route>
       <Route path="/msp-graph">
         <MspGraphPage />
+      </Route>
+      <Route path="/msp-3d">
+        <Msp3dPage />
       </Route>
       <Route path="/gps">
         <GPSPage />
