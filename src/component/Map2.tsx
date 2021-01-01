@@ -1,4 +1,4 @@
-import { stat } from "fs";
+import { stat } from "fs"
 import React, { useEffect, useState } from "react"
 import { fromEvent } from 'rxjs'
 import { delay, distinctUntilChanged, filter, map, startWith, takeUntil, tap } from 'rxjs/operators'
@@ -18,52 +18,45 @@ const lineToPoint = v => {
 const comparePoints = (p, n) => p.lat === n.lat && p.lng === n.lng
 const pointToLatLng = v => [v.lat, v.lng] as LatLngTuple
 
-const pointList: LatLngTuple[] = []
-
-const rl = readline.createInterface({
-  input: fs.createReadStream('/home/user/test.txt')
-})
-
-const point$ = fromEvent(rl, 'line')
-.pipe(
-  //delay(500),
-  takeUntil(fromEvent(rl, 'close')),
-  filter(isValid),
-  map(lineToPoint),
-  distinctUntilChanged(comparePoints),
-  map(pointToLatLng),
-  tap(console.log)
-)
-.subscribe(
-  v => pointList.push(v),
-  err => console.log("Error: %s", err),
-  () => console.log(pointList)
-)
-
 export const Map = () => {
   const [state, setState] = useState({
     currentLocation: { lat: 53.21917, lng: 6.56667 },
     zoom: 12
   })
+  const rl = readline.createInterface({
+    input: fs.createReadStream('/home/user/test.txt')
+  })
+  const [ point$ ] = useState(fromEvent(rl, 'line')
+    .pipe(
+      //delay(500),
+      takeUntil(fromEvent(rl, 'close')),
+      filter(isValid),
+      map(lineToPoint),
+      distinctUntilChanged(comparePoints),
+      map(pointToLatLng),
+  ))
   useEffect(() => {
-    const map = L.map(document.getElementById('map')).setView(state.currentLocation, state.zoom);
+    const gMap = L.map(document.getElementById('map')).setView(state.currentLocation, state.zoom)
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors'
-    }).addTo(map);
-    const line = L.polyline(pointList,{
+      attribution: '&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors'
+    }).addTo(gMap)
+    const line = L.polyline([],{
       color: 'red',
       weight: 3,
       opacity: .7,
       lineJoin: 'round'
-    }).addTo(map);
-    // const sub = point$.subscribe(v => {
-    //   console.log(v)
-    //   line.addLatLng(v)
-    //   map.fitBounds(line.getBounds())
-    // })
-    // return () => sub.unsubscribe()
-    //line.addLatLng(pointList)
-    map.fitBounds(line.getBounds())
+    }).addTo(gMap)
+    point$.subscribe(
+      p => {
+        line.addLatLng(p)
+        // gMap.fitBounds(polyline.getBounds())
+      },
+      err => console.log("Error: %s", err),
+      () => {
+        gMap.fitBounds(line.getBounds())
+        console.log("Complete")
+      }
+    )
   })
   return (
     <div id="map" style={{ width: '100%', height: '600px'}}></div>

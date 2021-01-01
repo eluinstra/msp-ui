@@ -1,4 +1,4 @@
-import { stat } from "fs";
+import { stat } from "fs"
 import React, { useEffect, useState } from "react"
 import { fromEvent } from 'rxjs'
 import { delay, distinctUntilChanged, filter, map, takeUntil } from 'rxjs/operators'
@@ -15,46 +15,41 @@ const lineToPoint = v => {
   }
 }
 const comparePoints = (p, n) => p.lat === n.lat && p.lng === n.lng
-const pointToList = v => [v.lat, v.lng]
+const pointToLatLng = v => [v.lat, v.lng]
 
-const pointList = []
-
-const rl = readline.createInterface({
-  input: fs.createReadStream('/home/user/test.txt')
-})
-
-const point$ = fromEvent(rl, 'line')
-.pipe(
-  takeUntil(fromEvent(rl, 'close')),
-  filter(isValid),
-  map(lineToPoint),
-  distinctUntilChanged(comparePoints),
-  map(pointToList)
-)
-
-point$.subscribe(
-  v => pointList.push(v),
-  err => console.log("Error: %s", err),
-  () => console.log("Complete: " + pointList)
-)
-
-const MyPolyline = () => {
-  const map = useMap()
-  useEffect(() => {
-    const polyline = L.polyline(
-      [],
-      {
-          color: 'blue',
-          weight: 3,
-          opacity: .7,
-          lineJoin: 'round'
-      }
-    )
-    polyline.addTo(map);
-    pointList.forEach(p => polyline.addLatLng(p))
-    if (!polyline.isEmpty())
-      map.fitBounds(polyline.getBounds())
-  }, [])
+const MyPolyline = props => {
+  const rl = readline.createInterface({
+    input: fs.createReadStream('/home/user/test.txt')
+  })
+  const [ point$ ] = useState(fromEvent(rl, 'line')
+    .pipe(
+      takeUntil(fromEvent(rl, 'close')),
+      filter(isValid),
+      map(lineToPoint),
+      distinctUntilChanged(comparePoints),
+      map(pointToLatLng))
+  )
+  const gMap = useMap()
+  const polyline = L.polyline(
+    [],
+    {
+        color: 'blue',
+        weight: 3,
+        opacity: .7,
+        lineJoin: 'round'
+    }
+  ).addTo(gMap)
+  point$.subscribe(
+    p => {
+      polyline.addLatLng(p)
+      // gMap.fitBounds(polyline.getBounds())
+    },
+    err => console.log("Error: %s", err),
+    () => {
+      gMap.fitBounds(polyline.getBounds())
+      console.log("Complete")
+    }
+  )
   return <></>
 }
 
