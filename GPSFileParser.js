@@ -11,9 +11,10 @@ var rl = readline.createInterface({
 
 const isValid = l => !l.startsWith('nan')
 const lineToPoint = l => {
+  const m = l.match(/^(\d*\.\d*)\^(\d*.\d*)|/)
   return {
-    lat: Number(l.substring(0, 9)),
-    lng: Number(l.substring(10, 18))
+    lat: Number(m[1]),
+    lng: Number(m[2])
   }
 }
 const comparePoints = (p, c) => p.lat === c.lat && p.lng === c.lng

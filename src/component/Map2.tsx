@@ -8,13 +8,15 @@ import { MapContainer, Polyline, TileLayer, useMap } from 'react-leaflet'
 import readline from 'readline'
 import fs from'fs'
 
-const isValid = v => !v.startsWith('nan')
-const lineToPoint = v => {
+const isValid = (s: string) => !s.startsWith('nan')
+const lineToPointParser = (re: RegExp, s: string) => {
+  const m = s.match(re)
   return {
-    lat: Number(v.substring(0, 9)),
-    lng: Number(v.substring(10, 18))
+    lat: Number(m[1]),
+    lng: Number(m[2])
   }
 }
+const lineToPoint = (s: string) => lineToPointParser(/^(\d*\.\d*)\^(\d*.\d*)|/, s)
 const comparePoints = (p, n) => p.lat === n.lat && p.lng === n.lng
 const pointToLatLng = v => [v.lat, v.lng] as LatLngTuple
 
@@ -28,7 +30,6 @@ export const Map = () => {
   })
   const [ point$ ] = useState(fromEvent(rl, 'line')
     .pipe(
-      //delay(500),
       takeUntil(fromEvent(rl, 'close')),
       filter(isValid),
       map(lineToPoint),

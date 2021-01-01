@@ -1,25 +1,28 @@
+import _ from 'lodash'
 import { stat } from "fs"
 import React, { useEffect, useState } from "react"
 import { fromEvent } from 'rxjs'
 import { delay, distinctUntilChanged, filter, map, takeUntil } from 'rxjs/operators'
-import L, { LatLngExpression, LatLngTuple, Polyline as LeafletPolyline, PolylineOptions } from 'leaflet'
-import { MapContainer, Polyline, TileLayer, useMap } from 'react-leaflet'
+import L, { LatLngExpression, LatLngTuple, Polyline as LeafletPolyline, Polyline, PolylineOptions } from 'leaflet'
+import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import readline from 'readline'
 import fs from'fs'
 
-const isValid = v => !v.startsWith('nan')
-const lineToPoint = v => {
+const isValid = (s: string) => !s.startsWith('nan')
+const lineToPointParser = (re: RegExp, s: string) => {
+  const m = s.match(re)
   return {
-    lat: Number(v.substring(0, 9)),
-    lng: Number(v.substring(10, 18))
+    lat: Number(m[1]),
+    lng: Number(m[2])
   }
 }
+const lineToPoint = (s: string) => lineToPointParser(/^(\d*\.\d*)\^(\d*.\d*)|/, s)
 const comparePoints = (p, n) => p.lat === n.lat && p.lng === n.lng
 const pointToLatLng = v => [v.lat, v.lng]
 
 const MyPolyline = props => {
   const rl = readline.createInterface({
-    input: fs.createReadStream('/home/user/test.txt')
+    input: fs.createReadStream(props.line.filename)
   })
   const [ point$ ] = useState(fromEvent(rl, 'line')
     .pipe(
@@ -30,19 +33,11 @@ const MyPolyline = props => {
       map(pointToLatLng))
   )
   const gMap = useMap()
-  const polyline = L.polyline(
-    [],
-    {
-        color: 'blue',
-        weight: 3,
-        opacity: .7,
-        lineJoin: 'round'
-    }
-  ).addTo(gMap)
+  const polyline: Polyline = props.line.polyline.addTo(gMap)
   point$.subscribe(
     p => {
       polyline.addLatLng(p)
-      // gMap.fitBounds(polyline.getBounds())
+      gMap.fitBounds(polyline.getBounds())
     },
     err => console.log("Error: %s", err),
     () => {
@@ -57,6 +52,25 @@ export const Map = () => {
   const [state, setState] = useState({
     currentLocation: { lat: 53.21917, lng: 6.56667 },
     zoom: 12,
+    lines: [{
+      filename: '/home/user/test.txt',
+      polyline: L.polyline([], {
+            color: 'blue',
+            weight: 3,
+            opacity: .7,
+            lineJoin: 'round'
+        }
+      )
+    },{
+      filename: '/home/user/test.txt',
+      polyline: L.polyline([], {
+            color: 'red',
+            weight: 1,
+            opacity: .7,
+            lineJoin: 'round'
+        }
+      )
+    }]
   })
   return (
     <MapContainer center={state.currentLocation} zoom={state.zoom} style={{ width: '100%', height: '600px'}}>
@@ -64,7 +78,11 @@ export const Map = () => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
       />
-      <MyPolyline />
+      <MyPolyline line={state.lines[0]} />
+      <MyPolyline line={state.lines[1]} />
+      {/* {_.forEach(state.lines, line => {
+         <MyPolyline line={line} />
+      })} */}
     </MapContainer>
   )
 }
