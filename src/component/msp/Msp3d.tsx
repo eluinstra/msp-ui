@@ -28,7 +28,7 @@ function Box(props) {
 
 export const Msp3d = () => {
   return (
-    <Canvas>
+    <Canvas style={{ width: '100%', height: '600px' }}>
       <ambientLight intensity={0.5} />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
       <pointLight position={[-10, -10, -10]} />
