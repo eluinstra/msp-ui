@@ -5,10 +5,10 @@ import { useStatefulObservable, useObservableBehaviourOf } from '@/common/RxTool
 import { mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/core'
-import { viewMspGraph } from '@/component/msp/MspGraphView'
+import { viewMspChart } from '@/component/msp/MspChartView'
 import { Autocomplete } from '@material-ui/lab'
 
-export const MspGraph = () => {
+export const MspChart = () => {
   const [state, changeState, state$] = useObservableBehaviourOf({
     checked: false,
     interval: 100,
@@ -17,7 +17,7 @@ export const MspGraph = () => {
   const [inputValue, setInputValue] = useState('');
   const mspMsg = useStatefulObservable<number>(mspResponse$
     .pipe(
-      map(mspMsg  => viewMspGraph(mspMsg))
+      map(mspMsg  => viewMspChart(mspMsg))
       // mapTo(Math.random())
   ))
   // useEffect(() => {

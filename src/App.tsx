@@ -9,7 +9,7 @@ import { ConfigurationPage } from '@/page/Configuration';
 import { GPSPage } from './page/GPS';
 import { HomePage } from '@/page/Home'
 import { MspInputPage } from '@/page/MspInput'
-import { MspGraphPage } from '@/page/MspGraph';
+import { MspChartPage } from '@/page/MspChart';
 import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings';
 import { PowerAndBatteryPage } from '@/page/Power';
@@ -106,10 +106,11 @@ export const App = () => {
 }
 
 const MSPAppBar = props => {
+  const { appBar, toolbar, title } = props.classes
   return (
-    <AppBar position="fixed" className={props.classes.appBar}>
-      <Toolbar className={props.classes.toolbar}>
-        <Typography variant="h6" className={props.classes.title}>
+    <AppBar position="fixed" className={appBar}>
+      <Toolbar className={toolbar}>
+        <Typography variant="h6" className={title}>
           Alpha|BOT
         </Typography>
         <SerialPortConnect />
@@ -119,16 +120,17 @@ const MSPAppBar = props => {
 }
 
 const MSPDrawer = props => {
+  const { drawer, drawerPaper, toolbar, drawerContainer } = props.classes
   return (
     <Drawer
-      className={props.classes.drawer}
+      className={drawer}
       variant="permanent"
       classes={{
-        paper: props.classes.drawerPaper
+        paper: drawerPaper
       }}
     >
-      <Toolbar className={props.classes.toolbar} />
-      <div className={props.classes.drawerContainer}>
+      <Toolbar className={toolbar} />
+      <div className={drawerContainer}>
         <List>
           <MenuListItem text="Home" to="/" icon={<HomeIcon />} />
           <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} />
@@ -136,7 +138,7 @@ const MSPDrawer = props => {
           <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} />
           <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} />
           <MenuListItem text="MSP Input" to="/msp-input" icon={<InputIcon />} />
-          <MenuListItem text="MSP Graph" to="/msp-graph" icon={<ShowChartIcon />} />
+          <MenuListItem text="MSP Chart" to="/msp-chart" icon={<ShowChartIcon />} />
           <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} />
           <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
         </List>
@@ -146,10 +148,11 @@ const MSPDrawer = props => {
 }
 
 const MenuListItem = props => {
+  const { text, to, icon } = props
   return (
-    <ListItem button key={props.text} component={Link} to={props.to}>
-      <ListItemIcon>{props.icon}</ListItemIcon>
-      <ListItemText primary={props.text} />
+    <ListItem button key={text} component={Link} to={to}>
+      <ListItemIcon>{icon}</ListItemIcon>
+      <ListItemText primary={text} />
     </ListItem>
   )
 }
@@ -172,8 +175,8 @@ const MSPRouter = () => {
       <Route path="/msp-input">
         <MspInputPage />
       </Route>
-      <Route path="/msp-graph">
-        <MspGraphPage />
+      <Route path="/msp-chart">
+        <MspChartPage />
       </Route>
       <Route path="/gps">
         <GPSPage />

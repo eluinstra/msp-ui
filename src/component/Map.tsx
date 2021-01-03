@@ -21,8 +21,9 @@ const comparePoints = (p, n) => p.lat === n.lat && p.lng === n.lng
 const pointToLatLng = v => [v.lat, v.lng]
 
 const MyPolyline = props => {
+  const { filename, polyline } = props.line
   const rl = readline.createInterface({
-    input: fs.createReadStream(props.line.filename)
+    input: fs.createReadStream(filename)
   })
   const [ point$ ] = useState(fromEvent(rl, 'line')
     .pipe(
@@ -33,15 +34,15 @@ const MyPolyline = props => {
       map(pointToLatLng))
   )
   const gMap = useMap()
-  const polyline: Polyline = props.line.polyline.addTo(gMap)
+  const line: Polyline = polyline.addTo(gMap)
   point$.subscribe(
     p => {
-      polyline.addLatLng(p)
-      gMap.fitBounds(polyline.getBounds())
+      line.addLatLng(p)
+      gMap.fitBounds(line.getBounds())
     },
     err => console.log("Error: %s", err),
     () => {
-      gMap.fitBounds(polyline.getBounds())
+      gMap.fitBounds(line.getBounds())
       console.log("Complete")
     }
   )

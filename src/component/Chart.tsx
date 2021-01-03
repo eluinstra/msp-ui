@@ -3,12 +3,13 @@ import { Line } from 'react-chartjs-2'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { mspResponse$ } from './msp/MspDriver'
-import { viewMspGraph } from './msp/MspGraphView'
+import { viewMspChart } from './msp/MspChartView'
 import { parseMspMsg } from './msp/MspModel'
 
-export const Graph = props => {
+export const Chart = props => {
+  const { datasets } = props
   const data = {
-    datasets: props.datasets
+    datasets: datasets
   }
   const options = {
     responsive: true,

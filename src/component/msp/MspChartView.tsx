@@ -3,9 +3,9 @@ import { Card, CardContent, Paper } from '@material-ui/core';
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { MspMsg } from '@/component/msp/MspDriver';
 import { parseMspMsg } from '@/component/msp/MspModel';
-import { Graph } from '@/component/Graph';
+import { Chart } from '@/component/Chart';
 
-export const viewMspGraph = (msg: MspMsg) => {
+export const viewMspChart = (msg: MspMsg) => {
   return mspOutputFunctions[msg.cmd](parseMspMsg(msg))
 }
 
@@ -49,7 +49,7 @@ mspOutputFunctions[MspCmd.MSP_RAW_IMU] = (msg: { acc_x: number, acc_y: number, a
       data: []
   }]
   return (
-    <Graph datasets={datasets} />
+    <Chart datasets={datasets} />
   )
 }
 
@@ -62,6 +62,6 @@ mspOutputFunctions[MspCmd.MSP_ANALOG] = (msg: { battery_voltage: number, mah_dra
     borderDash: [8, 4]
   }]
   return (
-    <Graph datasets={datasets} />
+    <Chart datasets={datasets} />
   )
 }
