@@ -53,7 +53,7 @@ export const Map = () => {
     currentLocation: { lat: 53.21917, lng: 6.56667 },
     zoom: 12,
     lines: [{
-      filename: '/home/user/test.txt',
+      filename: 'D:/data/test.txt',
       polyline: L.polyline([], {
             color: 'blue',
             weight: 3,
@@ -62,7 +62,7 @@ export const Map = () => {
         }
       )
     },{
-      filename: '/home/user/test.txt',
+      filename: 'D:/data/test.txt',
       polyline: L.polyline([], {
             color: 'red',
             weight: 1,

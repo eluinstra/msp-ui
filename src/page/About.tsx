@@ -1,19 +1,19 @@
 import { remote } from 'electron'
 import React from 'react'
-import { Card, CardContent } from '@material-ui/core'
+import { Paper, Typography } from '@material-ui/core'
 
 const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1)
 
-export const AboutPage = () => {
+export const About = () => {
   return (
     <React.Fragment>
       <h2>About</h2>
-      <Card>
-        <CardContent>
-          {['node', 'electron', 'chrome'].map(a => <React.Fragment key={a}>{capitalize(a) + ': ' + process.versions[a]}<br /></React.Fragment>)}
+      <Paper>
+        <Typography variant="body2" component="p">
+          {['node', 'electron', 'chrome'].map(a => <React.Fragment>{capitalize(a) + ': ' + process.versions[a]}<br /></React.Fragment>)}
           SerialPort: {remote.require('serialport/package').version}
-        </CardContent>
-      </Card>
+        </Typography>
+      </Paper>
     </React.Fragment>
   )
 }

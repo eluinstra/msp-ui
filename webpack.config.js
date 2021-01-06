@@ -1,10 +1,13 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
+var nodeExternals = require('webpack-node-externals');
 
 const electronConfiguration = {
   mode: 'development',
   entry: './src/main.ts',
   target: 'electron-main',
+  externals: [nodeExternals()],
+  externals: { sqlite3: 'commonjs sqlite3' }, 
   resolve: {
     alias: {
       ['@']: path.resolve(__dirname, 'src')
@@ -15,6 +18,7 @@ const electronConfiguration = {
     rules: [{
       test: /\.ts$/,
       include: /src/,
+      exclude: ['/node_modules/'],
       use: [{ 
         loader: 'ts-loader',
         options: {
@@ -33,6 +37,7 @@ const reactConfiguration = {
   mode: 'development',
   entry: './src/renderer.tsx',
   target: 'electron-renderer',
+  externals: { sqlite3: 'commonjs sqlite3' }, 
   devtool: 'source-map',
   resolve: {
     alias: {

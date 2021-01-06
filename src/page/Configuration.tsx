@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const ConfigurationPage = () => {
+export const Configuration = () => {
   return (
     <h2>Configuration</h2>
   )
