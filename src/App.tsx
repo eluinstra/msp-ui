@@ -1,19 +1,24 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
-import { BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons'
+import { ArrowBackIos as ArrowBackIosIcon, BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon,
+          Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons'
+import { useHistory, useLocation } from 'react-router'
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack'
 import { AboutPage } from '@/page/About'
 import { ConfigurationPage } from '@/page/Configuration'
 import { GPSPage } from './page/GPS'
 import { HomePage } from '@/page/Home'
+import { Imu } from '@/page/Imu'
+import { Msp } from '@/page/Msp'
 import { MspInputPage } from '@/page/MspInput'
 import { MspChartPage } from '@/page/MspChart'
 import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
+import { WitMotion } from '@/page/WitMotion'
 
 const drawerWidth = 240
 
@@ -122,9 +127,19 @@ const MSPAppBar = props => {
   )
 }
 
+const isDefaultMenu = (loc: string) => loc.endsWith('index.html') || ['/','/about','/configuration','/gps','/ports','/power','/settings'].includes(loc)
+const isMspMenu = (loc: string) => ['/msp','/msp-input','/msp-chart'].includes(loc)
+const isImuMenu = (loc: string) => ['/imu','/wit-motion'].includes(loc)
+
 const MSPDrawer = props => {
   const { classes, connected } = props
   const { drawer, drawerPaper, toolbar, drawerContainer } = classes
+  const location = useLocation('/')
+  const history = useHistory()
+  useEffect(() => {
+    console.log(location)
+    console.log(history)
+  })
   return (
     <Drawer
       className={drawer}
@@ -135,21 +150,36 @@ const MSPDrawer = props => {
     >
       <Toolbar className={toolbar} />
       <div className={drawerContainer}>
-        <List>
-          <MenuListItem text="Home" to="/" icon={<HomeIcon />} />
-          {connected && (
-            <React.Fragment>
-              <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} />
-              <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} />
-              <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} />
-              <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} />
-              <MenuListItem text="MSP Input" to="/msp-input" icon={<InputIcon />} />
-              <MenuListItem text="MSP Chart" to="/msp-chart" icon={<ShowChartIcon />} />
-            </React.Fragment>
-          )}
-          <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} />
-          <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
-        </List>
+        {isDefaultMenu(location.pathname) &&
+          <List>
+            <MenuListItem text="Home" to="/" icon={<HomeIcon />} />
+            {connected && (
+              <React.Fragment>
+                <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} />
+                <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} />
+                <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} />
+                <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} />
+                <MenuListItem text="MSP" to="/msp" icon={<InputIcon />} />
+                <MenuListItem text="IMU" to="/imu" icon={<OpenWithIcon />} />
+              </React.Fragment>
+            )}
+            <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} />
+            <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
+          </List>
+        }
+        {isMspMenu(location.pathname) && (
+          <React.Fragment>
+            <MenuListItem text="MSP" to="/" icon={<ArrowBackIosIcon />} />
+            <MenuListItem text="Input" to="/msp-input" icon={<InputIcon />} />
+            <MenuListItem text="Chart" to="/msp-chart" icon={<ShowChartIcon />} />
+          </React.Fragment>
+        )}
+        {isImuMenu(location.pathname) && (
+          <React.Fragment>
+            <MenuListItem text="IMU" to="/" icon={<ArrowBackIosIcon />} />
+            <MenuListItem text="Wit Motion" to="/wit-motion" />
+          </React.Fragment>
+        )}
       </div>
     </Drawer>
   )
@@ -166,7 +196,6 @@ const MenuListItem = props => {
 }
 
 const MSPRouter = props => {
-  const { connected } = props
   return (
     <Switch>
       <Route path="/settings">
@@ -181,11 +210,20 @@ const MSPRouter = props => {
       <Route path="/power">
         <PowerAndBatteryPage />
       </Route>
+      <Route path="/msp">
+        <Msp />
+      </Route>
       <Route path="/msp-input">
         <MspInputPage />
       </Route>
       <Route path="/msp-chart">
         <MspChartPage />
+      </Route>
+      <Route path="/imu">
+        <Imu />
+      </Route>
+      <Route path="/wit-motion">
+        <WitMotion />
       </Route>
       <Route path="/gps">
         <GPSPage />
