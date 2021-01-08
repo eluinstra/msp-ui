@@ -9,9 +9,9 @@ import { registerPort } from '@/component/msp/MspDriver'
 const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
 
-export const SerialPortConnect = () => {
+export const SerialPortConnect = props => {
+  const { connected, setConnected } = props
   const [state, changeState] = useBehaviour({
-    checked: false,
     port: "",
     baudrate: defaultBaudrate
   })
@@ -28,13 +28,13 @@ export const SerialPortConnect = () => {
         filter(_ => notEmpty(state.port))
       )
       .subscribe(val => {
-        if (!state.checked) {
+        if (!connected) {
           openPort(state.port, state.baudrate)
           registerPort()
         } else {
           closePort()
         }
-        changeState({ checked: !state.checked })
+        setConnected(!connected)
       })
     return () => sub.unsubscribe()
   }, [connectClick$])
@@ -42,7 +42,7 @@ export const SerialPortConnect = () => {
     <React.Fragment>
       <FormGroup>
         <FormControl>
-          <NativeSelect value={state.port} disabled={state.checked} onClick={_ => portClick()} onChange={e => changeState({ port: e.target.value })}>
+          <NativeSelect value={state.port} disabled={connected} onClick={_ => portClick()} onChange={e => changeState({ port: e.target.value })}>
             <option value="">Manual</option>
             {portInfo?.map(v =>
               <option key={v.path} value={v.path}>{v.path}</option>
@@ -50,7 +50,7 @@ export const SerialPortConnect = () => {
           </NativeSelect>
         </FormControl>
         <FormControl>
-          <NativeSelect value={state.baudrate} disabled={state.checked} onChange={e => changeState({ baudrate: Number(e.target.value) })}>
+          <NativeSelect value={state.baudrate} disabled={connected} onChange={e => changeState({ baudrate: Number(e.target.value) })}>
             {baudrates.map(v =>
               <option key={v} value={v}>{v}</option>
             )}
@@ -58,7 +58,7 @@ export const SerialPortConnect = () => {
         </FormControl>
         <FormControl>
           <FormControlLabel
-            control={<Switch checked={state.checked} onClick={_ => connectClick()}/>}
+            control={<Switch checked={connected} onClick={_ => connectClick()}/>}
             label="Connect"
           />
         </FormControl>

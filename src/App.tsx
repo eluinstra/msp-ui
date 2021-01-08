@@ -1,21 +1,21 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
-import { BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons';
+import { BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon, Input as InputIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons'
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
-import { SnackbarProvider } from 'notistack';
-import { AboutPage } from '@/page/About';
-import { ConfigurationPage } from '@/page/Configuration';
-import { GPSPage } from './page/GPS';
+import { SnackbarProvider } from 'notistack'
+import { AboutPage } from '@/page/About'
+import { ConfigurationPage } from '@/page/Configuration'
+import { GPSPage } from './page/GPS'
 import { HomePage } from '@/page/Home'
 import { MspInputPage } from '@/page/MspInput'
-import { MspChartPage } from '@/page/MspChart';
+import { MspChartPage } from '@/page/MspChart'
 import { PortsPage } from '@/page/Ports'
-import { SettingsPage } from '@/page/Settings';
-import { PowerAndBatteryPage } from '@/page/Power';
-import { SerialPortConnect } from '@/component/serialport/SerialPortConnect';
+import { SettingsPage } from '@/page/Settings'
+import { PowerAndBatteryPage } from '@/page/Power'
+import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
 
-const drawerWidth = 240;
+const drawerWidth = 240
 
 const theme = createMuiTheme({
   palette: {
@@ -49,7 +49,7 @@ const theme = createMuiTheme({
       },
     },
   },
-});
+})
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -82,20 +82,22 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
   },
-}));
+}))
 
 export const App = () => {
-  const classes = useStyles();
+  const classes = useStyles()
+  const { content, toolbar, root } = classes
+  const [ connected, setConnected ] = useState(false)
   return (
   <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
     <CssBaseline />
     <ThemeProvider theme={theme}>
-      <div className={classes.root}>
-        <MSPAppBar classes={classes} />
+      <div className={root}>
+        <MSPAppBar classes={classes} connected={connected} setConnected={setConnected}/>
         <Router>
-          <MSPDrawer classes={classes} />
-          <main className={classes.content}>
-            <Toolbar className={classes.toolbar} />
+          <MSPDrawer classes={classes} connected={connected}/>
+          <main className={content}>
+            <Toolbar className={toolbar} />
             <MSPRouter />
           </main>
         </Router>
@@ -106,21 +108,23 @@ export const App = () => {
 }
 
 const MSPAppBar = props => {
-  const { appBar, toolbar, title } = props.classes
+  const { classes, connected, setConnected } = props
+  const { appBar, toolbar, title } = classes
   return (
     <AppBar position="fixed" className={appBar}>
       <Toolbar className={toolbar}>
         <Typography variant="h6" className={title}>
           Alpha|BOT
         </Typography>
-        <SerialPortConnect />
+        <SerialPortConnect connected={connected} setConnected={setConnected}/>
       </Toolbar>
     </AppBar>
   )
 }
 
 const MSPDrawer = props => {
-  const { drawer, drawerPaper, toolbar, drawerContainer } = props.classes
+  const { classes, connected } = props
+  const { drawer, drawerPaper, toolbar, drawerContainer } = classes
   return (
     <Drawer
       className={drawer}
@@ -133,12 +137,16 @@ const MSPDrawer = props => {
       <div className={drawerContainer}>
         <List>
           <MenuListItem text="Home" to="/" icon={<HomeIcon />} />
-          <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} />
-          <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} />
-          <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} />
-          <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} />
-          <MenuListItem text="MSP Input" to="/msp-input" icon={<InputIcon />} />
-          <MenuListItem text="MSP Chart" to="/msp-chart" icon={<ShowChartIcon />} />
+          {connected && (
+            <React.Fragment>
+              <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} />
+              <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} />
+              <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} />
+              <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} />
+              <MenuListItem text="MSP Input" to="/msp-input" icon={<InputIcon />} />
+              <MenuListItem text="MSP Chart" to="/msp-chart" icon={<ShowChartIcon />} />
+            </React.Fragment>
+          )}
           <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} />
           <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
         </List>
@@ -157,7 +165,8 @@ const MenuListItem = props => {
   )
 }
 
-const MSPRouter = () => {
+const MSPRouter = props => {
+  const { connected } = props
   return (
     <Switch>
       <Route path="/settings">
