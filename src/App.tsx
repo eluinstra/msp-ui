@@ -3,7 +3,7 @@ import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/sty
 import { AppBar, CssBaseline, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
 import { ArrowBackIos as ArrowBackIosIcon, BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon,
           Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons'
-import { useHistory, useLocation } from 'react-router'
+import { useLocation } from 'react-router'
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack'
 import { AboutPage } from '@/page/About'
@@ -19,6 +19,8 @@ import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
 import { WitMotion } from '@/page/WitMotion'
+
+enum Mode { DEFAULT, MSP, IMU } 
 
 const drawerWidth = 240
 
@@ -53,6 +55,13 @@ const theme = createMuiTheme({
           fontWeight: "bold",
       },
     },
+    MuiListItem: {
+      root: {
+        selected: {
+          color: 'secondary',
+        }
+      }
+    }
   },
 })
 
@@ -127,19 +136,10 @@ const MSPAppBar = props => {
   )
 }
 
-const isDefaultMenu = (loc: string) => loc.endsWith('index.html') || ['/','/about','/configuration','/gps','/ports','/power','/settings'].includes(loc)
-const isMspMenu = (loc: string) => ['/msp','/msp-input','/msp-chart'].includes(loc)
-const isImuMenu = (loc: string) => ['/imu','/wit-motion'].includes(loc)
-
 const MSPDrawer = props => {
   const { classes, connected } = props
   const { drawer, drawerPaper, toolbar, drawerContainer } = classes
-  const location = useLocation('/')
-  const history = useHistory()
-  useEffect(() => {
-    console.log(location)
-    console.log(history)
-  })
+  const [ mode, setMode ] = useState(Mode.DEFAULT)
   return (
     <Drawer
       className={drawer}
@@ -150,34 +150,34 @@ const MSPDrawer = props => {
     >
       <Toolbar className={toolbar} />
       <div className={drawerContainer}>
-        {isDefaultMenu(location.pathname) &&
+        {mode == Mode.DEFAULT &&
           <List>
-            <MenuListItem text="Home" to="/" icon={<HomeIcon />} />
+            <MenuListItem text="Home" to="/" icon={<HomeIcon />} setMode={setMode} />
             {connected && (
               <React.Fragment>
-                <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} />
-                <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} />
-                <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} />
-                <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} />
-                <MenuListItem text="MSP" to="/msp" icon={<InputIcon />} />
-                <MenuListItem text="IMU" to="/imu" icon={<OpenWithIcon />} />
+                <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} setMode={setMode} />
+                <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} setMode={setMode} />
+                <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} setMode={setMode} />
+                <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} setMode={setMode} />
+                <MenuListItem text="MSP" to="/msp" icon={<InputIcon />} mode={Mode.MSP} setMode={setMode} />
+                <MenuListItem text="IMU" to="/imu" icon={<OpenWithIcon />} mode={Mode.IMU} setMode={setMode} />
               </React.Fragment>
             )}
-            <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} />
-            <MenuListItem text="About" to="/about" icon={<InfoIcon />} />
+            <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} setMode={setMode} />
+            <MenuListItem text="About" to="/about" icon={<InfoIcon />} setMode={setMode} />
           </List>
         }
-        {isMspMenu(location.pathname) && (
+        {mode == Mode.MSP && (
           <React.Fragment>
-            <MenuListItem text="MSP" to="/" icon={<ArrowBackIosIcon />} />
-            <MenuListItem text="Input" to="/msp-input" icon={<InputIcon />} />
-            <MenuListItem text="Chart" to="/msp-chart" icon={<ShowChartIcon />} />
+            <MenuListItem text="MSP" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
+            <MenuListItem text="Input" to="/msp-input" icon={<InputIcon />} mode={Mode.MSP} setMode={setMode} />
+            <MenuListItem text="Chart" to="/msp-chart" icon={<ShowChartIcon />} mode={Mode.MSP} setMode={setMode} />
           </React.Fragment>
         )}
-        {isImuMenu(location.pathname) && (
+        {mode == Mode.IMU && (
           <React.Fragment>
-            <MenuListItem text="IMU" to="/" icon={<ArrowBackIosIcon />} />
-            <MenuListItem text="Wit Motion" to="/wit-motion" />
+            <MenuListItem text="IMU" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
+            <MenuListItem text="Wit Motion" to="/wit-motion" mode={Mode.IMU} setMode={setMode} />
           </React.Fragment>
         )}
       </div>
@@ -186,16 +186,17 @@ const MSPDrawer = props => {
 }
 
 const MenuListItem = props => {
-  const { text, to, icon } = props
+  const location = useLocation('/')
+  const { text, to, icon, mode = Mode.DEFAULT, setMode } = props
   return (
-    <ListItem button key={text} component={Link} to={to}>
+    <ListItem button key={text} component={Link} to={to} onClick={_ => setMode(mode)} selected={location.pathname == to}>
       <ListItemIcon>{icon}</ListItemIcon>
       <ListItemText primary={text} />
     </ListItem>
   )
 }
 
-const MSPRouter = props => {
+const MSPRouter = () => {
   return (
     <Switch>
       <Route path="/settings">
