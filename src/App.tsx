@@ -3,6 +3,7 @@ import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/sty
 import { AppBar, CssBaseline, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
 import { ArrowBackIos as ArrowBackIosIcon, BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon,
           Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons'
+import { blueGrey, orange } from "@material-ui/core/colors";
 import { useLocation } from 'react-router'
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack'
@@ -27,12 +28,12 @@ const drawerWidth = 240
 const theme = createMuiTheme({
   palette: {
     primary: {
-      light: '#4a6572',
-      main: '#344955',
-      dark: '#232f34',
+      light: blueGrey[600],
+      main: blueGrey[700],
+      dark: blueGrey[800],
     },
     secondary: {
-      main: '#f9aa33',
+      main: orange[400],
     },
   },
   props: {
@@ -50,18 +51,31 @@ const theme = createMuiTheme({
     },
   },
   overrides: {
+    MuiDrawer: {
+      paperAnchorDockedLeft: {
+        borderRight: "3px solid " + orange[400]
+      }
+    },
+    MuiListItem: {
+      root: {
+        "&$selected": {
+          backgroundColor: orange[400],
+          "&:hover": {
+            backgroundColor: orange[600]
+          }
+        }
+      },
+      button: {
+        "&:hover": {
+          backgroundColor: orange[200]
+        },
+      }
+    },
     MuiTableCell: {
       head: {
           fontWeight: "bold",
       },
     },
-    MuiListItem: {
-      root: {
-        selected: {
-          color: 'secondary',
-        }
-      }
-    }
   },
 })
 
