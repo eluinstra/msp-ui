@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { Line } from "react-chartjs-2"
+import 'chartjs-plugin-streaming'
 import { interval } from "rxjs"
 import { map } from "rxjs/operators"
 import { sample } from "rxjs/operators"

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Line } from 'react-chartjs-2'
+import 'chartjs-plugin-streaming'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { mspResponse$ } from './msp/MspDriver'
