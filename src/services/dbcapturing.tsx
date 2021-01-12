@@ -24,30 +24,3 @@ export const hsetAsync = promisify(client.hset).bind(client);
 export const lrangeAsync = promisify(client.lrange).bind(client);
 export const lpushAsync = promisify(client.lpush).bind(client);
 export const smembersAsync = promisify(client.smembers).bind(client);
-
-lpushAsync.then(
-    console.log
-    ).catch (
-        console.error
-    );
-//hmsetAsync('messsage:+id+id', 'id', id, 'roomId', roomId, 'senderId', senderId, "created", datetime, "text", text);
-
-// function asyncDataCapturing(go: boolean, sensordatadevice: ImuDataTypeSensor, callback) {
-//     // ... lots of hard work ...
-//     const entryJSON = JSON.stringify(sensordatadevice);
-//     client.lpush(sensordatadevice.sensorname, entryJSON, (err, reply) => {
-
-//         if (err) {
-//             return callback(new Error("An error has occurred"));
-//         }
-
-//         if (reply) {
-//             callback(true, sensorImuDataType);
-//         }
-//     });
-// }
-
-// asyncDataCapturing(true, sensorImuDataType, function (err, returnValues) {
-//     //This code gets run after the async operation gets run
-//     /* But this is all happening in the function */
-// });

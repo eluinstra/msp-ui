@@ -6,8 +6,6 @@ import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/commo
 import { PortInfo } from 'serialport'
 import { registerPort } from '@/component/msp/MspDriver'
 import { registerPortImuAngle1, registerPortImuAngle2, registerPortImuAcc1, registerPortImuAcc2 } from '@/component/imu/WitMotion/Driver';
-import { log_2_redis } from "../../services/log-driver";
-
 const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
 
@@ -38,7 +36,7 @@ export const SerialPortConnect = props => {
           registerPortImuAngle2()
           registerPortImuAcc1()
           registerPortImuAcc2()
-          log_2_redis('Ports registrered\n')
+          
         } else {
           closePort()
         }

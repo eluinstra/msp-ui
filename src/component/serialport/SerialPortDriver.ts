@@ -3,7 +3,6 @@ import { BehaviorSubject, from, Subject } from 'rxjs'
 import { startWith } from 'rxjs/operators'
 import { PortInfo } from 'serialport'
 const SerialPort = remote.require('serialport')
-import { log_2_redis } from "../../services/log-driver";
 
 export const serialPort1 = new BehaviorSubject(undefined)
 export const serialPort2 = new BehaviorSubject(undefined)
@@ -20,7 +19,6 @@ export const openPort2 = (port2, baudrate) => {
 }
 
 export const closePort = () => {
-  log_2_redis('Port closed\n')
   serialPort1.value.close()
   serialPort1.next(undefined)
   serialPort2.value.close()
