@@ -6,12 +6,7 @@ import { map } from "rxjs/operators"
 import { sample } from "rxjs/operators"
 import { imuResponseAngle1$ } from '@/component/imu/WitMotion/Driver'
 
-<<<<<<< HEAD
-const imuAcc = (v: number) => ((v.valueOf() << 8)| v.valueOf())/32768*16*9.8;
-const imuAnlge = (v: number) => ((v.valueOf() << 8) | v.valueOf()) / 32768 * 180
-=======
 const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
->>>>>>> origin/dart-poc
 
 export const Chart = props => {
   const [state] = useState({
