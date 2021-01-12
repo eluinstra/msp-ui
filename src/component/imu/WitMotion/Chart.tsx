@@ -6,7 +6,7 @@ import { map } from "rxjs/operators"
 import { sample } from "rxjs/operators"
 import { imuResponse$ } from '@/component/imu/WitMotion/Driver'
 
-const imuAnlge = (v: number) => ((v.valueOf() << 8) | v.valueOf()) / 32768 * 180
+const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
 
 export const Chart = props => {
   const [state] = useState({
@@ -61,9 +61,9 @@ export const Chart = props => {
       sample(interval(500)),
       map(imuMsgAngle => {
         return {
-          roll: imuAnlge(imuMsgAngle.RollH),
-          pitch: imuAnlge(imuMsgAngle.PitchH),
-          yaw: imuAnlge(imuMsgAngle.YawH)
+          roll: imuAngle(imuMsgAngle.RollH, imuMsgAngle.RollL),
+          pitch: imuAngle(imuMsgAngle.PitchH, imuMsgAngle.PitchL),
+          yaw: imuAngle(imuMsgAngle.YawH, imuMsgAngle.YawL)
         }
       })
     )
