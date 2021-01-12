@@ -21,9 +21,15 @@ var sensorImuDataType: ImuDataTypeSensor = {
 export const getAsync = promisify(client.get).bind(client);
 export const hmsetAsync = promisify(client.hmset).bind(client);
 export const hsetAsync = promisify(client.hset).bind(client);
+export const lrangeAsync = promisify(client.lrange).bind(client);
+export const lpushAsync = promisify(client.lpush).bind(client);
 export const smembersAsync = promisify(client.smembers).bind(client);
 
-getAsync.then(console.log).catch(console.error);
+lpushAsync.then(
+    console.log
+    ).catch (
+        console.error
+    );
 //hmsetAsync('messsage:+id+id', 'id', id, 'roomId', roomId, 'senderId', senderId, "created", datetime, "text", text);
 
 // function asyncDataCapturing(go: boolean, sensordatadevice: ImuDataTypeSensor, callback) {

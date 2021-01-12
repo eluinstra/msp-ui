@@ -5,6 +5,8 @@ import { log_2_redis } from "../../../services/log-driver";
 let messageStarted = false
 var datasegmentcounter = 0
 
+const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
+
 export enum ImuState {
   IMU_TIME = 0x50,
   IMU_ACC = 0x51,
@@ -181,7 +183,9 @@ export const registerPortImuAcc2 = () => {
       //if 0x55 is found unpack messages till next 0x55
       parseIMUAcc(data.readInt8(i))
       if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-        imuResponseAcc2$.next(imuMsgAcc)
+        //imuResponseAcc2$.next(imuMsgAcc)
+        /* redis opslag */
+        
         imuMsg.state = ImuState.IMU_IDLE
       } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
         imuResponseAcc2$.error(new Error('MSP error received!'))
