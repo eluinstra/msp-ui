@@ -5,6 +5,7 @@ import { baudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/co
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { PortInfo } from 'serialport'
 import { registerPort } from '@/component/msp/MspDriver'
+import { registerPortIMU } from '@/component/imu/WitMotion/Driver';
 
 const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
@@ -30,7 +31,8 @@ export const SerialPortConnect = props => {
       .subscribe(val => {
         if (!connected) {
           openPort(state.port, state.baudrate)
-          registerPort()
+          //registerPort()
+          registerPortIMU()
         } else {
           closePort()
         }

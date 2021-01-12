@@ -3,7 +3,6 @@ import { Line } from 'react-chartjs-2'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { mspResponse$ } from './msp/MspDriver'
-import { viewMspChart } from './msp/MspChartView'
 import { parseMspMsg } from './msp/MspModel'
 
 export const Chart = props => {
@@ -41,16 +40,17 @@ export const Chart = props => {
       }
     })
   )
-  .subscribe(v => {
-    const value = Object.values(v);
-    value.forEach((v, i) => {
+  .subscribe(value => {
+    const values = Object.values(value)
+    const time = Date.now()
+    values.forEach((v, i) => {
       data.datasets[i].data.push({
-          x: Date.now(), 
+          x: time, 
           y: v
       })
     })
-  });
+  })
 return (
-    <Line data={data} options={options} />
+    <Line data={data} options={options} height={150} />
   )
 }
