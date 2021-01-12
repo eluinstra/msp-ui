@@ -1,5 +1,6 @@
 import { Subject } from 'rxjs'
-import { serialPort } from '@/component/serialport/SerialPortDriver';
+import { serialPort1, serialPort2 } from '@/component/serialport/SerialPortDriver';
+import { log_2_redis } from "../../../services/log-driver";
 
 let messageStarted = false
 var datasegmentcounter = 0
@@ -115,20 +116,75 @@ export const imuMsgAngle: IImuMsgAngle = {
   SUM: 0
 }
 
-export default imuMsgAngle;
-
-export const imuResponse$ = new Subject<IImuMsgAngle>();
-export const registerPortIMU = () => {
-  serialPort?.value.on('data', function (data) {
+export const imuResponseAngle1$ = new Subject<IImuMsgAngle>();
+export const registerPortImuAngle1 = () => {
+  serialPort1?.value.on('data', function (data) {
     let counter = 0
     for (let i = 0; i < data.length; i++) {
       //if 0x55 is found unpack messages till next 0x55
       parseIMUAngle(data.readInt8(i))
       if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-        imuResponse$.next(imuMsgAngle)
+        imuResponseAngle1$.next(imuMsgAngle)
         imuMsg.state = ImuState.IMU_IDLE
       } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
-        imuResponse$.error(new Error('MSP error received!'))
+        imuResponseAngle1$.error(new Error('MSP error received!'))
+        imuMsg.state = ImuState.IMU_IDLE
+      }
+      counter++;
+    }
+  })
+}
+
+export const imuResponseAngle2$ = new Subject<IImuMsgAngle>();
+export const registerPortImuAngle2 = () => {
+  serialPort2?.value.on('data', function (data) {
+    let counter = 0
+    for (let i = 0; i < data.length; i++) {
+      //if 0x55 is found unpack messages till next 0x55
+      parseIMUAngle(data.readInt8(i))
+      if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
+        imuResponseAngle2$.next(imuMsgAngle)
+        imuMsg.state = ImuState.IMU_IDLE
+      } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
+        imuResponseAngle2$.error(new Error('MSP error received!'))
+        imuMsg.state = ImuState.IMU_IDLE
+      }
+      counter++;
+    }
+  })
+}
+
+export const imuResponseAcc1$ = new Subject<IImuMsgAcc>();
+export const registerPortImuAcc1 = () => {
+  serialPort1?.value.on('data', function (data) {
+    let counter = 0
+    for (let i = 0; i < data.length; i++) {
+      //if 0x55 is found unpack messages till next 0x55
+      parseIMUAcc(data.readInt8(i))
+      if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
+        imuResponseAcc1$.next(imuMsgAcc)
+        imuMsg.state = ImuState.IMU_IDLE
+      } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
+        imuResponseAcc1$.error(new Error('MSP error received!'))
+        imuMsg.state = ImuState.IMU_IDLE
+      }
+      counter++;
+    }
+  })
+}
+
+export const imuResponseAcc2$ = new Subject<IImuMsgAcc>();
+export const registerPortImuAcc2 = () => {
+  serialPort2?.value.on('data', function (data) {
+    let counter = 0
+    for (let i = 0; i < data.length; i++) {
+      //if 0x55 is found unpack messages till next 0x55
+      parseIMUAcc(data.readInt8(i))
+      if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
+        imuResponseAcc2$.next(imuMsgAcc)
+        imuMsg.state = ImuState.IMU_IDLE
+      } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
+        imuResponseAcc2$.error(new Error('MSP error received!'))
         imuMsg.state = ImuState.IMU_IDLE
       }
       counter++;
@@ -170,7 +226,7 @@ function parseIMUTime(num: number) {
   }
 }
 
-function parseIMUData(num: number) {
+function parseIMUAcc(num: number) {
   switch (num) {
     case ImuState.IMU_PREFIX:
       if (!messageStarted) {

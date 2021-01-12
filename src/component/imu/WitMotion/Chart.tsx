@@ -4,8 +4,9 @@ import 'chartjs-plugin-streaming'
 import { interval } from "rxjs"
 import { map } from "rxjs/operators"
 import { sample } from "rxjs/operators"
-import { imuResponse$ } from '@/component/imu/WitMotion/Driver'
+import { imuResponseAngle1$ } from '@/component/imu/WitMotion/Driver'
 
+const imuAcc = (v: number) => ((v.valueOf() << 8)| v.valueOf())/32768*16*9.8;
 const imuAnlge = (v: number) => ((v.valueOf() << 8) | v.valueOf()) / 32768 * 180
 
 export const Chart = props => {
@@ -56,7 +57,7 @@ export const Chart = props => {
       }]
     }
   })
-  const [imu$] = useState(imuResponse$
+  const [imu$] = useState(imuResponseAngle1$
     .pipe(
       sample(interval(500)),
       map(imuMsgAngle => {

@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react'
 import { FormControl, FormControlLabel, FormGroup, NativeSelect, Switch } from '@material-ui/core'
 import { filter, map, mergeMap } from 'rxjs/operators';
-import { baudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
+import { baudrates, closePort, defaultBaudrate, openPort1, openPort2, portInfo$ } from '@/component/serialport/SerialPortDriver'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { PortInfo } from 'serialport'
 import { registerPort } from '@/component/msp/MspDriver'
-import { registerPortIMU } from '@/component/imu/WitMotion/Driver';
+import { registerPortImuAngle1, registerPortImuAngle2, registerPortImuAcc1, registerPortImuAcc2 } from '@/component/imu/WitMotion/Driver';
+import { log_2_redis } from "../../services/log-driver";
 
 const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
@@ -30,9 +31,14 @@ export const SerialPortConnect = props => {
       )
       .subscribe(val => {
         if (!connected) {
-          openPort(state.port, state.baudrate)
+          openPort1(state.port, state.baudrate)
+          openPort2(state.port, state.baudrate)
           //registerPort()
-          registerPortIMU()
+          registerPortImuAngle1()
+          registerPortImuAngle2()
+          registerPortImuAcc1()
+          registerPortImuAcc2()
+          log_2_redis('Ports registrered\n')
         } else {
           closePort()
         }
