@@ -1,6 +1,8 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path';
 
+/* starting the promise for redis */
+
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 1400,
