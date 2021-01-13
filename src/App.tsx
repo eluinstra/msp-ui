@@ -19,6 +19,7 @@ import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
+import { ConnectorDiagram } from '@/component/serialport/SerialConnector'
 import { WitMotion } from '@/page/WitMotion'
 
 enum Mode { DEFAULT, MSP, IMU } 
@@ -109,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
-  },
+  }
 }))
 
 export const App = () => {
@@ -178,6 +179,7 @@ const MSPDrawer = props => {
               </React.Fragment>
             )}
             <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} setMode={setMode} />
+            <MenuListItem text="Sensors" to="/sensors" icon={<InputIcon />} setMode={setMode} />
             <MenuListItem text="About" to="/about" icon={<InfoIcon />} setMode={setMode} />
           </List>
         }
@@ -239,6 +241,9 @@ const MSPRouter = () => {
       </Route>
       <Route path="/wit-motion">
         <WitMotion />
+      </Route>
+      <Route path="/sensors">
+        <ConnectorDiagram />
       </Route>
       <Route path="/gps">
         <GPSPage />

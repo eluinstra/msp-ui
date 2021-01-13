@@ -23,14 +23,15 @@
     "typescript": "^4.0.5"
   },
   "dependencies": {
+    "@lifeomic/react-vis-network": "^1.1.0",
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@react-rxjs/core": "^0.6.1",
     "chart.js": "^2.8.0",
     "chartjs-plugin-streaming": "^1.8.0",
+    "commonjs": "0.0.1",
     "copyfiles": "^2.4.1",
-    "doxygen": "^0.3.2",
     "leaflet": "^1.7.1",
     "lodash": "^4.17.20",
     "module-alias": "^2.2.2",
@@ -45,6 +46,7 @@
     "redis": "^3.0.2",
     "rxjs": "^6.6.3",
     "rxjs-compat": "^6.6.3",
+    "sass-loader": "^10.1.1",
     "serialport": "^9.0.2"
   },
   "_moduleAliases": {

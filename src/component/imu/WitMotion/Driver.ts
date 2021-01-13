@@ -126,7 +126,7 @@ export const registerPortImuAngle1 = () => {
       //if 0x55 is found unpack messages till next 0x55
       parseIMUAngle(data.readInt8(i))
       if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-        //imuResponseAngle1$.next(imuMsgAngle)
+        imuResponseAngle1$.next(imuMsgAngle)
 
         const entryJSON = JSON.stringify(imuMsgAngle);
         lpushAsync('sensor1', entryJSON)
@@ -184,7 +184,7 @@ export const registerPortImuAcc1 = () => {
       //if 0x55 is found unpack messages till next 0x55
       parseIMUAcc(data.readInt8(i))
       if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-        //imuResponseAcc1$.next(imuMsgAcc)
+        imuResponseAcc1$.next(imuMsgAcc)
 
         const entryJSON = JSON.stringify(imuMsgAcc);
         lpushAsync('sensor1', entryJSON)
@@ -212,7 +212,7 @@ export const registerPortImuAcc2 = () => {
       //if 0x55 is found unpack messages till next 0x55
       parseIMUAcc(data.readInt8(i))
       if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-        //imuResponseAcc2$.next(imuMsgAcc)
+        imuResponseAcc2$.next(imuMsgAcc)
         /* redis opslag */
 
         const entryJSON = JSON.stringify(imuMsgAcc);
