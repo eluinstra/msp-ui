@@ -18,8 +18,9 @@ import { MspChartPage } from '@/page/MspChart'
 import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
-import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
 import { WitMotion } from '@/page/WitMotion'
+import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
+import { createSerialPort } from '@/component/serialport/SerialPortDriver';
 
 enum Mode { DEFAULT, MSP, IMU } 
 
@@ -116,17 +117,18 @@ export const App = () => {
   const classes = useStyles()
   const { content, toolbar, root } = classes
   const [ connected, setConnected ] = useState(false)
+  const [ serialPort ] = useState(createSerialPort())
   return (
   <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
     <CssBaseline />
     <ThemeProvider theme={theme}>
       <div className={root}>
-        <MSPAppBar classes={classes} connected={connected} setConnected={setConnected}/>
+        <MSPAppBar classes={classes} connected={connected} setConnected={setConnected} serialPort={serialPort} />
         <Router>
-          <MSPDrawer classes={classes} connected={connected}/>
+          <MSPDrawer classes={classes} connected={connected} />
           <main className={content}>
             <Toolbar className={toolbar} />
-            <MSPRouter />
+            <MSPRouter serialPort={serialPort} />
           </main>
         </Router>
       </div>
@@ -136,7 +138,7 @@ export const App = () => {
 }
 
 const MSPAppBar = props => {
-  const { classes, connected, setConnected } = props
+  const { classes, connected, setConnected, serialPort } = props
   const { appBar, toolbar, title } = classes
   return (
     <AppBar position="fixed" className={appBar}>
@@ -144,7 +146,7 @@ const MSPAppBar = props => {
         <Typography variant="h6" className={title}>
           Alpha|BOT
         </Typography>
-        <SerialPortConnect connected={connected} setConnected={setConnected}/>
+        <SerialPortConnect connected={connected} setConnected={setConnected} serialPort={serialPort} />
       </Toolbar>
     </AppBar>
   )
@@ -210,7 +212,8 @@ const MenuListItem = props => {
   )
 }
 
-const MSPRouter = () => {
+const MSPRouter = props => {
+  const { serialPort } = props
   return (
     <Switch>
       <Route path="/settings">
@@ -229,10 +232,10 @@ const MSPRouter = () => {
         <Msp />
       </Route>
       <Route path="/msp-input">
-        <MspInputPage />
+        <MspInputPage serialPort={serialPort} />
       </Route>
       <Route path="/msp-chart">
-        <MspChartPage />
+        <MspChartPage serialPort={serialPort} />
       </Route>
       <Route path="/imu">
         <Imu />

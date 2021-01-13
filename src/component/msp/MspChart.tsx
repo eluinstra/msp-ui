@@ -8,7 +8,8 @@ import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/c
 import { viewMspChart } from '@/component/msp/MspChartView'
 import { Autocomplete } from '@material-ui/lab'
 
-export const MspChart = () => {
+export const MspChart = props => {
+  const { serialPort } = props
   const [state, changeState, state$] = useObservableBehaviourOf({
     checked: false,
     interval: 100,
@@ -54,7 +55,7 @@ export const MspChart = () => {
         filter(v => v == true),
         delayWhen(_ => interval(state.interval)),
         mapTo(MspCmd[cmd]),
-        tap(v => mspRequest(v,[])),
+        tap(v => mspRequest(serialPort,v,[])),
         switchMap(_ => mspResponse$),
       )
       .subscribe(v => {
