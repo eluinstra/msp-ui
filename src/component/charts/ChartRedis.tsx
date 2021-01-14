@@ -30,10 +30,10 @@ export function fillChartData() {
         //datasets[0].data[i]= "10";
        vali = result;
        console.log("Waarde: " + vali);
+       datasets[0].data = "["+vali+"]";
       }
       )
-    
-    datasets[0].data = vali;
+  
   
     console.log(datasets[0]);
     return datasets;
