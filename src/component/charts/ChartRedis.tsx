@@ -12,7 +12,7 @@ var datasets = [ {
            pointStrokeColor: '#fff',
            pointHighlightFill: '#fff',
            pointHighlightStroke: 'rgba(220,220,220,1)',
-           data:[] ,
+           data: '' ,
          }];
 
 export function fillChartData() {
@@ -24,17 +24,16 @@ export function fillChartData() {
 
   lpushAsync('data', ""+randx);
 
-  var waardes = [];
-  for (var i=1; i < 10; i++) {
-      lrangeAsync('data', i ,i).then(function(result : string) {
-        //console.log(result);
+      var vali : string = "";
+      lrangeAsync('data', 0 ,10).then(function(result : string) {
+        console.log(result);
         //datasets[0].data[i]= "10";
-        var val : string = result;
-        waardes.push(val);
-        console.log("Waarde: " + waardes);
-      })
-    }
-    datasets[0].data = waardes;
+       vali = result;
+       console.log("Waarde: " + vali);
+      }
+      )
+    
+    datasets[0].data = vali;
   
     console.log(datasets[0]);
     return datasets;
