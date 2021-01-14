@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react'
 import { FormControl, FormControlLabel, FormGroup, NativeSelect, Switch } from '@material-ui/core'
 import { filter, map, mergeMap } from 'rxjs/operators';
-import { baudrates, closePort, defaultBaudrate, openPort1, openPort2, portInfo$ } from '@/component/serialport/SerialPortDriver'
+import { availableBaudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { PortInfo } from 'serialport'
 import { registerPort } from '@/component/msp/MspDriver'
-import { registerPortImuAngle1, registerPortImuAngle2, registerPortImuAcc1, registerPortImuAcc2 } from '@/component/imu/WitMotion/Driver';
+import { registerPortIMU } from '@/component/imu/WitMotion/Driver';
+
 const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
 
 export const SerialPortConnect = props => {
-  const { connected, setConnected } = props
+  const { connected, setConnected, serialPort } = props
   const [state, changeState] = useBehaviour({
     port: "",
     baudrate: defaultBaudrate
@@ -29,16 +30,11 @@ export const SerialPortConnect = props => {
       )
       .subscribe(val => {
         if (!connected) {
-          openPort1(state.port, state.baudrate)
-          openPort2(state.port, state.baudrate)
-          //registerPort()
-          registerPortImuAngle1()
-          registerPortImuAngle2()
-          registerPortImuAcc1()
-          registerPortImuAcc2()
-          
+          openPort(serialPort, state.port, state.baudrate)
+          //registerPort(serialPort)
+          registerPortIMU(serialPort)
         } else {
-          closePort()
+          closePort(serialPort)
         }
         setConnected(!connected)
       })
@@ -57,7 +53,7 @@ export const SerialPortConnect = props => {
         </FormControl>
         <FormControl>
           <NativeSelect value={state.baudrate} disabled={connected} onChange={e => changeState({ baudrate: Number(e.target.value) })}>
-            {baudrates.map(v =>
+            {availableBaudrates.map(v =>
               <option key={v} value={v}>{v}</option>
             )}
           </NativeSelect>

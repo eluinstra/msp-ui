@@ -1,6 +1,5 @@
 import { fromEvent, Subject } from 'rxjs'
 import { mspCmdHeader } from '@/component/msp/MspProtocol';
-import { serialPort1 } from '@/component/serialport/SerialPortDriver';
 import { share, tap } from 'rxjs/operators';
 
 export enum MspState {
@@ -63,8 +62,8 @@ function command(cmd, payload) {
   return [].concat(mspCmdHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
-export const mspRequest = (cmd, payload) => {
-  serialPort1?.value.write(Buffer.from(command(cmd, payload)))
+export const mspRequest = (serialPort, cmd, payload) => {
+  serialPort?.value.write(Buffer.from(command(cmd, payload)))
 }
 export const mspResponseSubject = new Subject<MspMsg>()
 export const mspResponse$ = mspResponseSubject
@@ -72,8 +71,8 @@ export const mspResponse$ = mspResponseSubject
     tap(e => console.log("RESPONSE")),
     share()
   )
-export const registerPort = () => {
-  serialPort1?.value.on('data', function (data) {
+export const registerPort = (serialPort) => {
+  serialPort?.value.on('data', function (data) {
     for (let i = 0; i < data.length; i++) {
       parseMSPCommand(data.readInt8(i))
       if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {

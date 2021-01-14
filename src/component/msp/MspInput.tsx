@@ -12,7 +12,8 @@ import { Autocomplete } from '@material-ui/lab'
 
 const notEmpty = v => v != ""
 
-export const MspInput = () => {
+export const MspInput = props => {
+  const { serialPort } = props
   const { enqueueSnackbar } = useSnackbar();
   const [cmd, setCmd] = useState(null);
   const [inputValue, setInputValue] = useState('');
@@ -29,7 +30,7 @@ export const MspInput = () => {
       )
       .subscribe(val => {
         try {
-          mspRequest(val,[])
+          mspRequest(serialPort,val,[])
         } catch(e) {
           console.log(e)
           enqueueSnackbar(e.message, { variant: 'error' })
