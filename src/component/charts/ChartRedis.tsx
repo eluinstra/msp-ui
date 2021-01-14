@@ -5,10 +5,9 @@ import { map, sample } from 'rxjs/operators'
 import { lpushAsync, lrangeAsync } from '@/services/dbcapturing';
 import { Button } from '@material-ui/core'
 
-var zero_array = [];
+var N = 10;
 
 var datasets = [ {
-           labels: zero_array,
            label: 'My First dataset',
            fillColor: 'rgba(220,220,220,0.2)',
            strokeColor: 'rgba(220,220,220,1)',
@@ -16,7 +15,7 @@ var datasets = [ {
            pointStrokeColor: '#fff',
            pointHighlightFill: '#fff',
            pointHighlightStroke: 'rgba(220,220,220,1)',
-           data: zero_array ,
+           data: [] ,
          }];
 
 export function fillChartData() {
@@ -27,9 +26,26 @@ export function fillChartData() {
   var randy =  Math.round(min + (Math.random() * (max-min)));
 
   lpushAsync('data', ""+randx);
+  lpushAsync('data', ""+randy);
+
+  randx =  Math.round(min + (Math.random() * (max-min)));
+  randy =  Math.round(min + (Math.random() * (max-min)));
+
+  lpushAsync('data', ""+randx);
+  lpushAsync('data', ""+randy);
+  randx =  Math.round(min + (Math.random() * (max-min)));
+  randy =  Math.round(min + (Math.random() * (max-min)));
+
+  lpushAsync('data', ""+randx);
+  lpushAsync('data', ""+randy);
+  randx =  Math.round(min + (Math.random() * (max-min)));
+  randy =  Math.round(min + (Math.random() * (max-min)));
+
+  lpushAsync('data', ""+randx);
+  lpushAsync('data', ""+randy);
 
       var vali : string[];
-      lrangeAsync('data', 0 ,6).then(function(result : string[]) {
+      lrangeAsync('data', 0 ,-1).then(function(result : string[]) {
         console.log(result);
         //datasets[0].data[i]= "10";
        vali = result;
@@ -37,7 +53,8 @@ export function fillChartData() {
        datasets[0].data = result;
       }
       )
-  
+   
+    //datasets[0].labels = ["1", "2", "3", "4", "5", "6", "7"];
   
     console.log(datasets[0]);
     return datasets;
@@ -156,15 +173,20 @@ class ChartRedis extends React.Component<any, any> {
     });
 
     fillChartData();
+    this.forceUpdate();
 
-    this.forceUpdate;
+  }
+
+  componentDidUpdate()
+  {
+    console.log("I updated"); // returns a Chart.js instance reference
   }
 
   render() {
     return (
-      <div style={styles.graphContainer}>
+      <div id="myChart" style={styles.graphContainer}>
         <Button variant="contained" onClick={() => {{ this.clickEvent(this)  }}}>Get Data</Button>
-        <Line key="chartui" data={this.state.data}  options={options} width={400} height={150} />
+        <Line data={this.state.data}  options={options} width={400} height={150} />
       </div>
     )
   }
