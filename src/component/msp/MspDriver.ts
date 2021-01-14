@@ -85,6 +85,10 @@ export const registerPort = (serialPort) => {
     }
   })
 }
+export const unregisterPort = (serialPort) => {
+  serialPort?.value.on('data', function (data) {
+  })
+}
 
 function parseMSPCommand(num) {
   //console.log(num & 0xFF)

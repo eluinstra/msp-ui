@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { interval, merge, NEVER } from 'rxjs'
 import { map, filter, tap, mapTo, startWith, switchMap, delayWhen } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviourOf } from '@/common/RxTools'
-import { mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
+import { mspRequest, mspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/core'
 import { viewMspChart } from '@/component/msp/MspChartView'
@@ -48,6 +48,10 @@ export const MspChart = props => {
   //     })
   //   return () => sub.unsubscribe()
   // }, [state$])
+  useEffect(() => {
+    registerPort(serialPort)
+    return () => unregisterPort(serialPort)
+  }, [])
   useEffect(() => {
     const sub = merge(state$,mspResponse$)
       .pipe(

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
 import { distinctUntilChanged, map, filter, tap, startWith, mergeMap, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviour, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
+import { MspMsg, mspRequest, mspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField, Theme } from '@material-ui/core'
@@ -22,6 +22,10 @@ export const MspInput = props => {
     .pipe(
       map(mspMsg  => viewMspMsg(mspMsg))
   ))
+  useEffect(() => {
+    registerPort(serialPort)
+    return () => unregisterPort(serialPort)
+  }, [])
   useEffect(() => {
     const sub = mspClick$
       .pipe(
