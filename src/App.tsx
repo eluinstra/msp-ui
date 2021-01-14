@@ -247,7 +247,7 @@ const MSPRouter = props => {
         <Imu />
       </Route>
       <Route path="/wit-motion">
-        <WitMotion serialPort={serialPort} />
+        <WitMotion />
       </Route>
       <Route path="/chart-redis">
         <GetDataRedisChart />
