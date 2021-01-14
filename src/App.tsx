@@ -19,6 +19,7 @@ import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { WitMotion } from '@/page/WitMotion'
+import { GetDataRedisChart } from '@/component/charts/GetDataRedisChart'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
 import { createSerialPort } from '@/component/serialport/SerialPortDriver';
 
@@ -194,6 +195,7 @@ const MSPDrawer = props => {
           <React.Fragment>
             <MenuListItem text="IMU" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
             <MenuListItem text="Wit Motion" to="/wit-motion" mode={Mode.IMU} setMode={setMode} />
+            <MenuListItem text="Chart Redis" to="/chart-redis" mode={Mode.IMU} setMode={setMode} />
           </React.Fragment>
         )}
       </div>
@@ -242,6 +244,9 @@ const MSPRouter = props => {
       </Route>
       <Route path="/wit-motion">
         <WitMotion />
+      </Route>
+      <Route path="/chart-redis">
+        <GetDataRedisChart />
       </Route>
       <Route path="/gps">
         <GPSPage />

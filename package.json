@@ -13,7 +13,6 @@
   "devDependencies": {
     "@types/leaflet": "^1.5.19",
     "@types/material-ui": "^0.21.8",
-    "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/serialport": "^8.0.1",
     "electron": "^11.0.0",
@@ -28,6 +27,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@react-rxjs/core": "^0.6.1",
+    "@types/react": "^17.0.0",
     "chart.js": "^2.8.0",
     "chartjs-plugin-streaming": "^1.8.0",
     "commonjs": "0.0.1",
