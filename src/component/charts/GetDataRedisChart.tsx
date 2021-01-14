@@ -48,7 +48,6 @@ export const GetDataRedisChart = () => {
   return (
     <React.Fragment>
       <h2>Chart from Redis</h2>
-      <ChartGetDataRedisChart />
       <ChartRedis />
 
     </React.Fragment>

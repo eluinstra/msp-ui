@@ -3,8 +3,12 @@ import { Line } from 'react-chartjs-2'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { lpushAsync, lrangeAsync } from '@/services/dbcapturing';
+import { Button } from '@material-ui/core'
+
+var zero_array = [];
 
 var datasets = [ {
+           labels: zero_array,
            label: 'My First dataset',
            fillColor: 'rgba(220,220,220,0.2)',
            strokeColor: 'rgba(220,220,220,1)',
@@ -12,7 +16,7 @@ var datasets = [ {
            pointStrokeColor: '#fff',
            pointHighlightFill: '#fff',
            pointHighlightStroke: 'rgba(220,220,220,1)',
-           data: '' ,
+           data: zero_array ,
          }];
 
 export function fillChartData() {
@@ -24,13 +28,13 @@ export function fillChartData() {
 
   lpushAsync('data', ""+randx);
 
-      var vali : string = "";
-      lrangeAsync('data', 0 ,10).then(function(result : string) {
+      var vali : string[];
+      lrangeAsync('data', 0 ,6).then(function(result : string[]) {
         console.log(result);
         //datasets[0].data[i]= "10";
        vali = result;
        console.log("Waarde: " + vali);
-       datasets[0].data = "["+vali+"]";
+       datasets[0].data = result;
       }
       )
   
@@ -146,10 +150,21 @@ class ChartRedis extends React.Component<any, any> {
 
   }
 
+  clickEvent(event) {
+      this.setState({
+      name: 'Getting data!'
+    });
+
+    fillChartData();
+
+    this.forceUpdate;
+  }
+
   render() {
     return (
       <div style={styles.graphContainer}>
-        <Line data={this.state.data}  options={options} width={400} height={150} redraw />
+        <Button variant="contained" onClick={() => {{ this.clickEvent(this)  }}}>Get Data</Button>
+        <Line key="chartui" data={this.state.data}  options={options} width={400} height={150} />
       </div>
     )
   }
