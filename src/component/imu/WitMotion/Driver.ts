@@ -116,22 +116,26 @@ export const imuMsgAngle: IImuMsgAngle = {
 
 export default imuMsgAngle;
 
-export const imuResponseAngle1$ = new Subject<IImuMsgAngle>();
-export const registerPortIMU = (serialPort) => {
+export const imuResponse$ = new Subject<IImuMsgAngle>();
+export const registerPort = (serialPort) => {
   serialPort?.value.on('data', function (data) {
     let counter = 0
     for (let i = 0; i < data.length; i++) {
       //if 0x55 is found unpack messages till next 0x55
       parseIMUAngle(data.readInt8(i))
       if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-        imuResponseAngle1$.next(imuMsgAngle)
+        imuResponse$.next(imuMsgAngle)
         imuMsg.state = ImuState.IMU_IDLE
       } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
-        imuResponseAngle1$.error(new Error('MSP error received!'))
+        imuResponse$.error(new Error('MSP error received!'))
         imuMsg.state = ImuState.IMU_IDLE
       }
       counter++;
     }
+  })
+}
+export const unregisterPort = (serialPort) => {
+  serialPort?.value.on('data', function (data) {
   })
 }
 

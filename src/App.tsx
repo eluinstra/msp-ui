@@ -117,19 +117,22 @@ const useStyles = makeStyles((theme) => ({
 export const App = () => {
   const classes = useStyles()
   const { content, toolbar, root } = classes
-  const [ connected, setConnected ] = useState(false)
-  const [ serialPort ] = useState(createSerialPort())
+  const [ connected1, setConnected1 ] = useState(false)
+  const [ serialPort1 ] = useState(createSerialPort())
+  const [ connected2, setConnected2 ] = useState(false)
+  const [ serialPort2 ] = useState(createSerialPort())
   return (
   <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
     <CssBaseline />
     <ThemeProvider theme={theme}>
       <div className={root}>
-        <MSPAppBar classes={classes} connected={connected} setConnected={setConnected} serialPort={serialPort} />
+        <MSPAppBar classes={classes} connected1={connected1} setConnected1={setConnected1} serialPort1={serialPort1} 
+          connected2={connected2} setConnected2={setConnected2} serialPort2={serialPort2} />
         <Router>
-          <MSPDrawer classes={classes} connected={connected} />
+          <MSPDrawer classes={classes} connected={serialPort1.value} />
           <main className={content}>
             <Toolbar className={toolbar} />
-            <MSPRouter serialPort={serialPort} />
+            <MSPRouter serialPort={serialPort1} />
           </main>
         </Router>
       </div>
@@ -139,7 +142,7 @@ export const App = () => {
 }
 
 const MSPAppBar = props => {
-  const { classes, connected, setConnected, serialPort } = props
+  const { classes, connected1, setConnected1, serialPort1, connected2, setConnected2, serialPort2 } = props
   const { appBar, toolbar, title } = classes
   return (
     <AppBar position="fixed" className={appBar}>
@@ -147,7 +150,8 @@ const MSPAppBar = props => {
         <Typography variant="h6" className={title}>
           Alpha|BOT
         </Typography>
-        <SerialPortConnect connected={connected} setConnected={setConnected} serialPort={serialPort} />
+        <SerialPortConnect connected={connected1} setConnected={setConnected1} serialPort={serialPort1} />
+        <SerialPortConnect connected={connected2} setConnected={setConnected2} serialPort={serialPort2} />
       </Toolbar>
     </AppBar>
   )
@@ -243,7 +247,7 @@ const MSPRouter = props => {
         <Imu />
       </Route>
       <Route path="/wit-motion">
-        <WitMotion />
+        <WitMotion serialPort={serialPort} />
       </Route>
       <Route path="/chart-redis">
         <GetDataRedisChart />

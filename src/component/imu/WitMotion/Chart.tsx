@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react"
 import { Line } from "react-chartjs-2"
 import 'chartjs-plugin-streaming'
 import { interval } from "rxjs"
-import { map } from "rxjs/operators"
+import { filter, map, startWith, tap } from "rxjs/operators"
 import { sample } from "rxjs/operators"
-import { imuResponseAngle1$ } from '@/component/imu/WitMotion/Driver'
+import { imuResponse$, registerPort, unregisterPort } from '@/component/imu/WitMotion/Driver'
+import { isOpen } from "@/component/serialport/SerialPortDriver"
 
 const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
 
 export const Chart = props => {
+  const { serialPort } = props
   const [state] = useState({
     labels: [],
     datasets: [
@@ -56,7 +58,7 @@ export const Chart = props => {
       }]
     }
   })
-  const [imu$] = useState(imuResponseAngle1$
+  const [imu$] = useState(imuResponse$
     .pipe(
       sample(interval(500)),
       map(imuMsgAngle => {
@@ -68,6 +70,20 @@ export const Chart = props => {
       })
     )
   )
+  useEffect(() => {
+    registerPort(serialPort)
+    unregisterPort(serialPort)
+    // const sub = serialPort
+    //   .pipe(
+    //     startWith(serialPort),
+    //     filter(p => isOpen(p)),
+    //     tap(p => registerPort(p))
+    //   )
+    // return () => {
+    //   sub.unsubscribe()
+    //   unregisterPort(serialPort)
+    // }
+  }, [])
   useEffect(() => {
     const sub = imu$.subscribe(value => {
       const values = Object.values(value);

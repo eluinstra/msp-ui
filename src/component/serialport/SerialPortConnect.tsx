@@ -4,8 +4,6 @@ import { filter, map, mergeMap } from 'rxjs/operators';
 import { availableBaudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { PortInfo } from 'serialport'
-import { registerPort } from '@/component/msp/MspDriver'
-import { registerPortIMU } from '@/component/imu/WitMotion/Driver';
 
 const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
@@ -31,8 +29,6 @@ export const SerialPortConnect = props => {
       .subscribe(val => {
         if (!connected) {
           openPort(serialPort, state.port, state.baudrate)
-          //registerPort(serialPort)
-          registerPortIMU(serialPort)
         } else {
           closePort(serialPort)
         }
