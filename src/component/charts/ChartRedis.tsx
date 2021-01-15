@@ -5,7 +5,7 @@ import { map, sample } from 'rxjs/operators'
 import { lpushAsync, lrangeAsync } from '@/services/dbcapturing'
 import { Number } from 'rambda/_ts-toolbelt/src/Iteration/Maps/_api'
 
-var N=10;
+var N=40;
 var datapoints = [];
 
 function timeformat(date : Date) {
@@ -13,7 +13,7 @@ function timeformat(date : Date) {
 }
 
 var chartJsData = function() {
-    for (var ci=0; ci < N; ci++ )
+    for (var ci=0; ci < N-1; ci++ )
     {
       datapoints.push({x:ci, y:0});
     }
@@ -97,7 +97,7 @@ class ChartRedis extends React.Component {
         //   lpushAsync('data', "x:"+ji, "y:"+randy);
         // }
   
-        lrangeAsync('data', 0 , ((N-1)*2)).then(function(result : string[]) {
+        lrangeAsync('data', 0 , (N-1)*2).then(function(result : string[]) {
 
           if(result)
           {

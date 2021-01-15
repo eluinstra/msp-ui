@@ -72,7 +72,7 @@ export const Chart = props => {
   )
   useEffect(() => {
     registerPort(serialPort)
-    unregisterPort(serialPort)
+    return () => unregisterPort(serialPort)
     // const sub = serialPort
     //   .pipe(
     //     startWith(serialPort),
