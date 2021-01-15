@@ -21,7 +21,7 @@ import { PowerAndBatteryPage } from '@/page/Power'
 import { WitMotion } from '@/page/WitMotion'
 import { GetDataRedisChart } from '@/component/charts/GetDataRedisChart'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
-import { createSerialPort } from '@/component/serialport/SerialPortDriver';
+import { createSerialPort } from '@/component/serialport/SerialPortDriver'
 
 enum Mode { DEFAULT, MSP, IMU } 
 

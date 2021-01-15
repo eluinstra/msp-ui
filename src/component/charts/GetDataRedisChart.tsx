@@ -4,8 +4,7 @@ import { Line } from 'react-chartjs-2'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { props } from "rambda";
-import { fillChartData } from '@/component/charts/ChartRedis'
-import ChartRedis from '@/component/charts/ChartRedis'
+import { CChartContainerRedis } from '@/component/charts/ChartContainerRedis'
 import { Button } from '@material-ui/core'
 
 type Props = {}
@@ -28,7 +27,7 @@ class ChartGetDataRedisChart extends Component<Props, State> {
     });
 
     /* get database records */
-    fillChartData();
+    //fillChartData();
 
   }
 
@@ -48,7 +47,7 @@ export const GetDataRedisChart = () => {
   return (
     <React.Fragment>
       <h2>Chart from Redis</h2>
-      <ChartRedis />
+      <CChartContainerRedis />
 
     </React.Fragment>
   )
