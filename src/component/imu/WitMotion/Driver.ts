@@ -1,4 +1,5 @@
 import { Subject } from 'rxjs'
+import { lpushAsync, lrangeAsync } from '@/services/dbcapturing'
 
 let messageStarted = false
 var datasegmentcounter = 0
@@ -124,7 +125,8 @@ export const registerPort = (serialPort) => {
       //if 0x55 is found unpack messages till next 0x55
       parseIMUAngle(data.readInt8(i))
       if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-        imuResponse$.next(imuMsgAngle)
+        //imuResponse$.next(imuMsgAngle)
+        lpushAsync('data', "x:"+new Date().getMilliseconds(), "y:"+imuMsgAngle.RollL);
         imuMsg.state = ImuState.IMU_IDLE
       } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
         imuResponse$.error(new Error('MSP error received!'))

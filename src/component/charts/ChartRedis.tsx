@@ -91,11 +91,11 @@ class ChartRedis extends React.Component {
     var randy =  Math.round(min + (Math.random() * (max-min)));
 
         /* sample set */
-        for (let ji=0; ji < (N-1); ji++)
-        {
-          randy =  Math.round(min + (Math.random() * (max-min)));
-          lpushAsync('data', "x:"+ji, "y:"+randy);
-        }
+        // for (let ji=0; ji < (N-1); ji++)
+        // {
+        //   randy =  Math.round(min + (Math.random() * (max-min)));
+        //   lpushAsync('data', "x:"+ji, "y:"+randy);
+        // }
   
         lrangeAsync('data', 0 , ((N-1)*2)).then(function(result : string[]) {
 
