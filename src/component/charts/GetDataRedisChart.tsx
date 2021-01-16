@@ -152,9 +152,9 @@ class ChartGetDataRedisChart extends Component<Props, State> {
           parseIMUAcc(data.readInt8(i))
           if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
             //imuResponse$.next(imuMsgAngle)
-            lpushAsync('dataAccx', "x:"+new Date().getMilliseconds(), "y:"+Accax(imuMsgAcc.AxH, imuMsgAcc.AxL))
-            lpushAsync('dataAccy', "x:"+new Date().getMilliseconds(), "y:"+Accay(imuMsgAcc.AyH, imuMsgAcc.AyL))
-            lpushAsync('dataAccz', "x:"+new Date().getMilliseconds(), "y:"+Accaz(imuMsgAcc.AzH, imuMsgAcc.AzL))
+            lpushAsync('dataAccx', "ts:"+new Date().getTime()+"^x:"+new Date().getTime()+"^y:"+Accax(imuMsgAcc.AxH, imuMsgAcc.AxL))
+            lpushAsync('dataAccy', "ts:"+new Date().getTime()+"^x:"+new Date().getTime()+"^y:"+Accax(imuMsgAcc.AyH, imuMsgAcc.AyL))
+            lpushAsync('dataAccz', "ts:"+new Date().getTime()+"^x:"+new Date().getTime()+"^y:"+Accax(imuMsgAcc.AzH, imuMsgAcc.AzL))
             imuMsg.state = ImuState.IMU_IDLE
           } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
             //imuResponse$.error(new Error('MSP error received!'))
