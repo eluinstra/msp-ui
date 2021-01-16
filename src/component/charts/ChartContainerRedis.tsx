@@ -43,7 +43,7 @@ class ChartContainerRedis extends React.Component {
   render() {
     return (
       <div id="myChart" style={styles.graphContainer}>
-        <Button variant="contained" onClick={() => {{ this.clickEvent(this)  }}}>Get Data</Button>
+        <Button variant="contained" onClick={() => {{ this.clickEvent(this)  }}}>Refresh Chart</Button>
         <CChartRedis />
       </div>
     )

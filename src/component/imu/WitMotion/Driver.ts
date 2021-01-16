@@ -4,6 +4,9 @@ import { lpushAsync, lrangeAsync } from '@/services/dbcapturing'
 let messageStarted = false
 var datasegmentcounter = 0
 
+const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
+const Accay = (h: number, l:number) => ((h.valueOf() << 8) | l.valueOf()) / 32768*16*9.8;
+
 export enum ImuState {
   IMU_TIME = 0x50,
   IMU_ACC = 0x51,
@@ -121,12 +124,15 @@ export const imuResponse$ = new Subject<IImuMsgAngle>();
 export const registerPort = (serialPort) => {
   serialPort?.value.on('data', function (data) {
     let counter = 0
+    console.log("hier kom ik");
     for (let i = 0; i < data.length; i++) {
       //if 0x55 is found unpack messages till next 0x55
-      parseIMUAngle(data.readInt8(i))
+      parseIMUAcc(data.readInt8(i))
       if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
         //imuResponse$.next(imuMsgAngle)
-        lpushAsync('data', "x:"+new Date().getMilliseconds(), "y:"+imuMsgAngle.RollL);
+        lpushAsync('dataAccx', "x:"+new Date().getMilliseconds(), "y:"+Accay(imuMsgAcc.AxH, imuMsgAcc.AxL))
+        lpushAsync('dataAccy', "x:"+new Date().getMilliseconds(), "y:"+Accay(imuMsgAcc.AyH, imuMsgAcc.AyL))
+        lpushAsync('dataAccz', "x:"+new Date().getMilliseconds(), "y:"+Accay(imuMsgAcc.AzH, imuMsgAcc.AzL))
         imuMsg.state = ImuState.IMU_IDLE
       } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
         imuResponse$.error(new Error('MSP error received!'))
@@ -175,7 +181,7 @@ function parseIMUTime(num: number) {
   }
 }
 
-function parseIMUData(num: number) {
+function parseIMUAcc(num: number) {
   switch (num) {
     case ImuState.IMU_PREFIX:
       if (!messageStarted) {
@@ -191,7 +197,7 @@ function parseIMUData(num: number) {
   }
   datasegmentcounter++;
   if (imuMsgAcc.enable) {
-
+    imuMsg.state = ImuState.IMU_IDLE;
     switch (datasegmentcounter) {
       case 1: break;
       case 2: imuMsgAcc.AxL = num; break;
@@ -204,6 +210,7 @@ function parseIMUData(num: number) {
       case 9: imuMsgAcc.TH = num; break;
       case 10: imuMsgAcc.SUM = num; break;
     }
+    imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
   }
 }
 

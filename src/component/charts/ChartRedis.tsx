@@ -2,10 +2,10 @@ import React from 'react'
 import { Scatter } from 'react-chartjs-2'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
-import { lpushAsync, lrangeAsync } from '@/services/dbcapturing'
+import { lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
 import { Number } from 'rambda/_ts-toolbelt/src/Iteration/Maps/_api'
 
-var N=40;
+var N=400;
 var datapoints = [];
 
 function timeformat(date : Date) {
@@ -24,13 +24,28 @@ const chartData = {
   type: 'line',
   datasets:[
     {
-      label: "Data from the wrist",
+      label: "Data from the xAxis",
       backgroundColor: 'blue',
       fillColor: 'rgba(220,220,220,0.2)',
       strokeColor: 'rgba(220,220,220,1)',
       pointStyle: 'circle',
       pointColor: 'blue',
       pointStrokeColor: 'lightblue',
+      pointHighlightFill: '#fff',
+      pointHighlightStroke: 'rgba(220,220,220,1)',
+      pointHitRadius: 3,
+      pointRadius: 5,
+      data: chartJsData()
+    }
+  ,
+    {
+      label: "Data from the yAxis",
+      backgroundColor: 'green',
+      fillColor: 'rgba(220,220,220,0.2)',
+      strokeColor: 'rgba(220,220,220,1)',
+      pointStyle: 'circle',
+      pointColor: 'green',
+      pointStrokeColor: 'lightgreen',
       pointHighlightFill: '#fff',
       pointHighlightStroke: 'rgba(220,220,220,1)',
       pointHitRadius: 3,
@@ -96,8 +111,7 @@ class ChartRedis extends React.Component {
         //   randy =  Math.round(min + (Math.random() * (max-min)));
         //   lpushAsync('data', "x:"+ji, "y:"+randy);
         // }
-  
-        lrangeAsync('data', 0 , (N-1)*2).then(function(result : string[]) {
+        lrangeAsync('dataAccx', 0 , ((N-1)*2)-1).then(function(result : string[]) {
 
           if(result)
           {
@@ -117,6 +131,35 @@ class ChartRedis extends React.Component {
               if (yyes)
               {
                 chartData.datasets[0].data[yas].y = vali.split("y:")[1].valueOf();
+                yas++;
+              }
+
+              
+            }
+          }
+        }
+        );
+
+        lrangeAsync('dataAccy', 0 , ((N-1)*2)-1).then(function(result : string[]) {
+
+          if(result)
+          {
+            var xas = 0;
+            var yas = 0;
+            for (let j=0; j < result.length; j++)
+            {
+              var vali : string = result[j].toString();
+
+              var xyes = vali.includes("x:");
+              var yyes = vali.includes("y:");
+              if (xyes)
+              {
+                chartData.datasets[1].data[xas].x = vali.split("x:")[1].valueOf();
+                xas++;
+              }
+              if (yyes)
+              {
+                chartData.datasets[1].data[yas].y = vali.split("y:")[1].valueOf();
                 yas++;
               }
 

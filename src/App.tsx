@@ -250,7 +250,7 @@ const MSPRouter = props => {
         <WitMotion serialPort={serialPort} />
       </Route>
       <Route path="/chart-redis">
-        <GetDataRedisChart />
+        <GetDataRedisChart serialPort={serialPort} />
       </Route>
       <Route path="/gps">
         <GPSPage />

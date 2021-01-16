@@ -24,3 +24,4 @@ export const hsetAsync = promisify(client.hset).bind(client);
 export const lrangeAsync = promisify(client.lrange).bind(client);
 export const lpushAsync = promisify(client.lpush).bind(client);
 export const smembersAsync = promisify(client.smembers).bind(client);
+export const flushallAsync = promisify(client.flushall).bind(client);
