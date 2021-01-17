@@ -127,16 +127,18 @@ class ChartRedis extends React.Component<Props, State> {
         //   datasets: datasets
         // }
         this.state = {
-          points: this.getNValue(),
+          points: 0,
           value: [10,40],
           min: 0,
-          max:  this.getNValue(),
+          max:  600,
           step: 1
         };
+
         //this.fillChartData = this.fillChartData.bind(this);
+        this.getNValue(this.state);
     }
 
-   getNValue = () => {
+   getNValue = (value) => {
     llenAsync('dataAccx').then(function(result : string) {
 
 
@@ -150,11 +152,12 @@ class ChartRedis extends React.Component<Props, State> {
         
       //  N = this.state.value;
       //}
-      console.log("--> "+N);
+      console.log("--> "+N+"max: ");
+      value.max = N;
+      return N;
     });
 
-    //this.getChartData();
-    return N;
+    //this.getChartData()
     
   }
 
@@ -178,7 +181,7 @@ class ChartRedis extends React.Component<Props, State> {
         //   lpushAsync('data', "x:"+ji, "y:"+randy);
         // }
 
-        this.getNValue();
+        //this.getNValue();
 
         //chartJsData();
         //chartJsData2();
@@ -248,7 +251,6 @@ class ChartRedis extends React.Component<Props, State> {
             
             for (let j=0; j < (result.length-Nfactor); j++)
             {
-              console.log("Y*: ( "+(result.length-Nfactor)+"\n");
               var vali : string = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
               var valStr = vali.split("\^");
               //console.log("2"+valStr);
@@ -257,11 +259,9 @@ class ChartRedis extends React.Component<Props, State> {
                 var xyes = valStr[1].includes("x:");
                 var yyes = valStr[2].includes("y:");
 
-                console.log("vali2:"+valStr[1]);
-
+           
                 if (xyes && yyes)
                 {
-                  console.log("vali2:"+valStr[1]);
                   chartData.datasets[1].data.push({
                     x: parseFloat(valStr[1].split("x:")[1].valueOf()),
                     y: parseFloat(valStr[2].split("y:")[1].valueOf())
@@ -303,8 +303,6 @@ class ChartRedis extends React.Component<Props, State> {
   sliderOnChangeEvent = (event, value) => {
 
     this.setState({ value:value });
-    console.log("Value Low:"+value[0]);
-    console.log("Value High:"+value[1]);
     this.fillChartData();
 
   }
