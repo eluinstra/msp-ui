@@ -17,7 +17,7 @@ type Props = {
 
 type State = {
   name: string
-  serialPort: any
+  //serialPort: any
 }
 
 let messageStarted = false
@@ -126,7 +126,7 @@ class ChartGetDataRedisChart extends Component<Props, State> {
       super(props);
       this.state = {
         name: "",
-        serialPort: props.serialPort
+       // serialPort: props.serialPort
       };
     }
 
@@ -146,7 +146,7 @@ class ChartGetDataRedisChart extends Component<Props, State> {
 
   clickEventStartProcess(event) {
     /* start capturing */
-     this.state.serialPort?.value.on('data', function (data) {
+     this.props.serialPort?.value.on('data', function (data) {
       if (isCollecting)
       {
         let counter = 0

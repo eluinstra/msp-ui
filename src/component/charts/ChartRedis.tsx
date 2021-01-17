@@ -1,11 +1,16 @@
 import React from 'react'
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import { Scatter } from 'react-chartjs-2'
-import { Slider } from '@material-ui/core'
+import Slider from '@material-ui/core/Slider'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { llenAsync, lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
 import { Number } from 'rambda/_ts-toolbelt/src/Iteration/Maps/_api'
+
+type chartDataType = {
+  x: number,
+  y: number
+};
 
 let N = 1; /* Wordt later ingelezen uit Redis */
 let NSlider = 1;
@@ -13,28 +18,28 @@ var Xxas = 0;
 var Xyas = 0;
 var Yxas = 0;
 var Yyas = 0;
-var datapoints = [];
-var datapoints2 = []; /* crusiaal een eigen data array per "kanaal" */
+let datapoints : chartDataType[] = [];
+let datapoints2 : chartDataType[] = []; /* crusiaal een eigen data array per "kanaal" */
 
 function timeformat(date : Date) {
   return ""+date.getTime();
 }
 
-var chartJsData = function() {
-    for (var ci=0; ci < N; ci++ )
-    {
-      datapoints[ci] = {x:0, y:0};
-    }
-    return datapoints;
-}
+// var chartJsData = function() {
+//     for (var ci=0; ci < this.N; ci++ )
+//     {
+//       datapoints[ci] = {x:0, y:0};
+//     }
+//     return datapoints;
+// }
 
-var chartJsData2 = function() {
-  for (var ci=0; ci < N; ci++ )
-  {
-    datapoints2[ci] = {x:0, y:0};
-  }
-  return datapoints2;
-}
+// var chartJsData2 = function() {
+//   for (var ci=0; ci < this.N; ci++ )
+//   {
+//     datapoints2[ci] = {x:0, y:0};
+//   }
+//   return datapoints2;
+//}
 
 const chartData = {
   type: 'line',
@@ -51,7 +56,7 @@ const chartData = {
       pointHighlightStroke: 'rgba(220,220,220,1)',
       pointHitRadius: 3,
       pointRadius: 5,
-      data: chartJsData()
+      data: datapoints
     }
   ,
     {
@@ -66,7 +71,7 @@ const chartData = {
       pointHighlightStroke: 'rgba(220,220,220,1)',
       pointHitRadius: 3,
       pointRadius: 5,
-      data: chartJsData2()
+      data: datapoints2
     }
   ]
 }
@@ -106,7 +111,7 @@ type Props = {
 
 type State = {
   points: number,
-  value: number,
+  value: number[],
   min: number,
   max: number,
   step: number
@@ -123,9 +128,9 @@ class ChartRedis extends React.Component<Props, State> {
         // }
         this.state = {
           points: this.getNValue(),
-          value: 0,
+          value: [10,40],
           min: 0,
-          max: 1,
+          max: 600,
           step: 1
         };
         //this.fillChartData = this.fillChartData.bind(this);
@@ -135,16 +140,16 @@ class ChartRedis extends React.Component<Props, State> {
     llenAsync('dataAccx').then(function(result : string) {
 
 
-      if(result && NSlider == 1)
-      {
+      //if(result && NSlider == 1)
+      //{
         N = parseInt(result.valueOf())-10;
         //console.log("Dataset length: "+ N);
-      }
-      else
-      {
+      //}
+      //else
+      //{
         
-        N = this.state.value;
-      }
+      //  N = this.state.value;
+      //}
       console.log("--> "+N);
     });
 
@@ -174,8 +179,8 @@ class ChartRedis extends React.Component<Props, State> {
 
         this.getNValue();
 
-        chartJsData();
-        chartJsData2();
+        //chartJsData();
+        //chartJsData2();
       
         var Nfactor = 1;
 
@@ -203,13 +208,13 @@ class ChartRedis extends React.Component<Props, State> {
 
                 if (xyes)
                 {
-                  chartData.datasets[0].data[Xxas].x = valStr[1].split("x:")[1].valueOf();
+                  chartData.datasets[0].data[Xxas].x = parseFloat(valStr[1].split("x:")[1].valueOf());
                   //console.log("Result X-X: { "+valStr[0].split("x:")[1].valueOf()+" }\n");
                   Xxas++;
                 }
                 if (yyes)
                 {
-                  chartData.datasets[0].data[Xyas].y = valStr[2].split("y:")[1].valueOf();
+                  chartData.datasets[0].data[Xyas].y = parseFloat(valStr[2].split("y:")[1].valueOf());
                   //console.log("Result X-Y: { "+valStr[1].split("y:")[1].valueOf()+" }\n");
                   Xyas++;
                 }
@@ -242,13 +247,13 @@ class ChartRedis extends React.Component<Props, State> {
 
                 if (xyes)
                 {
-                  chartData.datasets[1].data[Yxas].x = valStr[1].split("x:")[1].valueOf();
+                  chartData.datasets[1].data[Yxas].x = parseFloat(valStr[1].split("x:")[1].valueOf());
                   Yxas++;
                   //console.log("Result YX: { "+valStr[0].split("x:")[1].valueOf()+" }\n");
                 }
                 if (yyes)
                 {
-                  chartData.datasets[1].data[Yyas].y = valStr[2].split("y:")[1].valueOf();
+                  chartData.datasets[1].data[Yyas].y = parseFloat(valStr[2].split("y:")[1].valueOf());
                   //console.log("Result YY: { "+valStr[1].split("y:")[1].valueOf()+" }\n");
                   Yyas++;
                 }
@@ -305,7 +310,7 @@ render()
       <Slider
             value={value}
             min={min}
-            max={this.state.points}
+            max={max}
             step={step}
             onChange={ this.sliderOnChangeEvent }
             valueLabelDisplay="auto"
