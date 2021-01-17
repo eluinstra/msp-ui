@@ -265,6 +265,10 @@ class ChartRedis extends React.Component<Props, State> {
         }
         );
 
+        chartData.datasets[0].data = datapoints;
+        chartData.datasets[1].data = datapoints2;
+        
+
         //console.log(datapoints.length+ " ] -->"+ chartData.datasets[0].data.length +"\n");
         //console.log(datapoints.length+" ] ----->"+ chartData.datasets[0].data.length +"\n")
 
