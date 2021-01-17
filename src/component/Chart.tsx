@@ -3,7 +3,7 @@ import { Line } from 'react-chartjs-2'
 import 'chartjs-plugin-streaming'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
-import { mspResponse$ } from './msp/MspDriver'
+import { createMspResponse$ } from './msp/MspDriver'
 import { parseMspMsg } from './msp/MspModel'
 
 export const Chart = props => {
@@ -29,7 +29,7 @@ export const Chart = props => {
       }]
     }
   }
-  mspResponse$
+  createMspResponse$()
   .pipe(
     sample(interval(500)),
     map(mspMsg  => parseMspMsg(mspMsg)),

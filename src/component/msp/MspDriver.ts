@@ -50,7 +50,7 @@ const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0)
 function crc8_dvb_s2(crc, num) {
   crc = (crc ^ num) & 0xFF
   for (let i = 0; i < 8; i++)
-    crc = ((crc & 0x80) != 0) 
+    crc = ((crc & 0x80 & 0xFF) != 0) 
       ? ((crc << 1) ^ 0xD5) & 0xFF
       : (crc << 1) & 0xFF
   return crc
@@ -64,9 +64,9 @@ function command(cmd, payload) {
 
 export const mspRequest = (serialPort, cmd, payload) => serialPort?.value.write(Buffer.from(command(cmd, payload)))
 
-export const mspResponse$ = new Subject<MspMsg>()
+export const createMspResponse$ = () => new Subject<MspMsg>()
 
-export const registerPort = (serialPort) =>
+export const registerPort = (serialPort, mspResponse$) =>
   serialPort?.on('data', function (data) {
     for (let i = 0; i < data.length; i++) {
       parseMSPCommand(data.readInt8(i))

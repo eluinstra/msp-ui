@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
 import { distinctUntilChanged, map, filter, tap, startWith, mergeMap, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviour, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { MspMsg, mspRequest, mspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
+import { MspMsg, mspRequest, createMspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField, Theme } from '@material-ui/core'
@@ -18,6 +18,7 @@ export const MspInput = props => {
   const { enqueueSnackbar } = useSnackbar();
   const [cmd, setCmd] = useState(null);
   const [inputValue, setInputValue] = useState('');
+  const [mspResponse$] = useState(createMspResponse$())
   const [mspClick, mspClick$] = useObservableEvent()
   const mspMsg = useStatefulObservable<MspMsg>(mspResponse$
     .pipe(
@@ -29,7 +30,7 @@ export const MspInput = props => {
         filter(p => isOpen(p)),
       )
       .subscribe(p => {
-        registerPort(p)
+        registerPort(p, mspResponse$)
       })
     return () => {
       sub.unsubscribe()

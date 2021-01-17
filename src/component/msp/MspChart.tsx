@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { interval, merge, NEVER } from 'rxjs'
 import { map, filter, tap, mapTo, startWith, switchMap, delayWhen } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviourOf } from '@/common/RxTools'
-import { mspRequest, mspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
+import { mspRequest, createMspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/core'
 import { viewMspChart } from '@/component/msp/MspChartView'
@@ -17,6 +17,7 @@ export const MspChart = props => {
   });
   const [cmd, setCmd] = useState(null);
   const [inputValue, setInputValue] = useState('');
+  const [mspResponse$] = useState(createMspResponse$())
   const mspMsg = useStatefulObservable<number>(mspResponse$
     .pipe(
       map(mspMsg  => viewMspChart(mspMsg))
@@ -55,7 +56,7 @@ export const MspChart = props => {
         filter(p => isOpen(p)),
       )
       .subscribe(p => {
-        registerPort(p)
+        registerPort(p, mspResponse$)
       })
     return () => {
       sub.unsubscribe()
