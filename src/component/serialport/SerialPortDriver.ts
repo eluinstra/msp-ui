@@ -8,7 +8,7 @@ export const createSerialPort = () => new BehaviorSubject(undefined)
 
 export const openPort = (serialPort, port, baudrate) => serialPort.next(new SerialPort(port, { baudRate: baudrate }))
 
-export const isOpen = (serialPort) => Boolean(serialPort.value)
+export const isOpen = (serialPort) => Boolean(serialPort)
 
 export const closePort = (serialPort) => {
   serialPort.value?.close()

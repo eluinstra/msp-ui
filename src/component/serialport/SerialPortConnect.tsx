@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FormControl, FormControlLabel, FormGroup, NativeSelect, Switch } from '@material-ui/core'
 import { filter, map, mergeMap } from 'rxjs/operators';
-import { availableBaudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
+import { availableBaudrates, closePort, defaultBaudrate, isOpen, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { PortInfo } from 'serialport'
 
@@ -9,7 +9,8 @@ const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
 
 export const SerialPortConnect = props => {
-  const { connected, setConnected, serialPort } = props
+  const { serialPort } = props
+  const connected = useStatefulObservable<boolean>(serialPort.pipe(map(p => isOpen(p))),false)
   const [state, changeState] = useBehaviour({
     port: "",
     baudrate: defaultBaudrate
@@ -32,7 +33,6 @@ export const SerialPortConnect = props => {
         } else {
           closePort(serialPort)
         }
-        setConnected(!connected)
       })
     return () => sub.unsubscribe()
   }, [connectClick$])

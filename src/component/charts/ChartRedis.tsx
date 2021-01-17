@@ -1,12 +1,14 @@
 import React from 'react'
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import { Scatter } from 'react-chartjs-2'
+import { Slider } from '@material-ui/core'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { llenAsync, lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
 import { Number } from 'rambda/_ts-toolbelt/src/Iteration/Maps/_api'
 
 let N = 1; /* Wordt later ingelezen uit Redis */
+let NSlider = 1;
 var Xxas = 0;
 var Xyas = 0;
 var Yxas = 0;
@@ -98,7 +100,19 @@ const options = {
   }
 } 
 
-class ChartRedis extends React.Component {
+type Props = {
+  //serialPort : any;
+}
+
+type State = {
+  points: number,
+  value: number,
+  min: number,
+  max: number,
+  step: number
+}
+
+class ChartRedis extends React.Component<Props, State> {
 
   constructor(props)
     {
@@ -107,11 +121,36 @@ class ChartRedis extends React.Component {
         // const data = {
         //   datasets: datasets
         // }
-        this.state={
-         //data: chartJsData()
-        }
+        this.state = {
+          points: this.getNValue(),
+          value: 0,
+          min: 0,
+          max: 1,
+          step: 1
+        };
         //this.fillChartData = this.fillChartData.bind(this);
     }
+
+   getNValue = () => {
+    llenAsync('dataAccx').then(function(result : string) {
+
+
+      if(result && NSlider == 1)
+      {
+        N = parseInt(result.valueOf())-10;
+        //console.log("Dataset length: "+ N);
+      }
+      else
+      {
+        
+        N = this.state.value;
+      }
+      console.log("--> "+N);
+    });
+
+    return N;
+    
+  }
 
   fillChartData = () => {
 
@@ -133,15 +172,8 @@ class ChartRedis extends React.Component {
         //   lpushAsync('data', "x:"+ji, "y:"+randy);
         // }
 
-        llenAsync('dataAccx').then(function(result : string) {
+        this.getNValue();
 
-
-          if(result)
-          {
-            N = parseInt(result.valueOf())-10;
-            //console.log("Dataset length: "+ N);
-          }
-        });
         chartJsData();
         chartJsData2();
       
@@ -236,6 +268,13 @@ class ChartRedis extends React.Component {
       return chartData.datasets;
   }
 
+  sliderOnChangeEvent = (event, value) => {
+
+    this.setState({ value });
+    this.setState({ points: N });
+
+  }
+
   chartData = () => {
 
     var dataset = this.fillChartData();
@@ -260,8 +299,21 @@ class ChartRedis extends React.Component {
 
 render()
 {
+  const { value, min, max, step } = this.state;
   return (
+    <div>
+      <Slider
+            value={value}
+            min={min}
+            max={this.state.points}
+            step={step}
+            onChange={ this.sliderOnChangeEvent }
+            valueLabelDisplay="auto"
+            aria-labelledby="range"
+            //getAriaValueText={function = {{value + ' days'}}}
+          />
       <Scatter data={this.chartData} options={options} height={150} redraw />
+    </div>
     )
   }
 }

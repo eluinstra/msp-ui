@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
+import PropTypes from "prop-types";
 import { Line } from 'react-chartjs-2'
 import { BehaviorSubject, interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { props } from "rambda";
 import { CChartContainerRedis } from '@/component/charts/ChartContainerRedis'
 import { Button } from '@material-ui/core'
+import Typography from "@material-ui/core/Typography";
 import { lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
 import SerialPort from "serialport";
 
@@ -119,11 +121,12 @@ function parseIMUAcc(num: number) {
 }
 
 class ChartGetDataRedisChart extends Component<Props, State> {
+    
     constructor(props) {
       super(props);
       this.state = {
         name: "",
-        serialPort: props.serialPort,
+        serialPort: props.serialPort
       };
     }
 
@@ -178,6 +181,7 @@ class ChartGetDataRedisChart extends Component<Props, State> {
     isCollecting = false;
 
   }
+
 
   //  <!--<button title="Get Data" color="#841584" id="name" onClick={this.changeText.bind(this)} />-->
 

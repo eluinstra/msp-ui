@@ -62,16 +62,17 @@ function command(cmd, payload) {
   return [].concat(mspCmdHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
-export const mspRequest = (serialPort, cmd, payload) => {
-  serialPort?.value.write(Buffer.from(command(cmd, payload)))
-}
+export const mspRequest = (serialPort, cmd, payload) => serialPort?.value.write(Buffer.from(command(cmd, payload)))
+
 export const mspResponseSubject = new Subject<MspMsg>()
+
 export const mspResponse$ = mspResponseSubject
   .pipe(
     tap(e => console.log("RESPONSE")),
     share()
   )
-export const registerPort = (serialPort) => {
+
+export const registerPort = (serialPort) =>
   serialPort?.value.on('data', function (data) {
     for (let i = 0; i < data.length; i++) {
       parseMSPCommand(data.readInt8(i))
@@ -84,11 +85,8 @@ export const registerPort = (serialPort) => {
       }
     }
   })
-}
-export const unregisterPort = (serialPort) => {
-  serialPort?.value.on('data', function (data) {
-  })
-}
+
+export const unregisterPort = (serialPort) => serialPort?.value.on('data', function (data) {})
 
 function parseMSPCommand(num) {
   //console.log(num & 0xFF)

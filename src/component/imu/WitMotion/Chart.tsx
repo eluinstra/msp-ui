@@ -5,7 +5,6 @@ import { interval } from "rxjs"
 import { filter, map, startWith, tap } from "rxjs/operators"
 import { sample } from "rxjs/operators"
 import { imuResponse$, registerPort, unregisterPort } from '@/component/imu/WitMotion/Driver'
-import { isOpen } from "@/component/serialport/SerialPortDriver"
 
 const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
 
