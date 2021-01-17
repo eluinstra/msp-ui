@@ -5,6 +5,7 @@ import { interval } from "rxjs"
 import { filter, map, startWith, tap } from "rxjs/operators"
 import { sample } from "rxjs/operators"
 import { imuResponse$, registerPort, unregisterPort } from '@/component/imu/WitMotion/Driver'
+import { isOpen } from "@/component/serialport/SerialPortDriver"
 
 const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
 
@@ -70,18 +71,17 @@ export const Chart = props => {
     )
   )
   useEffect(() => {
-    registerPort(serialPort)
-    return () => unregisterPort(serialPort)
-    // const sub = serialPort
-    //   .pipe(
-    //     startWith(serialPort),
-    //     filter(p => isOpen(p)),
-    //     tap(p => registerPort(p))
-    //   )
-    // return () => {
-    //   sub.unsubscribe()
-    //   unregisterPort(serialPort)
-    // }
+    const sub = serialPort
+      .pipe(
+        filter(p => isOpen(p)),
+      )
+      .subscribe(p => {
+        registerPort(p)
+      })
+    return () => {
+      sub.unsubscribe()
+      unregisterPort(serialPort)
+    }
   }, [])
   useEffect(() => {
     const sub = imu$.subscribe(value => {

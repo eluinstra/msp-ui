@@ -9,6 +9,7 @@ import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField, Theme } from '@material-ui/core'
 import { useSnackbar } from 'notistack';
 import { Autocomplete } from '@material-ui/lab'
+import { isOpen } from '../serialport/SerialPortDriver'
 
 const notEmpty = v => v != ""
 
@@ -23,8 +24,17 @@ export const MspInput = props => {
       map(mspMsg  => viewMspMsg(mspMsg))
   ))
   useEffect(() => {
-    registerPort(serialPort)
-    return () => unregisterPort(serialPort)
+    const sub = serialPort
+      .pipe(
+        filter(p => isOpen(p)),
+      )
+      .subscribe(p => {
+        registerPort(p)
+      })
+    return () => {
+      sub.unsubscribe()
+      unregisterPort(serialPort)
+    }
   }, [])
   useEffect(() => {
     const sub = mspClick$

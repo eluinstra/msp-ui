@@ -118,7 +118,7 @@ export default imuMsgAngle;
 
 export const imuResponse$ = new Subject<IImuMsgAngle>();
 export const registerPort = (serialPort) => {
-  serialPort?.value.on('data', function (data) {
+  serialPort?.on('data', function (data) {
     let counter = 0
     for (let i = 0; i < data.length; i++) {
       //if 0x55 is found unpack messages till next 0x55
