@@ -208,13 +208,13 @@ class ChartRedis extends React.Component<Props, State> {
 
                 if (xyes)
                 {
-                  chartData.datasets[0].data[Xxas].x = parseFloat(valStr[1].split("x:")[1].valueOf());
+                  datapoints[Xxas].x = parseFloat(valStr[1].split("x:")[1].valueOf());
                   //console.log("Result X-X: { "+valStr[0].split("x:")[1].valueOf()+" }\n");
                   Xxas++;
                 }
                 if (yyes)
                 {
-                  chartData.datasets[0].data[Xyas].y = parseFloat(valStr[2].split("y:")[1].valueOf());
+                  datapoints[Xyas].y = parseFloat(valStr[2].split("y:")[1].valueOf());
                   //console.log("Result X-Y: { "+valStr[1].split("y:")[1].valueOf()+" }\n");
                   Xyas++;
                 }
@@ -247,13 +247,13 @@ class ChartRedis extends React.Component<Props, State> {
 
                 if (xyes)
                 {
-                  chartData.datasets[1].data[Yxas].x = parseFloat(valStr[1].split("x:")[1].valueOf());
+                  datapoints2[Yxas].x = parseFloat(valStr[1].split("x:")[1].valueOf());
                   Yxas++;
                   //console.log("Result YX: { "+valStr[0].split("x:")[1].valueOf()+" }\n");
                 }
                 if (yyes)
                 {
-                  chartData.datasets[1].data[Yyas].y = parseFloat(valStr[2].split("y:")[1].valueOf());
+                  datapoints2[Yyas].y = parseFloat(valStr[2].split("y:")[1].valueOf());
                   //console.log("Result YY: { "+valStr[1].split("y:")[1].valueOf()+" }\n");
                   Yyas++;
                 }
