@@ -9,7 +9,7 @@ import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField, Theme } from '@material-ui/core'
 import { useSnackbar } from 'notistack';
 import { Autocomplete } from '@material-ui/lab'
-import { isOpen } from '../serialport/SerialPortDriver'
+import { isOpen } from '@/component/serialport/SerialPortDriver'
 
 const notEmpty = v => v != ""
 

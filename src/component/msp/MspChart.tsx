@@ -7,7 +7,7 @@ import { MspCmd } from '@/component/msp/MspProtocol'
 import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/core'
 import { viewMspChart } from '@/component/msp/MspChartView'
 import { Autocomplete } from '@material-ui/lab'
-import { isOpen } from '../serialport/SerialPortDriver'
+import { isOpen } from '@/component/serialport/SerialPortDriver'
 
 export const MspChart = props => {
   const { serialPort } = props

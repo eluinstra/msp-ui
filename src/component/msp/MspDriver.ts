@@ -64,23 +64,17 @@ function command(cmd, payload) {
 
 export const mspRequest = (serialPort, cmd, payload) => serialPort?.value.write(Buffer.from(command(cmd, payload)))
 
-export const mspResponseSubject = new Subject<MspMsg>()
-
-export const mspResponse$ = mspResponseSubject
-  .pipe(
-    tap(e => console.log("RESPONSE")),
-    share()
-  )
+export const mspResponse$ = new Subject<MspMsg>()
 
 export const registerPort = (serialPort) =>
-  serialPort?.value.on('data', function (data) {
+  serialPort?.on('data', function (data) {
     for (let i = 0; i < data.length; i++) {
       parseMSPCommand(data.readInt8(i))
       if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
-        mspResponseSubject.next({...mspMsg})
+        mspResponse$.next({...mspMsg})
         mspMsg.state = MspState.MSP_IDLE
       } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
-        mspResponseSubject.error(new Error('MSP error received!'))
+        mspResponse$.error(new Error('MSP error received!'))
         mspMsg.state = MspState.MSP_IDLE
       }
     }

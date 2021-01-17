@@ -95,7 +95,7 @@ export const Chart = props => {
       })
     })
     return () => sub.unsubscribe()
-  }, [imu$])
+  }, [])
   return (
     <Line data={state} options={options} height={150} />
   )

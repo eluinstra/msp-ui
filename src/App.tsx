@@ -118,19 +118,18 @@ const useStyles = makeStyles((theme) => ({
 export const App = () => {
   const classes = useStyles()
   const { content, toolbar, root } = classes
-  const [ serialPort1 ] = useState(createSerialPort())
-  const [ serialPort2 ] = useState(createSerialPort())
+  const [ serialPort ] = useState(createSerialPort())
   return (
   <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
     <CssBaseline />
     <ThemeProvider theme={theme}>
       <div className={root}>
-        <MSPAppBar classes={classes} serialPort1={serialPort1} serialPort2={serialPort2} />
+        <MSPAppBar classes={classes} serialPort={serialPort} />
         <Router>
-          <MSPDrawer classes={classes} serialPort={serialPort1} />
+          <MSPDrawer classes={classes} serialPort={serialPort} />
           <main className={content}>
             <Toolbar className={toolbar} />
-            <MSPRouter serialPort={serialPort1} />
+            <MSPRouter serialPort={serialPort} />
           </main>
         </Router>
       </div>
@@ -140,7 +139,7 @@ export const App = () => {
 }
 
 const MSPAppBar = props => {
-  const { classes, serialPort1, serialPort2 } = props
+  const { classes, serialPort } = props
   const { appBar, toolbar, title } = classes
   return (
     <AppBar position="fixed" className={appBar}>
@@ -148,8 +147,7 @@ const MSPAppBar = props => {
         <Typography variant="h6" className={title}>
           Alpha|BOT
         </Typography>
-        <SerialPortConnect serialPort={serialPort1} />
-        <SerialPortConnect serialPort={serialPort2} />
+        <SerialPortConnect serialPort={serialPort} />
       </Toolbar>
     </AppBar>
   )
