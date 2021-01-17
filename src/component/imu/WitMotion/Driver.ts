@@ -122,7 +122,7 @@ export default imuMsgAngle;
 
 export const imuResponse$ = new Subject<IImuMsgAngle>();
 export const registerPort = (serialPort) => {
-  serialPort?.value.on('data', function (data) {
+  serialPort?.on('data', function (data) {
     let counter = 0
     console.log("hier kom ik");
     for (let i = 0; i < data.length; i++) {

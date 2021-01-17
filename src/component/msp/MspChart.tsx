@@ -7,6 +7,7 @@ import { MspCmd } from '@/component/msp/MspProtocol'
 import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/core'
 import { viewMspChart } from '@/component/msp/MspChartView'
 import { Autocomplete } from '@material-ui/lab'
+import { isOpen } from '../serialport/SerialPortDriver'
 
 export const MspChart = props => {
   const { serialPort } = props
@@ -49,8 +50,17 @@ export const MspChart = props => {
   //   return () => sub.unsubscribe()
   // }, [state$])
   useEffect(() => {
-    registerPort(serialPort)
-    return () => unregisterPort(serialPort)
+    const sub = serialPort
+      .pipe(
+        filter(p => isOpen(p)),
+      )
+      .subscribe(p => {
+        registerPort(p)
+      })
+    return () => {
+      sub.unsubscribe()
+      unregisterPort(serialPort)
+    }
   }, [])
   useEffect(() => {
     const sub = merge(state$,mspResponse$)
