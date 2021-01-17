@@ -1,5 +1,4 @@
 import { Subject } from 'rxjs'
-import { serialPort } from '@/component/serialport/SerialPortDriver';
 
 let messageStarted = false
 var datasegmentcounter = 0
@@ -118,8 +117,8 @@ export const imuMsgAngle: IImuMsgAngle = {
 export default imuMsgAngle;
 
 export const imuResponse$ = new Subject<IImuMsgAngle>();
-export const registerPortIMU = () => {
-  serialPort?.value.on('data', function (data) {
+export const registerPort = (serialPort) => {
+  serialPort?.on('data', function (data) {
     let counter = 0
     for (let i = 0; i < data.length; i++) {
       //if 0x55 is found unpack messages till next 0x55
@@ -133,6 +132,10 @@ export const registerPortIMU = () => {
       }
       counter++;
     }
+  })
+}
+export const unregisterPort = (serialPort) => {
+  serialPort?.value.on('data', function (data) {
   })
 }
 

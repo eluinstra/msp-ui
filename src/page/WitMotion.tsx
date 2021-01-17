@@ -1,11 +1,12 @@
 import React from 'react'
 import { Chart } from '@/component/imu/WitMotion/Chart'
 
-export const WitMotion = () => {
+export const WitMotion = props => {
+  const { serialPort } = props
   return (
     <React.Fragment>
       <h2>Wit Motion</h2>
-      <Chart />
+      <Chart serialPort={serialPort} />
     </React.Fragment>
   )
 }

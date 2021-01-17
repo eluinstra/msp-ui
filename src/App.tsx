@@ -18,8 +18,11 @@ import { MspChartPage } from '@/page/MspChart'
 import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
-import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
 import { WitMotion } from '@/page/WitMotion'
+import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
+import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
+import { useStatefulObservable } from '@/common/RxTools'
+import { map } from 'rxjs/operators';
 
 enum Mode { DEFAULT, MSP, IMU } 
 
@@ -115,18 +118,19 @@ const useStyles = makeStyles((theme) => ({
 export const App = () => {
   const classes = useStyles()
   const { content, toolbar, root } = classes
-  const [ connected, setConnected ] = useState(false)
+  const [ serialPort1 ] = useState(createSerialPort())
+  const [ serialPort2 ] = useState(createSerialPort())
   return (
   <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
     <CssBaseline />
     <ThemeProvider theme={theme}>
       <div className={root}>
-        <MSPAppBar classes={classes} connected={connected} setConnected={setConnected}/>
+        <MSPAppBar classes={classes} serialPort1={serialPort1} serialPort2={serialPort2} />
         <Router>
-          <MSPDrawer classes={classes} connected={connected}/>
+          <MSPDrawer classes={classes} serialPort={serialPort1} />
           <main className={content}>
             <Toolbar className={toolbar} />
-            <MSPRouter />
+            <MSPRouter serialPort={serialPort1} />
           </main>
         </Router>
       </div>
@@ -136,7 +140,7 @@ export const App = () => {
 }
 
 const MSPAppBar = props => {
-  const { classes, connected, setConnected } = props
+  const { classes, serialPort1, serialPort2 } = props
   const { appBar, toolbar, title } = classes
   return (
     <AppBar position="fixed" className={appBar}>
@@ -144,16 +148,18 @@ const MSPAppBar = props => {
         <Typography variant="h6" className={title}>
           Alpha|BOT
         </Typography>
-        <SerialPortConnect connected={connected} setConnected={setConnected}/>
+        <SerialPortConnect serialPort={serialPort1} />
+        <SerialPortConnect serialPort={serialPort2} />
       </Toolbar>
     </AppBar>
   )
 }
 
 const MSPDrawer = props => {
-  const { classes, connected } = props
+  const { classes, serialPort } = props
   const { drawer, drawerPaper, toolbar, drawerContainer } = classes
   const [ mode, setMode ] = useState(Mode.DEFAULT)
+  const connected = useStatefulObservable<boolean>(serialPort.pipe(map(p => isOpen(p))),false)
   return (
     <Drawer
       className={drawer}
@@ -210,7 +216,8 @@ const MenuListItem = props => {
   )
 }
 
-const MSPRouter = () => {
+const MSPRouter = props => {
+  const { serialPort } = props
   return (
     <Switch>
       <Route path="/settings">
@@ -229,16 +236,16 @@ const MSPRouter = () => {
         <Msp />
       </Route>
       <Route path="/msp-input">
-        <MspInputPage />
+        <MspInputPage serialPort={serialPort} />
       </Route>
       <Route path="/msp-chart">
-        <MspChartPage />
+        <MspChartPage serialPort={serialPort} />
       </Route>
       <Route path="/imu">
         <Imu />
       </Route>
       <Route path="/wit-motion">
-        <WitMotion />
+        <WitMotion serialPort={serialPort} />
       </Route>
       <Route path="/gps">
         <GPSPage />

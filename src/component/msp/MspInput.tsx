@@ -3,16 +3,18 @@ import React, { useState, useEffect } from 'react'
 import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
 import { distinctUntilChanged, map, filter, tap, startWith, mergeMap, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviour, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { MspMsg, mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
+import { MspMsg, mspRequest, mspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField, Theme } from '@material-ui/core'
 import { useSnackbar } from 'notistack';
 import { Autocomplete } from '@material-ui/lab'
+import { isOpen } from '../serialport/SerialPortDriver'
 
 const notEmpty = v => v != ""
 
-export const MspInput = () => {
+export const MspInput = props => {
+  const { serialPort } = props
   const { enqueueSnackbar } = useSnackbar();
   const [cmd, setCmd] = useState(null);
   const [inputValue, setInputValue] = useState('');
@@ -22,6 +24,19 @@ export const MspInput = () => {
       map(mspMsg  => viewMspMsg(mspMsg))
   ))
   useEffect(() => {
+    const sub = serialPort
+      .pipe(
+        filter(p => isOpen(p)),
+      )
+      .subscribe(p => {
+        registerPort(p)
+      })
+    return () => {
+      sub.unsubscribe()
+      unregisterPort(serialPort)
+    }
+  }, [])
+  useEffect(() => {
     const sub = mspClick$
       .pipe(
         mapTo(MspCmd[cmd]),
@@ -29,7 +44,7 @@ export const MspInput = () => {
       )
       .subscribe(val => {
         try {
-          mspRequest(val,[])
+          mspRequest(serialPort,val,[])
         } catch(e) {
           console.log(e)
           enqueueSnackbar(e.message, { variant: 'error' })

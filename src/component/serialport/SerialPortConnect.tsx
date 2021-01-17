@@ -1,17 +1,16 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FormControl, FormControlLabel, FormGroup, NativeSelect, Switch } from '@material-ui/core'
 import { filter, map, mergeMap } from 'rxjs/operators';
-import { baudrates, closePort, defaultBaudrate, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
+import { availableBaudrates, closePort, defaultBaudrate, isOpen, openPort, portInfo$ } from '@/component/serialport/SerialPortDriver'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { PortInfo } from 'serialport'
-import { registerPort } from '@/component/msp/MspDriver'
-import { registerPortIMU } from '@/component/imu/WitMotion/Driver';
 
 const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
 
 export const SerialPortConnect = props => {
-  const { connected, setConnected } = props
+  const { serialPort } = props
+  const connected = useStatefulObservable<boolean>(serialPort.pipe(map(p => isOpen(p))),false)
   const [state, changeState] = useBehaviour({
     port: "",
     baudrate: defaultBaudrate
@@ -30,13 +29,10 @@ export const SerialPortConnect = props => {
       )
       .subscribe(val => {
         if (!connected) {
-          openPort(state.port, state.baudrate)
-          //registerPort()
-          registerPortIMU()
+          openPort(serialPort, state.port, state.baudrate)
         } else {
-          closePort()
+          closePort(serialPort)
         }
-        setConnected(!connected)
       })
     return () => sub.unsubscribe()
   }, [connectClick$])
@@ -53,7 +49,7 @@ export const SerialPortConnect = props => {
         </FormControl>
         <FormControl>
           <NativeSelect value={state.baudrate} disabled={connected} onChange={e => changeState({ baudrate: Number(e.target.value) })}>
-            {baudrates.map(v =>
+            {availableBaudrates.map(v =>
               <option key={v} value={v}>{v}</option>
             )}
           </NativeSelect>

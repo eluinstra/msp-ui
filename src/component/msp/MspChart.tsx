@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { interval, merge, NEVER } from 'rxjs'
 import { map, filter, tap, mapTo, startWith, switchMap, delayWhen } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviourOf } from '@/common/RxTools'
-import { mspRequest, mspResponse$ } from '@/component/msp/MspDriver'
+import { mspRequest, mspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/core'
 import { viewMspChart } from '@/component/msp/MspChartView'
 import { Autocomplete } from '@material-ui/lab'
+import { isOpen } from '../serialport/SerialPortDriver'
 
-export const MspChart = () => {
+export const MspChart = props => {
+  const { serialPort } = props
   const [state, changeState, state$] = useObservableBehaviourOf({
     checked: false,
     interval: 100,
@@ -48,13 +50,26 @@ export const MspChart = () => {
   //   return () => sub.unsubscribe()
   // }, [state$])
   useEffect(() => {
+    const sub = serialPort
+      .pipe(
+        filter(p => isOpen(p)),
+      )
+      .subscribe(p => {
+        registerPort(p)
+      })
+    return () => {
+      sub.unsubscribe()
+      unregisterPort(serialPort)
+    }
+  }, [])
+  useEffect(() => {
     const sub = merge(state$,mspResponse$)
       .pipe(
         startWith(state.checked),
         filter(v => v == true),
         delayWhen(_ => interval(state.interval)),
         mapTo(MspCmd[cmd]),
-        tap(v => mspRequest(v,[])),
+        tap(v => mspRequest(serialPort,v,[])),
         switchMap(_ => mspResponse$),
       )
       .subscribe(v => {
