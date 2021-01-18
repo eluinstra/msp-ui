@@ -73,6 +73,21 @@ const chartData = {
       pointRadius: 5,
       data: datapoints2
     }
+    ,
+    {
+      label: "Data from the zAxis",
+      backgroundColor: 'red',
+      fillColor: 'rgba(220,220,220,0.2)',
+      strokeColor: 'rgba(220,220,220,1)',
+      pointStyle: 'circle',
+      pointColor: 'red',
+      pointStrokeColor: 'lightred',
+      pointHighlightFill: '#fff',
+      pointHighlightStroke: 'rgba(220,220,220,1)',
+      pointHitRadius: 3,
+      pointRadius: 5,
+      data: datapoints2
+    }
   ]
 }
 
@@ -152,7 +167,7 @@ class ChartRedis extends React.Component<Props, State> {
         
       //  N = this.state.value;
       //}
-      console.log("--> "+N+"max: ");
+      //console.log("--> "+N+"max: ");
       value.max = N;
       return N;
     });
@@ -244,7 +259,7 @@ class ChartRedis extends React.Component<Props, State> {
 
           if(result)
           {
-            console.log("Y: ( "+datapoints.length+" ) ("+result.length+" )\n");
+            //console.log("Y: ( "+datapoints.length+" ) ("+result.length+" )\n");
             //console.log("Result Y: { "+result+" }\n");
 
             chartData.datasets[1].data = [];
@@ -262,9 +277,17 @@ class ChartRedis extends React.Component<Props, State> {
            
                 if (xyes && yyes)
                 {
+
+                  var xi = parseFloat(valStr[1].split("x:")[1].valueOf());
+                  var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
+
+                  // if ( yi > 10 || yi < -10)
+                  // {
+                  //   console.log("WOW::: -> "+xi+" / "+ yi + "\n");
+                  // }
                   chartData.datasets[1].data.push({
-                    x: parseFloat(valStr[1].split("x:")[1].valueOf()),
-                    y: parseFloat(valStr[2].split("y:")[1].valueOf())
+                    x: xi,
+                    y: yi
                   });
 
                 }
@@ -303,18 +326,18 @@ class ChartRedis extends React.Component<Props, State> {
   sliderOnChangeEvent = (event, value) => {
 
     this.setState({ value:value });
-    this.fillChartData();
+    //this.fillChartData();
 
   }
 
   getChartData = () => {
 
-    var dataset = this.fillChartData();
-     for (let j=0; j < (dataset[0].data.length); j++)
-     {
-       console.log("-1-> "+ dataset[0].data[j].x);
-       console.log("-1-> "+ dataset[0].data[j].y);
-     }
+    // var dataset = this.fillChartData();
+    //  for (let j=0; j < (dataset[0].data.length); j++)
+    //  {
+    //    //console.log("-1-> "+ dataset[0].data[j].x);
+    //    //console.log("-1-> "+ dataset[0].data[j].y);
+    //  }
 
     // for (let j=0; j < (dataset[1].data.length); j++)
     // {

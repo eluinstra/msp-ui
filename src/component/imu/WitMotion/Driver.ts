@@ -124,15 +124,14 @@ export const imuResponse$ = new Subject<IImuMsgAngle>();
 export const registerPort = (serialPort) => {
   serialPort?.on('data', function (data) {
     let counter = 0
-    console.log("hier kom ik");
     for (let i = 0; i < data.length; i++) {
       //if 0x55 is found unpack messages till next 0x55
-      parseIMUAcc(data.readInt8(i))
+      parseIMUAngle(data.readInt8(i))
       if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-        //imuResponse$.next(imuMsgAngle)
-        lpushAsync('dataAccx', "x:"+new Date().getMilliseconds(), "y:"+Accay(imuMsgAcc.AxH, imuMsgAcc.AxL))
-        lpushAsync('dataAccy', "x:"+new Date().getMilliseconds(), "y:"+Accay(imuMsgAcc.AyH, imuMsgAcc.AyL))
-        lpushAsync('dataAccz', "x:"+new Date().getMilliseconds(), "y:"+Accay(imuMsgAcc.AzH, imuMsgAcc.AzL))
+        imuResponse$.next(imuMsgAngle)
+        //lpushAsync('dataAccx', "x:"+new Date().getMilliseconds(), "y:"+Accay(imuMsgAcc.AxH, imuMsgAcc.AxL))
+        //lpushAsync('dataAccy', "x:"+new Date().getMilliseconds(), "y:"+Accay(imuMsgAcc.AyH, imuMsgAcc.AyL))
+        //lpushAsync('dataAccz', "x:"+new Date().getMilliseconds(), "y:"+Accay(imuMsgAcc.AzH, imuMsgAcc.AzL))
         imuMsg.state = ImuState.IMU_IDLE
       } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
         imuResponse$.error(new Error('MSP error received!'))
