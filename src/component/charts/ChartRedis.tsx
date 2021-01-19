@@ -18,11 +18,11 @@ var Xxas = 0;
 var Xyas = 0;
 var Yxas = 0;
 var Yyas = 0;
-let datapoints : chartDataType[] = [];
-let datapoints2 : chartDataType[] = []; /* crusiaal een eigen data array per "kanaal" */
+let datapoints: chartDataType[] = [];
+let datapoints2: chartDataType[] = []; /* crusiaal een eigen data array per "kanaal" */
 
-function timeformat(date : Date) {
-  return ""+date.getTime();
+function timeformat(date: Date) {
+  return "" + date.getTime();
 }
 
 // var chartJsData = function() {
@@ -43,7 +43,7 @@ function timeformat(date : Date) {
 
 const chartData = {
   type: 'line',
-  datasets:[
+  datasets: [
     {
       label: "Data from the xAxis",
       backgroundColor: 'blue',
@@ -58,7 +58,7 @@ const chartData = {
       pointRadius: 5,
       data: datapoints
     }
-  ,
+    ,
     {
       label: "Data from the yAxis",
       backgroundColor: 'green',
@@ -73,21 +73,21 @@ const chartData = {
       pointRadius: 5,
       data: datapoints2
     }
-    ,
-    {
-      label: "Data from the zAxis",
-      backgroundColor: 'red',
-      fillColor: 'rgba(220,220,220,0.2)',
-      strokeColor: 'rgba(220,220,220,1)',
-      pointStyle: 'circle',
-      pointColor: 'red',
-      pointStrokeColor: 'lightred',
-      pointHighlightFill: '#fff',
-      pointHighlightStroke: 'rgba(220,220,220,1)',
-      pointHitRadius: 3,
-      pointRadius: 5,
-      data: datapoints2
-    }
+    // ,
+    // {
+    //   label: "Data from the zAxis",
+    //   backgroundColor: 'red',
+    //   fillColor: 'rgba(220,220,220,0.2)',
+    //   strokeColor: 'rgba(220,220,220,1)',
+    //   pointStyle: 'circle',
+    //   pointColor: 'red',
+    //   pointStrokeColor: 'lightred',
+    //   pointHighlightFill: '#fff',
+    //   pointHighlightStroke: 'rgba(220,220,220,1)',
+    //   pointHitRadius: 3,
+    //   pointRadius: 5,
+    //   data: datapoints2
+    // }
   ]
 }
 
@@ -107,9 +107,9 @@ const options = {
   pointDotRadius: 4,
   scales: {
     xAxes: [{
-        beginAtZero: false,
-        type: 'linear',
-        position: 'bottom'
+      beginAtZero: false,
+      type: 'linear',
+      position: 'bottom'
     }],
     yAxes: [{
       scaleLabel: {
@@ -118,7 +118,7 @@ const options = {
       }
     }]
   }
-} 
+}
 
 type Props = {
   //serialPort : any;
@@ -134,37 +134,36 @@ type State = {
 
 class ChartRedis extends React.Component<Props, State> {
 
-  constructor(props)
-    {
-        super(props)
-        //const { datasets } = props
-        // const data = {
-        //   datasets: datasets
-        // }
-        this.state = {
-          points: 0,
-          value: [10,40],
-          min: 0,
-          max:  600,
-          step: 1
-        };
+  constructor(props) {
+    super(props)
+    //const { datasets } = props
+    // const data = {
+    //   datasets: datasets
+    // }
+    this.state = {
+      points: 0,
+      value: [10, 40],
+      min: 0,
+      max: 600,
+      step: 1
+    };
 
-        //this.fillChartData = this.fillChartData.bind(this);
-        this.getNValue(this.state);
-    }
+    //this.fillChartData = this.fillChartData.bind(this);
+    this.getNValue(this.state);
+  }
 
-   getNValue = (value) => {
-    llenAsync('dataAccx').then(function(result : string) {
+  getNValue = (value) => {
+    llenAsync('dataAccx').then(function (result: string) {
 
 
       //if(result && NSlider == 1)
       //{
-        N = parseInt(result.valueOf())-10;
-        //console.log("Dataset length: "+ N);
+      N = parseInt(result.valueOf()) - 10;
+      //console.log("Dataset length: "+ N);
       //}
       //else
       //{
-        
+
       //  N = this.state.value;
       //}
       //console.log("--> "+N+"max: ");
@@ -173,7 +172,7 @@ class ChartRedis extends React.Component<Props, State> {
     });
 
     //this.getChartData()
-    
+
   }
 
   fillChartData = () => {
@@ -183,149 +182,115 @@ class ChartRedis extends React.Component<Props, State> {
 
     Yxas = 0;
     Yyas = 0;
-    
+
     var min = 1;
     var max = 100;
-    var randx =  Math.round(min + (Math.random() * (max-min)));
-    var randy =  Math.round(min + (Math.random() * (max-min)));
+    var randx = Math.round(min + (Math.random() * (max - min)));
+    var randy = Math.round(min + (Math.random() * (max - min)));
 
-        /* sample set */
-        // for (let ji=0; ji < (N-1); ji++)
-        // {
-        //   randy =  Math.round(min + (Math.random() * (max-min)));
-        //   lpushAsync('data', "x:"+ji, "y:"+randy);
-        // }
+    var Nfactor = 1;
 
-        //this.getNValue();
-
-        //chartJsData();
-        //chartJsData2();
-      
-        var Nfactor = 1;
-
-        lrangeAsync('dataAccx', this.state.value[0] , this.state.value[1]).then(function(result : string[]) {
+    lrangeAsync('dataAccx', this.state.value[0], this.state.value[1]).then(function (result: string[]) {
 
 
-          if(result)
-          {
-            //console.log("X: ( "+datapoints.length+" ) ("+result.length+" )\n");
-            //console.log("Result X: { "+result+" }\n");
-            /* N=10 dan var delen is -6 */
+      if (result) {
 
-            chartData.datasets[0].data = [];
-            
-            for (let j=0; j < (result.length-Nfactor); j++)
-            {
-              var vali : string = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
+        chartData.datasets[0].data = [];
 
-              
-                var valStr = vali.split("\^");
-                //console.log(valStr);
+        for (let j = 0; j < (result.length - Nfactor); j++) {
+          var vali: string = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
 
-                var xyes = valStr[1].includes("x:");
-                var yyes = valStr[2].includes("y:");
 
-                
+          var valStr = vali.split("\^");
+          var xyes = valStr[1].includes("x:");
+          var yyes = valStr[2].includes("y:");
 
-                //console.log("vali1:"+valStr[1]);
+          if (xyes && yyes) {
+            chartData.datasets[0].data.push({
+              x: parseFloat(valStr[1].split("x:")[1].valueOf()),
+              y: parseFloat(valStr[2].split("y:")[1].valueOf())
+            });
 
-                if (xyes && yyes)
-                {
-                  chartData.datasets[0].data.push({
-                    x: parseFloat(valStr[1].split("x:")[1].valueOf()),
-                    y: parseFloat(valStr[2].split("y:")[1].valueOf())
-                  });
-
-                }
-                //   chartData.datasets[0].data[Xxas].x = parseFloat(valStr[1].split("x:")[1].valueOf());
-                //   //console.log("Result X-X: { "+valStr[0].split("x:")[1].valueOf()+" }\n");
-                //   Xxas++;
-                // }
-                // if (yyes)
-                // {
-                //   chartData.datasets[0].data[Xyas].y = parseFloat(valStr[2].split("y:")[1].valueOf());
-                //   //console.log("Result X-Y: { "+valStr[1].split("y:")[1].valueOf()+" }\n");
-                //   Xyas++;
-                // }
-              
-
-              
-            }
           }
         }
-        );
+      }
+    }
+    );
 
-        lrangeAsync('dataAccy', this.state.value[0] , this.state.value[1] ).then(function(result : string[]) {
+    lrangeAsync('dataAccy', this.state.value[0], this.state.value[1]).then(function (result: string[]) {
 
-          if(result)
-          {
-            //console.log("Y: ( "+datapoints.length+" ) ("+result.length+" )\n");
-            //console.log("Result Y: { "+result+" }\n");
+      if (result) {
 
-            chartData.datasets[1].data = [];
-            
-            for (let j=0; j < (result.length-Nfactor); j++)
-            {
-              var vali : string = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
-              var valStr = vali.split("\^");
-              //console.log("2"+valStr);
+        chartData.datasets[1].data = [];
 
-              
-                var xyes = valStr[1].includes("x:");
-                var yyes = valStr[2].includes("y:");
+        for (let j = 0; j < (result.length - Nfactor); j++) {
+          var vali: string = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
+          var valStr = vali.split("\^");
 
-           
-                if (xyes && yyes)
-                {
+          var xyes = valStr[1].includes("x:");
+          var yyes = valStr[2].includes("y:");
 
-                  var xi = parseFloat(valStr[1].split("x:")[1].valueOf());
-                  var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
 
-                  // if ( yi > 10 || yi < -10)
-                  // {
-                  //   console.log("WOW::: -> "+xi+" / "+ yi + "\n");
-                  // }
-                  chartData.datasets[1].data.push({
-                    x: xi,
-                    y: yi
-                  });
+          if (xyes && yyes) {
 
-                }
+            var xi = parseFloat(valStr[1].split("x:")[1].valueOf());
+            var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
 
-                // if (xyes)
-                // {
-                //   chartData.datasets[1].data[Yxas].x = parseFloat(valStr[1].split("x:")[1].valueOf());
-                //   Yxas++;
-                //   //console.log("Result YX: { "+valStr[0].split("x:")[1].valueOf()+" }\n");
-                // }
-                // if (yyes)
-                // {
-                //   chartData.datasets[1].data[Yyas].y = parseFloat(valStr[2].split("y:")[1].valueOf());
-                //   //console.log("Result YY: { "+valStr[1].split("y:")[1].valueOf()+" }\n");
-                //   Yyas++;
-                // }
-              
+            chartData.datasets[1].data.push({
+              x: xi,
+              y: yi
+            });
 
-              
-            }
           }
+
         }
-        );
+      }
+    }
+    );
 
-        //chartData.datasets[0].data = datapoints;
-        //chartData.datasets[1].data = datapoints2;        
+    // lrangeAsync('dataAccz', this.state.value[0], this.state.value[1]).then(function (result: string[]) {
 
-        //console.log(datapoints.length+ " ] -->"+ chartData.datasets[0].data.length +"\n");
-        //console.log(datapoints.length+" ] ----->"+ chartData.datasets[0].data.length +"\n")
+    //   if (result) {
 
-        //this.chartData.datasets[0] = charData.datasets[0];
+    //     chartData.datasets[2].data = [];
 
-      return chartData.datasets;
+    //     for (let j = 0; j < (result.length - Nfactor); j++) {
+    //       var vali: string = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
+    //       var valStr = vali.split("\^");
+    //       //console.log("2"+valStr);
+
+
+    //       var xyes = valStr[1].includes("x:");
+    //       var yyes = valStr[2].includes("y:");
+
+
+    //       if (xyes && yyes) {
+
+    //         var xi = parseFloat(valStr[1].split("x:")[1].valueOf());
+    //         var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
+
+    //         // if ( yi > 10 || yi < -10)
+    //         // {
+    //         //   console.log("WOW::: -> "+xi+" / "+ yi + "\n");
+    //         // }
+    //         chartData.datasets[2].data.push({
+    //           x: xi,
+    //           y: yi
+    //         });
+
+    //       }
+
+    //     }
+    //   }
+    // }
+    // );
+
+    return chartData.datasets;
   }
 
   sliderOnChangeEvent = (event, value) => {
 
-    this.setState({ value:value });
+    this.setState({ value: value });
     //this.fillChartData();
 
   }
@@ -352,23 +317,22 @@ class ChartRedis extends React.Component<Props, State> {
     }
   }
 
-render()
-{
-  const { value, min, max, step } = this.state;
-  return (
-    <div>
-      <Slider
-            value={value}
-            min={min}
-            max={max}
-            step={step}
-            onChange={ this.sliderOnChangeEvent }
-            valueLabelDisplay="auto"
-            aria-labelledby="range"
-            //getAriaValueText={function = {{value + ' days'}}}
-          />
-      <Scatter data={this.getChartData()} options={options} height={150} redraw />
-    </div>
+  render() {
+    const { value, min, max, step } = this.state;
+    return (
+      <div>
+        <Slider
+          value={value}
+          min={min}
+          max={max}
+          step={step}
+          onChange={this.sliderOnChangeEvent}
+          valueLabelDisplay="auto"
+          aria-labelledby="range"
+        //getAriaValueText={function = {{value + ' days'}}}
+        />
+        <Scatter data={this.getChartData()} options={options} height={150} redraw />
+      </div>
     )
   }
 }

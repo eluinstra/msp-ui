@@ -13,7 +13,7 @@ import SerialPort from "serialport";
 import { ContentSort } from "material-ui/svg-icons";
 
 type Props = {
-  serialPort : any;
+  serialPort: any;
 }
 
 type State = {
@@ -23,12 +23,14 @@ type State = {
 
 let messageStarted = false
 let isCollecting = false
-var datasegmentcounter = 0
+let datasegmentcounter = 0
+let parseState = 0
+let cmd = undefined
 
 const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
-const Accax = (h: number, l:number) => ((h.valueOf() << 8) | l.valueOf()) / 32768*16;
-const Accay = (h: number, l:number) => ((h.valueOf() << 8) | l.valueOf()) / 32768*16;
-const Accaz = (h: number, l:number) => ((h.valueOf() << 8) | l.valueOf()) / 32768*16;
+const Accax = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 16;
+const Accay = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 16;
+const Accaz = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 16;
 
 export enum ImuState {
   IMU_TIME = 0x50,
@@ -40,7 +42,8 @@ export enum ImuState {
   IMU_COMMAND_RECEIVED = 97,
   IMU_COMMAND_IDLE = 98,
   IMU_ERROR_RECEIVED = 99,
-  IMU_IDLE = 0x00
+  IMU_IDLE = 0x00,
+  IMU_DATA_PROCESSING = 100
 }
 
 function sleep(ms) {
@@ -92,94 +95,59 @@ const imuMsgAcc: IImuMsgAcc = {
 }
 
 function parseIMUAcc(num: number) {
-  
-  switch (num) {
-    case ImuState.IMU_PREFIX:
-      if (!messageStarted) {
-        messageStarted = true
-        imuMsgAcc.enable = false
-        datasegmentcounter = 0;
+  switch (parseState) {
+    case 0:
+      if (num == ImuState.IMU_PREFIX)
+        imuMsg.state = ImuState.IMU_IDLE;
+        parseState = 1
+      break;
+    case 1:
+      if ([ImuState.IMU_TIME, ImuState.IMU_ACC, ImuState.IMU_ANGULAR, ImuState.IMU_ANGLE, ImuState.IMU_MAGN].includes(num)) {
+        cmd = num
+        parseState = 2
+        datasegmentcounter = 0
+      }
+      else
+        parseState = 0
+      break;
+    case 2:
+      datasegmentcounter++;
+      if (cmd == ImuState.IMU_ACC) {
+        switch (datasegmentcounter) {
+          case 1: imuMsgAcc.AxL = num; break;
+          case 2: imuMsgAcc.AxH = num; break;
+          case 3: imuMsgAcc.AyL = num; break;
+          case 4: imuMsgAcc.AyH = num; break;
+          case 5: imuMsgAcc.AzL = num; break;
+          case 6: imuMsgAcc.AzH = num; break;
+          case 7: imuMsgAcc.TL = num; break;
+          case 8: imuMsgAcc.TH = num; break;
+          case 9: imuMsgAcc.SUM = num; break;
+        }
+        if (datasegmentcounter == 9)
+        {
+          imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
+        }
+      }
+      if (datasegmentcounter == 9)
+      {
+        parseState = 0
       }
       break;
-    case ImuState.IMU_ACC:
-      messageStarted = false
-      imuMsgAcc.enable = true
-      break;
-  }
-  if (imuMsgAcc.enable) {
-    imuMsg.state = ImuState.IMU_IDLE;
-    datasegmentcounter++;
-        
-    switch (datasegmentcounter) {
-      case 1: break; //0x51
-      case 2: imuMsgAcc.AxL = num & 0xFF; break;
-      case 3: imuMsgAcc.AxH = num & 0xFF; break;
-      case 4: imuMsgAcc.AyL = num & 0xFF; break;
-      case 5: imuMsgAcc.AyH = num & 0xFF; break;
-      case 6: imuMsgAcc.AzL = num & 0xFF; break;
-      case 7: imuMsgAcc.AzH = num & 0xFF; break;
-      case 8: imuMsgAcc.TL = num & 0xFF; break;
-      case 9: imuMsgAcc.TH = num & 0xFF; break;
-      case 10: imuMsgAcc.SUM = num & 0xFF; imuMsg.state = ImuState.IMU_COMMAND_RECEIVED; break;
-      case 11: break; // NEVER REACHING THIS!
-    }
-
-    
-
-    //lpushAsync('logging', "data:"+datasegmentcounter+", "+T);
-        //datasegmentcounter = 0;
-
-        //if (datasegmentcounter === 9)
-        //{
-
-          //55 51 19 00 40 00 FF 07 DB 0C EC
-          // --> Temp: 32.91 --> ((12 << 8 ) | 219) /100
-          //                     ((0C << 8 ) | DB ) /100
-         
-          //console.log("data: ["+num+"] inputH: ["+imuMsgAcc.TH+"] inputL: ["+imuMsgAcc.TL+"] = output T ["+T+"]\n");
-         // console.log(datasegmentcounter+ "] output T ["+T+"]\n");
-
-          //imuMsgAcc.TH = 0;
-         // imuMsgAcc.TL = 0;
-        //}
-    
-
-            // var yx = new Number(""+Accax(imuMsgAcc.AxH & 0xFF, imuMsgAcc.AxL & 0xFF));
-            // var yy = new Number(""+Accax(imuMsgAcc.AyH & 0xFF, imuMsgAcc.AyL & 0xFF));
-            // var yz = new Number(""+Accax(imuMsgAcc.AzH & 0xFF, imuMsgAcc.AzL & 0xFF));
-
-            // yx = ((imuMsgAcc.AxH & 0xFF << 8) | imuMsgAcc.AxL & 0xFF) / 32768*16;
-            // yy = ((imuMsgAcc.AyH & 0xFF << 8) | imuMsgAcc.AyL & 0xFF) / 32768*16;
-
-            // if (yx > 10 || yx < -10)
-            // {
-            //   var test = ((imuMsgAcc.AxH & 0xFF << 8) | imuMsgAcc.AxL & 0xFF) / 32768*16;
-            //   console.log(" _yx1__ "+test+"______ < "+num);
-            //   console.log(" _yx2__"+imuMsgAcc.AxH+"______ >"+imuMsgAcc.AxL);
-            // }
-
-            // if (yy > 10 || yy < -10)
-            // {
-            //   var test = ((imuMsgAcc.AyH & 0xFF << 8) | imuMsgAcc.AyL & 0xFF) / 32768*16;
-            //   console.log(" _yy1     __"+test+"______ >"+num);
-            //   console.log(" _yy2     __"+imuMsgAcc.AyH+"______ >"+imuMsgAcc.AyL);
-
-            // }
-    
   }
 }
 
 class ChartGetDataRedisChart extends Component<Props, State> {
-    
-    constructor(props) {
-      super(props);
-      this.state = {
-        name: "",
-       // serialPort: props.serialPort
-      };
-    }
 
-    clickEvent(event) {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: "",
+      // serialPort: props.serialPort
+    };
+  }
+
+  clickEvent(event) {
     //   this.setState({
     //   name: 'Getting data!'
     // });
@@ -195,41 +163,40 @@ class ChartGetDataRedisChart extends Component<Props, State> {
 
   clickEventStartProcess(event) {
     /* start capturing */
-     this.props.serialPort?.value.on('data', function (data) {
-      if (isCollecting)
-      {
+    this.props.serialPort?.value.on('data', function (data) {
+      if (isCollecting) {
         let counter = 0
 
         imuMsgAcc.AxL = 0;
-        imuMsgAcc.AxH= 0;
-        imuMsgAcc.AyL= 0;
-        imuMsgAcc.AyH= 0;
-        imuMsgAcc.AzL= 0;
-        imuMsgAcc.AzH= 0;
-        imuMsgAcc.TL= 0;
-        imuMsgAcc.TH= 0;
+        imuMsgAcc.AxH = 0;
+        imuMsgAcc.AyL = 0;
+        imuMsgAcc.AyH = 0;
+        imuMsgAcc.AzL = 0;
+        imuMsgAcc.AzH = 0;
+        imuMsgAcc.TL = 0;
+        imuMsgAcc.TH = 0;
         imuMsgAcc.SUM = 0;
 
         for (let i = 0; i < data.length; i++) {
           //if 0x55 is found unpack messages till next 0x55
 
-          
+
 
           parseIMUAcc(data.readInt8(i))
           if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
             //imuResponse$.next(imuMsgAngle)
 
-            let T = (( imuMsgAcc.TH << 8 ) | imuMsgAcc.TL ) / 100;
-
+            let T = ((imuMsgAcc.TH << 8) | imuMsgAcc.TL) / 100;
 
             //console.log("data: ["+num+"] inputH: ["+imuMsgAcc.TH+"] inputL: ["+imuMsgAcc.TL+"] = output T ["+T+"]\n");
 
-            var yx = parseFloat(""+Accax(imuMsgAcc.AxH, imuMsgAcc.AxL));
-            var yy = parseFloat(""+Accax(imuMsgAcc.AyH, imuMsgAcc.AyL));
-            var yz = parseFloat(""+Accax(imuMsgAcc.AzH, imuMsgAcc.AzL));
+            let yx = (((imuMsgAcc.AxH << 8) | imuMsgAcc.AxL) / 32768.0 * 16);
+            let yy = (((imuMsgAcc.AyH << 8) | imuMsgAcc.AyL) / 32768.0 * 16);
+            //var yy = parseFloat(""+Accax(imuMsgAcc.AyH, imuMsgAcc.AyL));
+            let yz = parseFloat("" + Accax(imuMsgAcc.AzH, imuMsgAcc.AzL));
 
             let CHK = 85 + 81 + (imuMsgAcc.AxH + imuMsgAcc.AxL + imuMsgAcc.AyH + imuMsgAcc.AyL + imuMsgAcc.AzH + imuMsgAcc.AzL + imuMsgAcc.TH + imuMsgAcc.TL) & 0xFF;
-            
+
             let CHKVAL = CHK & 0xFF;
 
 
@@ -241,11 +208,28 @@ class ChartGetDataRedisChart extends Component<Props, State> {
 
             //lpushAsync('logging', "data:"+imuMsgAcc.TL+", "+imuMsgAcc.TH+", :"+imuMsgAcc.SUM+" -- "+ T);
 
-            if (CHK === imuMsgAcc.SUM)
-            {         
-              lpushAsync('dataAccx', "ts:"+new Date().getTime()+"^x:"+new Date().getTime()+"^y:"+yx)
-              lpushAsync('dataAccy', "ts:"+new Date().getTime()+"^x:"+new Date().getTime()+"^y:"+yy)
-              lpushAsync('dataAccz', "ts:"+new Date().getTime()+"^x:"+new Date().getTime()+"^y:"+yz)
+            if (CHK === imuMsgAcc.SUM) {
+
+
+              let sprefix = parseInt("85", 10).toString(16);
+              let ssid = parseInt("81", 10).toString(16);
+              let saxH = parseInt("" + imuMsgAcc.AxH, 10).toString(16);
+              let saxL = parseInt("" + imuMsgAcc.AxL, 10).toString(16);
+              let sayH = parseInt("" + imuMsgAcc.AyH, 10).toString(16);
+              let sayL = parseInt("" + imuMsgAcc.AyL, 10).toString(16);
+              let sazH = parseInt("" + imuMsgAcc.AzH, 10).toString(16);
+              let sazL = parseInt("" + imuMsgAcc.AzL, 10).toString(16);
+              let sth = parseInt("" + imuMsgAcc.TH, 10).toString(16);
+              let stl = parseInt("" + imuMsgAcc.TL, 10).toString(16);
+              let ssum = parseInt("" + imuMsgAcc.SUM, 10).toString(16);
+              let cchk = parseInt("" + CHK, 10).toString(16);
+
+              lpushAsync('dataAccx', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yx)
+              //lpushAsync('dataAccxc', "ts:"+new Date().getTime()+"^x:"+new Date().getTime()+"^y:"+yx+"---["+sti+"][ "+CHK+":"+imuMsgAcc.SUM+" ]");
+              lpushAsync('dataAccxc', "[ " + sprefix + " " + ssid + " " + saxH + " " + saxL + " " + sayH + " " + sayL + " " + sazH + " " + sazL + " " + sth + " " + stl + "=" + ssum + ":" + cchk + " ]");
+
+              lpushAsync('dataAccy', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yy)
+              lpushAsync('dataAccz', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yz)
               //lpushAsync('temperature', "ts:"+new Date().getTime()+": "+imuMsgAcc.AxH+":"+imuMsgAcc.AxL+":"+imuMsgAcc.AyH+":"+imuMsgAcc.AyL+":"+imuMsgAcc.AzH+":"+imuMsgAcc.AzL+":"+imuMsgAcc.TH+":"+imuMsgAcc.TL);
               //lpushAsync('temperature', "ts:"+new Date().getTime()+": "+T+"  ["+CHK+":"+CHKVAL+":"+(imuMsgAcc.SUM));
             }
@@ -277,16 +261,16 @@ class ChartGetDataRedisChart extends Component<Props, State> {
   //  <!--<button title="Get Data" color="#841584" id="name" onClick={this.changeText.bind(this)} />-->
 
   render() {
-     return (
-       <div>
-         <Button variant="contained" onClick={() => {{ this.clickEvent(this)  }}}>Test Button</Button>
-         <Button variant="contained" color="primary" onClick={() => {{ this.clickEventStartCapture(this);  }}}>Start Capture</Button>
-         <Button variant="contained" color="primary" onClick={() => {{ this.clickEventStartProcess(this)  }}}>Start Process</Button>
-         <Button variant="contained" color="secondary" onClick={() => {{ this.clickEventStopCapture(this);  }}}>Stop Capture</Button>
-         <Button variant="outlined" color="primary" onClick={() => {{ this.clickEventFlush(this)  }}}>Flush Data</Button>
-         <h3>Answer: {this.state.name}</h3>
-       </div>
-     );
+    return (
+      <div>
+        <Button variant="contained" onClick={() => { { this.clickEvent(this) } }}>Test Button</Button>
+        <Button variant="contained" color="primary" onClick={() => { { this.clickEventStartCapture(this); } }}>Start Capture</Button>
+        <Button variant="contained" color="primary" onClick={() => { { this.clickEventStartProcess(this) } }}>Start Process</Button>
+        <Button variant="contained" color="secondary" onClick={() => { { this.clickEventStopCapture(this); } }}>Stop Capture</Button>
+        <Button variant="outlined" color="primary" onClick={() => { { this.clickEventFlush(this) } }}>Flush Data</Button>
+        <h3>Answer: {this.state.name}</h3>
+      </div>
+    );
   }
 }
 
