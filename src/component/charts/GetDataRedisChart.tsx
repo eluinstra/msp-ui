@@ -190,8 +190,9 @@ class ChartGetDataRedisChart extends Component<Props, State> {
 
             //console.log("data: ["+num+"] inputH: ["+imuMsgAcc.TH+"] inputL: ["+imuMsgAcc.TL+"] = output T ["+T+"]\n");
 
-            let yx = (((imuMsgAcc.AxH << 8) | imuMsgAcc.AxL) / 32768.0 * 16);
-            let yy = (((imuMsgAcc.AyH << 8) | imuMsgAcc.AyL) / 32768.0 * 16);
+            let resolutie = 100;
+            let yx = (((imuMsgAcc.AxH << 8) | imuMsgAcc.AxL) / 32768.0 * 16 ) * resolutie;
+            let yy = (((imuMsgAcc.AyH << 8) | imuMsgAcc.AyL) / 32768.0 * 16 ) * resolutie ; 
             //var yy = parseFloat(""+Accax(imuMsgAcc.AyH, imuMsgAcc.AyL));
             let yz = parseFloat("" + Accax(imuMsgAcc.AzH, imuMsgAcc.AzL));
 
@@ -225,8 +226,8 @@ class ChartGetDataRedisChart extends Component<Props, State> {
               let cchk = parseInt("" + CHK, 10).toString(16);
 
               lpushAsync('dataAccx', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yx)
-              //lpushAsync('dataAccxc', "ts:"+new Date().getTime()+"^x:"+new Date().getTime()+"^y:"+yx+"---["+sti+"][ "+CHK+":"+imuMsgAcc.SUM+" ]");
-              lpushAsync('dataAccxc', "[ " + sprefix + " " + ssid + " " + saxH + " " + saxL + " " + sayH + " " + sayL + " " + sazH + " " + sazL + " " + sth + " " + stl + "=" + ssum + ":" + cchk + " ]");
+              lpushAsync('dataAccxc', "ts:"+new Date().getTime()+"^Tx:"+ T);
+              lpushAsync('berichten', "[ " + sprefix + " " + ssid + " " + saxH + " " + saxL + " " + sayH + " " + sayL + " " + sazH + " " + sazL + " " + sth + " " + stl + "=" + ssum + ":" + cchk + " ]");
 
               lpushAsync('dataAccy', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yy)
               lpushAsync('dataAccz', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yz)
