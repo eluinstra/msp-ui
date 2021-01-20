@@ -33,7 +33,7 @@ const Accay = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 327
 const Accaz = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 16;
 
 export enum ImuState {
-  IMU_TIME = 0x50,
+  IMU_TIME = 80,
   IMU_ACC = 81, //0x51,
   IMU_ANGULAR = 0x52,
   IMU_ANGLE = 0x53,
@@ -70,6 +70,7 @@ const imuMsg: ImuMsg = {
 
 export interface IImuMsgAcc {
   enable: boolean,
+  dscnt: number,
   AxL: number,
   AxH: number,
   AyL: number,
@@ -83,6 +84,7 @@ export interface IImuMsgAcc {
 
 const imuMsgAcc: IImuMsgAcc = {
   enable: false,
+  dscnt: 0,
   AxL: 0,
   AxH: 0,
   AyL: 0,
@@ -94,7 +96,49 @@ const imuMsgAcc: IImuMsgAcc = {
   SUM: 0
 }
 
-function parseIMUAcc(num: number) {
+export interface IImuMsgTime {
+  enable: boolean,
+  dscnt: number,
+  YY: number,
+  MM: number,
+  DD: number,
+  hh: number,
+  mm: number,
+  ss: number,
+  msL: number,
+  msH: number,
+  SUM: number
+}
+
+let imuMsgTime: IImuMsgTime = {
+  enable: false,
+  dscnt: 0,
+  YY: 0,
+  MM: 0,
+  DD: 0,
+  hh: 0,
+  mm: 0,
+  ss: 0,
+  msL: 0,
+  msH: 0,
+  SUM: 0
+}
+
+function parseIncommingString(num: number) {
+
+  let sprefix = parseInt("85", 10).toString(16);
+  let ssid = parseInt("81", 10).toString(16);
+  let saxH = parseInt("" + imuMsgAcc.AxH, 10).toString(16);
+  let saxL = parseInt("" + imuMsgAcc.AxL, 10).toString(16);
+  let sayH = parseInt("" + imuMsgAcc.AyH, 10).toString(16);
+  let sayL = parseInt("" + imuMsgAcc.AyL, 10).toString(16);
+  let sazH = parseInt("" + imuMsgAcc.AzH, 10).toString(16);
+  let sazL = parseInt("" + imuMsgAcc.AzL, 10).toString(16);
+  let sth = parseInt("" + imuMsgAcc.TH, 10).toString(16);
+  let stl = parseInt("" + imuMsgAcc.TL, 10).toString(16);
+  let ssum = parseInt("" + imuMsgAcc.SUM, 10).toString(16);
+  let T = ((imuMsgAcc.TH << 8) | imuMsgAcc.TL) / 100;
+
   switch (parseState) {
     case 0:
       if (num == ImuState.IMU_PREFIX)
@@ -105,14 +149,18 @@ function parseIMUAcc(num: number) {
       if ([ImuState.IMU_TIME, ImuState.IMU_ACC, ImuState.IMU_ANGULAR, ImuState.IMU_ANGLE, ImuState.IMU_MAGN].includes(num)) {
         cmd = num
         parseState = 2
-        datasegmentcounter = 0
+        datasegmentcounter = -1
       }
       else
         parseState = 0
       break;
     case 2:
+      //lpushAsync('berichten', datasegmentcounter+" } [ " + saxH + " " + saxL + " " + sayH + " -- " + T + " ]");
+
       datasegmentcounter++;
+      
       if (cmd == ImuState.IMU_ACC) {
+        imuMsgAcc.dscnt = datasegmentcounter;
         switch (datasegmentcounter) {
           case 1: imuMsgAcc.AxL = num; break;
           case 2: imuMsgAcc.AxH = num; break;
@@ -129,11 +177,33 @@ function parseIMUAcc(num: number) {
           imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
         }
       }
+
+      if (cmd == ImuState.IMU_TIME) {
+        imuMsgTime.dscnt = datasegmentcounter;
+        switch (datasegmentcounter) {
+          case 1: imuMsgTime.YY = num; break;
+          case 2: imuMsgTime.MM = num; break;
+          case 3: imuMsgTime.DD = num; break;
+          case 4: imuMsgTime.hh = num; break;
+          case 5: imuMsgTime.mm = num; break;
+          case 6: imuMsgTime.ss = num; break;
+          case 7: imuMsgTime.msL = num; break;
+          case 8: imuMsgTime.msH = num; break;
+          case 9: imuMsgTime.SUM = num; break;
+        }
+        if (datasegmentcounter == 9)
+        {
+          imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
+        }
+      }
+
       if (datasegmentcounter == 9)
       {
         parseState = 0
+        datasegmentcounter = 0
       }
       break;
+      
   }
 }
 
@@ -167,36 +237,26 @@ class ChartGetDataRedisChart extends Component<Props, State> {
       if (isCollecting) {
         let counter = 0
 
-        imuMsgAcc.AxL = 0;
-        imuMsgAcc.AxH = 0;
-        imuMsgAcc.AyL = 0;
-        imuMsgAcc.AyH = 0;
-        imuMsgAcc.AzL = 0;
-        imuMsgAcc.AzH = 0;
-        imuMsgAcc.TL = 0;
-        imuMsgAcc.TH = 0;
-        imuMsgAcc.SUM = 0;
-
         for (let i = 0; i < data.length; i++) {
           //if 0x55 is found unpack messages till next 0x55
 
 
 
-          parseIMUAcc(data.readInt8(i))
+          parseIncommingString(data.readInt8(i))
           if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
             //imuResponse$.next(imuMsgAngle)
 
-            let T = ((imuMsgAcc.TH << 8) | imuMsgAcc.TL) / 100;
+            let T = ((imuMsgAcc.TH << 8) | imuMsgAcc.TL & 0xFF) / 100;
 
             //console.log("data: ["+num+"] inputH: ["+imuMsgAcc.TH+"] inputL: ["+imuMsgAcc.TL+"] = output T ["+T+"]\n");
 
             let resolutie = 100;
-            let yx = (((imuMsgAcc.AxH << 8) | imuMsgAcc.AxL) / 32768.0 * 16 ) * resolutie;
-            let yy = (((imuMsgAcc.AyH << 8) | imuMsgAcc.AyL) / 32768.0 * 16 ) * resolutie ; 
+            let yx = (((imuMsgAcc.AxH << 8) | (imuMsgAcc.AxL & 0xFF)) / 32768.0 * 16 );
+            let yy = (((imuMsgAcc.AyH << 8) | (imuMsgAcc.AyL & 0xFF)) / 32768.0 * 16 ); 
             //var yy = parseFloat(""+Accax(imuMsgAcc.AyH, imuMsgAcc.AyL));
             let yz = parseFloat("" + Accax(imuMsgAcc.AzH, imuMsgAcc.AzL));
 
-            let CHK = 85 + 81 + (imuMsgAcc.AxH + imuMsgAcc.AxL + imuMsgAcc.AyH + imuMsgAcc.AyL + imuMsgAcc.AzH + imuMsgAcc.AzL + imuMsgAcc.TH + imuMsgAcc.TL) & 0xFF;
+            let CHK = 85 + 81 + (imuMsgAcc.AxH + imuMsgAcc.AxL + imuMsgAcc.AyH + imuMsgAcc.AyL + imuMsgAcc.AzH + imuMsgAcc.AzL + imuMsgAcc.TH + imuMsgAcc.TL);
 
             let CHKVAL = CHK & 0xFF;
 
@@ -208,11 +268,19 @@ class ChartGetDataRedisChart extends Component<Props, State> {
             // const v2 : any = (imuMsgAcc.AxL).toString(2);
 
             //lpushAsync('logging', "data:"+imuMsgAcc.TL+", "+imuMsgAcc.TH+", :"+imuMsgAcc.SUM+" -- "+ T);
+            let goon = false;
+            if (cmd == ImuState.IMU_TIME) {
+              goon = true;
+            }
+            if (cmd == ImuState.IMU_TIME) {
+              goon = true;
+            }
 
-            if (CHK === imuMsgAcc.SUM) {
+            if (true) {
 
 
               let sprefix = parseInt("85", 10).toString(16);
+              let sdscnt = parseInt("" + imuMsgAcc.dscnt, 10).toString(16);
               let ssid = parseInt("81", 10).toString(16);
               let saxH = parseInt("" + imuMsgAcc.AxH, 10).toString(16);
               let saxL = parseInt("" + imuMsgAcc.AxL, 10).toString(16);
@@ -225,9 +293,27 @@ class ChartGetDataRedisChart extends Component<Props, State> {
               let ssum = parseInt("" + imuMsgAcc.SUM, 10).toString(16);
               let cchk = parseInt("" + CHK, 10).toString(16);
 
+              let tsprefix = parseInt("85", 10).toString(16);
+              let stdscnt = parseInt("" + imuMsgTime.dscnt, 10).toString(16);
+              let tssid = parseInt("80", 10).toString(16);
+              let tsYY = parseInt("" + imuMsgTime.YY, 10).toString(16);
+              let tsMM = parseInt("" + imuMsgTime.MM, 10).toString(16);
+              let tsDD = parseInt("" + imuMsgTime.DD, 10).toString(16);
+              let tshh = parseInt("" + imuMsgTime.hh, 10).toString(16);
+              let tsmm = parseInt("" + imuMsgTime.mm, 10).toString(16);
+              let tsss = parseInt("" + imuMsgTime.ss, 10).toString(16);
+              let tsmsL = parseInt("" + imuMsgTime.msL, 10).toString(16);
+              let tsmsH = parseInt("" + imuMsgTime.msH, 10).toString(16);
+              let tssum = parseInt("" + imuMsgTime.SUM, 10).toString(16);
+              let tcchk = parseInt("" + CHK, 10).toString(16);
+              let ms = ((imuMsgTime.msH << 8) | imuMsgTime.msL);
+
+              
+
               lpushAsync('dataAccx', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yx)
               lpushAsync('dataAccxc', "ts:"+new Date().getTime()+"^Tx:"+ T);
-              lpushAsync('berichten', "[ " + sprefix + " " + ssid + " " + saxH + " " + saxL + " " + sayH + " " + sayL + " " + sazH + " " + sazL + " " + sth + " " + stl + "=" + ssum + ":" + cchk + " ]");
+              lpushAsync('berichten', sdscnt + " [ " + sprefix + " " + ssid + " " + saxH + " " + saxL + " " + sayH + " " + sayL + " " + sazH + " " + sazL + " " + sth + " " + stl + "=" + ssum + ":" + cchk + " ]");
+              lpushAsync('tberichten', ms + " [ " + tsprefix + " " + tssid + " " + tsYY + " " + tsMM+ " " + tsDD + " " + tshh + " " + tsmm + " " + tsss + " " + tsmsL + " " + tsmsH + "=" + tssum + ":" + tcchk + " ]");
 
               lpushAsync('dataAccy', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yy)
               lpushAsync('dataAccz', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yz)
