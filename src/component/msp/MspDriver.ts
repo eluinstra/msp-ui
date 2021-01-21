@@ -1,7 +1,7 @@
 import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs'
 import { mspCmdHeader } from '@/component/msp/MspProtocol';
-import { share, tap } from 'rxjs/operators';
-import { write } from '@/component/serialport/SerialPortDriver';
+import { filter, share, tap } from 'rxjs/operators';
+import { isOpen, write } from '@/component/serialport/SerialPortDriver';
 
 export enum MspState {
   MSP_IDLE,
@@ -79,11 +79,21 @@ export const createDriver = (serialPort: BehaviorSubject<any>) : Driver => {
   }
 }
 
-export const startDriver = (driver: Driver) => registerPort(driver)
+export const useDriverEffect = (driver: Driver) => {
+  const sub = driver.serialPort
+    .pipe(
+      filter(p => isOpen(p)),
+    )
+    .subscribe(p => {
+      startDriver(driver)
+    })
+  return () => {
+    sub.unsubscribe()
+    stopDriver(driver)
+  }
+}
 
-export const stopDriver = (driver: Driver) => unregisterPort(driver)
-
-const registerPort = (driver: Driver) => {
+const startDriver = (driver: Driver) => {
   const { serialPort, mspMsg, mspResponse$ } = driver
   console.log("REGISTER" + serialPort)
   serialPort?.value.on('data', function (data) {
@@ -100,7 +110,7 @@ const registerPort = (driver: Driver) => {
   })
 }
 
-const unregisterPort = (driver: Driver) => driver.serialPort?.value.on('data', function (data) {})
+const stopDriver = (driver: Driver) => driver.serialPort?.value.on('data', function (data) {})
 
 const parseMSPCommand = (driver, num) => {
   const { mspMsg } = driver

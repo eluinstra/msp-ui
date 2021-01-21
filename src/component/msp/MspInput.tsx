@@ -3,13 +3,12 @@ import React, { useState, useEffect } from 'react'
 import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
 import { distinctUntilChanged, map, filter, tap, startWith, mergeMap, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviour, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { createDriver, startDriver, stopDriver, MspMsg, mspRequest } from '@/component/msp/MspDriver'
+import { createDriver, MspMsg, mspRequest, useDriverEffect } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField, Theme } from '@material-ui/core'
 import { useSnackbar } from 'notistack';
 import { Autocomplete } from '@material-ui/lab'
-import { isOpen } from '@/component/serialport/SerialPortDriver'
 
 const notEmpty = v => v != ""
 
@@ -24,19 +23,7 @@ export const MspInput = props => {
     .pipe(
       map(mspMsg  => viewMspMsg(mspMsg))
   ))
-  useEffect(() => {
-    const sub = serialPort
-      .pipe(
-        filter(p => isOpen(p)),
-      )
-      .subscribe(p => {
-        startDriver(driver)
-      })
-    return () => {
-      sub.unsubscribe()
-      stopDriver(driver)
-    }
-  }, [])
+  useEffect(useDriverEffect(driver), [])
   useEffect(() => {
     const sub = mspClick$
       .pipe(
