@@ -29,15 +29,6 @@ export interface Driver {
   mspResponse$: Subject<MspMsg>
 }
 
-const mspMsg : MspMsg = {
-  state: MspState.MSP_IDLE,
-  flag: 0,
-  cmd: 0,
-  length: 0,
-  buffer: [],
-  checksum: 0
-}
-
 const hexInt16 = (v: number) => [v & 0x00FF, v & 0xFF00]
 
 const getFlag = v => v[0]
@@ -88,14 +79,16 @@ export const createDriver = (serialPort: BehaviorSubject<any>) : Driver => {
   }
 }
 
-export const startDriver = (driver: Driver) => registerPort(driver.serialPort.value, driver.mspResponse$)
+export const startDriver = (driver: Driver) => registerPort(driver)
 
-export const stopDriver = (driver: Driver) => unregisterPort(driver.serialPort.value)
+export const stopDriver = (driver: Driver) => unregisterPort(driver)
 
-const registerPort = (serialPort: any, mspResponse$: Subject<MspMsg>) =>
-  serialPort?.on('data', function (data) {
+const registerPort = (driver: Driver) => {
+  const { serialPort, mspMsg, mspResponse$ } = driver
+  console.log("REGISTER" + serialPort)
+  serialPort?.value.on('data', function (data) {
     for (let i = 0; i < data.length; i++) {
-      parseMSPCommand(data.readInt8(i))
+      parseMSPCommand(driver,data.readInt8(i))
       if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
         mspResponse$.next({...mspMsg})
         mspMsg.state = MspState.MSP_IDLE
@@ -105,11 +98,12 @@ const registerPort = (serialPort: any, mspResponse$: Subject<MspMsg>) =>
       }
     }
   })
+}
 
+const unregisterPort = (driver: Driver) => driver.serialPort?.value.on('data', function (data) {})
 
-const unregisterPort = (serialPort: any) => serialPort?.on('data', function (data) {})
-
-const parseMSPCommand = (num) => {
+const parseMSPCommand = (driver, num) => {
+  const { mspMsg } = driver
   //console.log(num & 0xFF)
   //console.log(hexInt8(num & 0xFF))
   switch (mspMsg.state) {
