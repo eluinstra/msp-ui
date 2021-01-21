@@ -269,6 +269,18 @@ class WitMotionDriver extends Component<Props, State> {
             let yy = imuAccelero(iWitmotionAccelerometer.AyH, iWitmotionAccelerometer.AyL);
             let yz = imuAccelero(iWitmotionAccelerometer.AzH, iWitmotionAccelerometer.AzL);
 
+            let avyx = imuAngularVelocity(iWitmotionAngularVelocity.wxH, iWitmotionAngularVelocity.wxL);
+            let avyy = imuAngularVelocity(iWitmotionAngularVelocity.wyH, iWitmotionAngularVelocity.wyL);
+            let avyz = imuAngularVelocity(iWitmotionAngularVelocity.wzH, iWitmotionAngularVelocity.wzL);
+
+            let anyx = imuAngle(iWitmotionAngle.RollH, iWitmotionAngle.RollL);
+            let anyy = imuAngle(iWitmotionAngle.PitchH, iWitmotionAngle.PitchL);
+            let anyz = imuAngle(iWitmotionAngle.YawH, iWitmotionAngle.YawL);
+
+            let mgyx = imuMagnetic(iWitmotionMagnetic.HxH, iWitmotionMagnetic.HxL);
+            let mgyy = imuMagnetic(iWitmotionMagnetic.HyH, iWitmotionMagnetic.HyL);
+            let mgyz = imuMagnetic(iWitmotionMagnetic.HzH, iWitmotionMagnetic.HzL);
+
             let CHK = 85 + 81 + (iWitmotionAccelerometer.AxH + iWitmotionAccelerometer.AxL +
                                  iWitmotionAccelerometer.AyH + iWitmotionAccelerometer.AyL +
                                  iWitmotionAccelerometer.AzH + iWitmotionAccelerometer.AzL +
@@ -278,9 +290,17 @@ class WitMotionDriver extends Component<Props, State> {
 
             /* Redis calls */
 
-            lpushAsync('dataAccx', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yx)
-            lpushAsync('dataAccx', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yy)
-            lpushAsync('dataAccx', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yz)
+            /* @TODO: Prefix Poort variabel maken */
+
+            var originName = "";
+            
+            lpushAsync(originName+'_Accelero_X', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yx)
+            lpushAsync(originName+'_Accelero_Y', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yy)
+            lpushAsync(originName+'_Accelero_Z', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yz)
+
+            lpushAsync(originName+'_AngularVelocity_X', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + avyx)
+            lpushAsync(originName+'_AngularVelocity_Y', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + avyy)
+            lpushAsync(originName+'_AngularVelocity_Z', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + avyz)
 
             lpushAsync('dataTemp', "ts:" + new Date().getTime() + "^Tx:" + T);
 
