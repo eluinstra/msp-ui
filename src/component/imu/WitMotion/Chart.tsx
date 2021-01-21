@@ -7,7 +7,8 @@ import { sample } from "rxjs/operators"
 import { imuResponse$, registerPort, unregisterPort } from '@/component/imu/WitMotion/Driver'
 import { isOpen } from "@/component/serialport/SerialPortDriver"
 
-const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
+const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 180
+const imuAcc = (h: number, l:number) => ((h << 8) | (l & 0xFF)) / 32768 * 16;
 
 export const Chart = props => {
   const { serialPort } = props
@@ -16,26 +17,29 @@ export const Chart = props => {
     datasets: [
       {
         type: "line",
-        label: "Roll",
+        label: "X",
         backgroundColor: "green",
         borderWidth: "2",
         lineTension: 0.45,
+        fill: false,
         data: []
       },
       {
         type: "line",
-        label: "Pitch",
+        label: "Y",
         backgroundColor: "blue",
         borderWidth: "2",
         lineTension: 0.45,
+        fill: false,
         data: []
       },
       {
         type: "line",
-        label: "Yaw",
+        label: "Z",
         backgroundColor: "cyan",
         borderWidth: "2",
         lineTension: 0.45,
+        fill: false,
         data: []
       }
     ]
@@ -48,7 +52,7 @@ export const Chart = props => {
     },
     plugins: {
       streaming: {
-        delay: 2000,
+        delay: 100,
       }
     },
     events: ['click'],
@@ -60,12 +64,16 @@ export const Chart = props => {
   })
   const [imu$] = useState(imuResponse$
     .pipe(
-      sample(interval(500)),
-      map(imuMsgAngle => {
+      sample(interval(100)),
+      map(imuMsgAcc => {
+        console.log("--> "+ imuAcc(imuMsgAcc.AxH, imuMsgAcc.AxL));
         return {
-          roll: imuAngle(imuMsgAngle.RollH, imuMsgAngle.RollL),
-          pitch: imuAngle(imuMsgAngle.PitchH, imuMsgAngle.PitchL),
-          yaw: imuAngle(imuMsgAngle.YawH, imuMsgAngle.YawL)
+          // roll: imuAngle(imuMsgAngle.RollH, imuMsgAngle.RollL),
+          // pitch: imuAngle(imuMsgAngle.PitchH, imuMsgAngle.PitchL),
+          // yaw: imuAngle(imuMsgAngle.YawH, imuMsgAngle.YawL)
+          ax: imuAcc(imuMsgAcc.AxH, imuMsgAcc.AxL),
+          ay: imuAcc(imuMsgAcc.AyH, imuMsgAcc.AyL)
+          //az: imuAcc(imuMsgAcc.AzH, imuMsgAcc.AzL)
         }
       })
     )

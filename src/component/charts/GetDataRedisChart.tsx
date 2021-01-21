@@ -149,7 +149,7 @@ function parseIncommingString(num: number) {
       if ([ImuState.IMU_TIME, ImuState.IMU_ACC, ImuState.IMU_ANGULAR, ImuState.IMU_ANGLE, ImuState.IMU_MAGN].includes(num)) {
         cmd = num
         parseState = 2
-        datasegmentcounter = -1
+        datasegmentcounter = 0
       }
       else
         parseState = 0
@@ -174,6 +174,7 @@ function parseIncommingString(num: number) {
         }
         if (datasegmentcounter == 9)
         {
+          lpushAsync('vraag', "axH:" + imuMsgAcc.AxH + " axL:" + imuMsgAcc.AxL);
           imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
         }
       }
@@ -251,8 +252,9 @@ class ChartGetDataRedisChart extends Component<Props, State> {
             //console.log("data: ["+num+"] inputH: ["+imuMsgAcc.TH+"] inputL: ["+imuMsgAcc.TL+"] = output T ["+T+"]\n");
 
             let resolutie = 100;
-            let yx = (((imuMsgAcc.AxH << 8) | (imuMsgAcc.AxL & 0xFF)) / 32768.0 * 16 );
-            let yy = (((imuMsgAcc.AyH << 8) | (imuMsgAcc.AyL & 0xFF)) / 32768.0 * 16 ); 
+
+            let yx = (((imuMsgAcc.AxH << 8) | (imuMsgAcc.AxL & 0xFF)) / 32768 * 16 );
+            let yy = (((imuMsgAcc.AyH << 8) | (imuMsgAcc.AyL & 0xFF)) / 32768 * 16 ); 
             //var yy = parseFloat(""+Accax(imuMsgAcc.AyH, imuMsgAcc.AyL));
             let yz = parseFloat("" + Accax(imuMsgAcc.AzH, imuMsgAcc.AzL));
 
