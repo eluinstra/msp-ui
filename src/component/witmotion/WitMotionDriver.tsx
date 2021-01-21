@@ -248,7 +248,6 @@ class WitMotionDriver extends Component<Props, State> {
   clickEventStartProcess(event) {
     /* start capturing */
     this.props.serialPort1?.value.on('data', function (data) {
-      console.log("Hier!!");
       if (isCollecting) {
 
         for (let i = 0; i < data.length; i++) {

@@ -20,7 +20,7 @@ import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { WitMotion } from '@/page/WitMotion'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
-import { UseWitMotionDriver } from '@/component/charts/WitMotionDriver'
+import { UseWitMotionDriver } from '@/component/witmotion/WitMotionDriver'
 import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
 import { useStatefulObservable } from '@/common/RxTools'
 import { map } from 'rxjs/operators';
