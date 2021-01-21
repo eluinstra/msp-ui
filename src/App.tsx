@@ -20,7 +20,7 @@ import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { WitMotion } from '@/page/WitMotion'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
-import { GetDataRedisChart } from '@/component/charts/GetDataRedisChart'
+import { UseWitMotionDriver } from '@/component/charts/WitMotionDriver'
 import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
 import { useStatefulObservable } from '@/common/RxTools'
 import { map } from 'rxjs/operators';
@@ -131,7 +131,7 @@ export const App = () => {
           <MSPDrawer classes={classes} serialPort={serialPort1} />
           <main className={content}>
             <Toolbar className={toolbar} />
-            <MSPRouter serialPort={serialPort1} />
+            <MSPRouter serialPort1={serialPort1} serialPort2={serialPort2} />
           </main>
         </Router>
       </div>
@@ -219,7 +219,7 @@ const MenuListItem = props => {
 }
 
 const MSPRouter = props => {
-  const { serialPort } = props
+  const { serialPort1, serialPort2 } = props
   return (
     <Switch>
       <Route path="/settings">
@@ -238,19 +238,19 @@ const MSPRouter = props => {
         <Msp />
       </Route>
       <Route path="/msp-input">
-        <MspInputPage serialPort={serialPort} />
+        <MspInputPage serialPort={serialPort1} />
       </Route>
       <Route path="/msp-chart">
-        <MspChartPage serialPort={serialPort} />
+        <MspChartPage serialPort={serialPort1} />
       </Route>
       <Route path="/imu">
         <Imu />
       </Route>
       <Route path="/wit-motion">
-        <WitMotion serialPort={serialPort} />
+        <WitMotion serialPort={serialPort1} />
       </Route>
       <Route path="/redis-chart">
-        <GetDataRedisChart serialPort={serialPort} />
+        <UseWitMotionDriver serialPort1={serialPort1} serialPort2={serialPort2} />
       </Route>
       <Route path="/gps">
         <GPSPage />
