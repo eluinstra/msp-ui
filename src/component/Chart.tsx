@@ -32,7 +32,7 @@ export const Chart = props => {
   driver.mspResponse$
   .pipe(
     sample(interval(500)),
-    map((mspMsg: MspMsg)  => parseMspMsg(mspMsg)),
+    map(parseMspMsg),
     map(mspModel => {
       return {
         //TODO

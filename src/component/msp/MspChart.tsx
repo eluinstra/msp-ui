@@ -8,6 +8,8 @@ import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/c
 import { viewMspChart } from '@/component/msp/MspChartView'
 import { Autocomplete } from '@material-ui/lab'
 
+const isTrue = v => !!v
+
 export const MspChart = props => {
   const { serialPort } = props
   const [driver] = useState(createDriver(serialPort))
@@ -55,7 +57,7 @@ export const MspChart = props => {
     const sub = merge(state$, mspResponse$)
       .pipe(
         startWith(state.checked),
-        filter(v => v == true),
+        filter(isTrue),
         delayWhen(_ => interval(state.interval)),
         mapTo(MspCmd[cmd]),
         tap(v => mspRequest(driver,v,'')),

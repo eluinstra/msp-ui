@@ -21,7 +21,7 @@ export const MspInput = props => {
   const [mspClick, mspClick$] = useObservableEvent()
   const mspMsg = useStatefulObservable<MspMsg>(getMspResponse$(driver)
     .pipe(
-      map(mspMsg  => viewMspMsg(mspMsg))
+      map(viewMspMsg)
   ))
   useEffect(useDriverEffect(driver), [])
   useEffect(() => {

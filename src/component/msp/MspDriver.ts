@@ -1,7 +1,7 @@
 import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs'
 import { mspCmdHeader } from '@/component/msp/MspProtocol';
 import { filter, share, tap } from 'rxjs/operators';
-import { isOpen, write } from '@/component/serialport/SerialPortDriver';
+import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver';
 
 export enum MspState {
   MSP_IDLE,
@@ -62,7 +62,7 @@ const command = (cmd: number, payload: string) => {
   return [].concat(mspCmdHeader.split('').map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
-export const getPortName = (driver: Driver) => driver.serialPort.value?.path
+export const getPortName = (driver: Driver) => getPath(driver.serialPort)
 
 export const mspRequest = (driver: Driver, cmd: number, payload: string) => write(driver.serialPort, Buffer.from(command(cmd, payload)))
 
@@ -84,9 +84,9 @@ export const createDriver = (serialPort: BehaviorSubject<any>) : Driver => {
 }
 
 export const useDriverEffect = (driver: Driver) => {
-  const sub = driver.serialPort
+  const sub = getPort$(driver.serialPort)
     .pipe(
-      filter(p => isOpen(p)),
+      filter(isOpen),
     )
     .subscribe(p => {
       startDriver(driver)
@@ -99,7 +99,7 @@ export const useDriverEffect = (driver: Driver) => {
 
 const startDriver = (driver: Driver) => {
   const { serialPort, mspMsg, mspResponse$ } = driver
-  serialPort?.value.on('data', function (data) {
+  registerFunction(serialPort, function (data) {
     for (let i = 0; i < data.length; i++) {
       parseMSPCommand(driver,data.readInt8(i))
       if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
@@ -113,7 +113,7 @@ const startDriver = (driver: Driver) => {
   })
 }
 
-const stopDriver = (driver: Driver) => driver.serialPort?.value.on('data', function (data) {})
+const stopDriver = (driver: Driver) => registerFunction(driver.serialPort, function (data) {})
 
 const parseMSPCommand = (driver, num) => {
   const { mspMsg } = driver
