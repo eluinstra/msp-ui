@@ -95,7 +95,6 @@ export const useDriverEffect = (driver: Driver) => {
 
 const startDriver = (driver: Driver) => {
   const { serialPort, mspMsg, mspResponse$ } = driver
-  console.log("REGISTER" + serialPort)
   serialPort?.value.on('data', function (data) {
     for (let i = 0; i < data.length; i++) {
       parseMSPCommand(driver,data.readInt8(i))
