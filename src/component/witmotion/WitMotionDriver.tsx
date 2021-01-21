@@ -152,7 +152,7 @@ function parseIncommingString(num: number) {
           case 9: iWitmotionAccelerometer.SUM = num; break;
         }
         if (datasegmentcounter == 9) {
-          imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
+          imuMsg.state = ImuState.IMU_ACCELERO_RECEIVED;
         }
       }
 
@@ -170,7 +170,7 @@ function parseIncommingString(num: number) {
           case 9: iWitmotionAngularVelocity.SUM = num; break;
         }
         if (datasegmentcounter == 9) {
-          imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
+          imuMsg.state = ImuState.IMU_ANGULARVELOCITY_RECEIVED;
         }
       }
 
@@ -188,7 +188,7 @@ function parseIncommingString(num: number) {
           case 9: iWitmotionAngle.SUM = num; break;
         }
         if (datasegmentcounter == 9) {
-          imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
+          imuMsg.state = ImuState.IMU_ANGLE_RECEIVED;
         }
       }
 
@@ -206,7 +206,7 @@ function parseIncommingString(num: number) {
           case 9: iWitmotionMagnetic.SUM = num; break;
         }
         if (datasegmentcounter == 9) {
-          imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
+          imuMsg.state = ImuState.IMU_MAGNETIC_RECEIVED;
         }
       }
 
@@ -255,64 +255,83 @@ class WitMotionDriver extends Component<Props, State> {
           //if 0x55 is found unpack messages till next 0x55
 
           parseIncommingString(data.readInt8(i))
-          if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
+
+          //console.log("data: ["+num+"] inputH: ["+imuMsgAcc.TH+"] inputL: ["+imuMsgAcc.TL+"] = output T ["+T+"]\n");
+
+          let resolutie = 100;
+
+          let timestamp = new Date().getTime();
+
+          /* Redis calls */
+
+            /* @TODO: Prefix Poort variabel maken */
+
+          var originName = "";
+
+          if (imuMsg.state == ImuState.IMU_ACCELERO_RECEIVED)
+          {
 
             //imuResponse$.next(imuMsgAngle) --> This was to place it back in the Subject for the chart
 
             let T = ((iWitmotionAccelerometer.TH << 8) | iWitmotionAccelerometer.TL & 0xFF) / 100;
 
-            //console.log("data: ["+num+"] inputH: ["+imuMsgAcc.TH+"] inputL: ["+imuMsgAcc.TL+"] = output T ["+T+"]\n");
+            lpushAsync('dataTemp', "ts:" + new Date().getTime() + "^Tx:" + T);
 
-            let resolutie = 100;
-
-            let timestamp = new Date().getTime();
+            /* @TODO: Function toevoegen [Clean code] Function insert in Database{object) Function Accelero */
 
             let yx = imuAccelero(iWitmotionAccelerometer.AxH, iWitmotionAccelerometer.AxL);
             let yy = imuAccelero(iWitmotionAccelerometer.AyH, iWitmotionAccelerometer.AyL);
             let yz = imuAccelero(iWitmotionAccelerometer.AzH, iWitmotionAccelerometer.AzL);
 
-            let avyx = imuAngularVelocity(iWitmotionAngularVelocity.wxH, iWitmotionAngularVelocity.wxL);
-            let avyy = imuAngularVelocity(iWitmotionAngularVelocity.wyH, iWitmotionAngularVelocity.wyL);
-            let avyz = imuAngularVelocity(iWitmotionAngularVelocity.wzH, iWitmotionAngularVelocity.wzL);
-
-            let anyx = imuAngle(iWitmotionAngle.RollH, iWitmotionAngle.RollL);
-            let anyy = imuAngle(iWitmotionAngle.PitchH, iWitmotionAngle.PitchL);
-            let anyz = imuAngle(iWitmotionAngle.YawH, iWitmotionAngle.YawL);
-
-            let mgyx = imuMagnetic(iWitmotionMagnetic.HxH, iWitmotionMagnetic.HxL);
-            let mgyy = imuMagnetic(iWitmotionMagnetic.HyH, iWitmotionMagnetic.HyL);
-            let mgyz = imuMagnetic(iWitmotionMagnetic.HzH, iWitmotionMagnetic.HzL);
-
-            let CHK = 85 + 81 + (iWitmotionAccelerometer.AxH + iWitmotionAccelerometer.AxL +
-                                 iWitmotionAccelerometer.AyH + iWitmotionAccelerometer.AyL +
-                                 iWitmotionAccelerometer.AzH + iWitmotionAccelerometer.AzL +
-                                 iWitmotionAccelerometer.TH + iWitmotionAccelerometer.TL);
-
-            let CHKVAL = CHK & 0xFF;
-
-            /* Redis calls */
-
-            /* @TODO: Prefix Poort variabel maken */
-
-            var originName = "";
-            
             lpushAsync(originName+'_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx)
             lpushAsync(originName+'_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy)
             lpushAsync(originName+'_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz)
 
+            let CHK = 85 + 81 + (iWitmotionAccelerometer.AxH + iWitmotionAccelerometer.AxL +
+            iWitmotionAccelerometer.AyH + iWitmotionAccelerometer.AyL +
+            iWitmotionAccelerometer.AzH + iWitmotionAccelerometer.AzL +
+            iWitmotionAccelerometer.TH + iWitmotionAccelerometer.TL);
+
+            let CHKVAL = CHK & 0xFF;
+
+            imuMsg.state = ImuState.IMU_IDLE;
+          }
+
+          else if (imuMsg.state == ImuState.IMU_ANGULARVELOCITY_RECEIVED)
+          {
+            let avyx = imuAngularVelocity(iWitmotionAngularVelocity.wxH, iWitmotionAngularVelocity.wxL);
+            let avyy = imuAngularVelocity(iWitmotionAngularVelocity.wyH, iWitmotionAngularVelocity.wyL);
+            let avyz = imuAngularVelocity(iWitmotionAngularVelocity.wzH, iWitmotionAngularVelocity.wzL);
+
             lpushAsync(originName+'_AngularVelocity_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyx)
             lpushAsync(originName+'_AngularVelocity_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyy)
             lpushAsync(originName+'_AngularVelocity_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyz)
+            
+            imuMsg.state = ImuState.IMU_IDLE
+          }
+
+          else if (imuMsg.state == ImuState.IMU_ANGLE_RECEIVED)
+          {
+            let anyx = imuAngle(iWitmotionAngle.RollH, iWitmotionAngle.RollL);
+            let anyy = imuAngle(iWitmotionAngle.PitchH, iWitmotionAngle.PitchL);
+            let anyz = imuAngle(iWitmotionAngle.YawH, iWitmotionAngle.YawL);
 
             lpushAsync(originName+'_Angle_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyx)
             lpushAsync(originName+'_Angle_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyy)
             lpushAsync(originName+'_Angle_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyz)
-            
+
+            imuMsg.state = ImuState.IMU_IDLE
+          }
+
+          else if (imuMsg.state == ImuState.IMU_MAGNETIC_RECEIVED)
+          {
+            let mgyx = imuMagnetic(iWitmotionMagnetic.HxH, iWitmotionMagnetic.HxL);
+            let mgyy = imuMagnetic(iWitmotionMagnetic.HyH, iWitmotionMagnetic.HyL);
+            let mgyz = imuMagnetic(iWitmotionMagnetic.HzH, iWitmotionMagnetic.HzL);
+
             lpushAsync(originName+'_AngularMagnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
             lpushAsync(originName+'_AngularMagnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
             lpushAsync(originName+'_AngularMagnetic_Z', "ts:" + timestamp+ "^x:" + timestamp + "^y:" + mgyz)
-
-            lpushAsync('dataTemp', "ts:" + new Date().getTime() + "^Tx:" + T);
 
             imuMsg.state = ImuState.IMU_IDLE
 
