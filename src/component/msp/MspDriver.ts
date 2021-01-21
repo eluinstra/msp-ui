@@ -29,6 +29,8 @@ export interface Driver {
   mspResponse$: Subject<MspMsg>
 }
 
+export const getMspResponse$ = (driver: Driver) => driver.mspResponse$
+
 const hexInt16 = (v: number) => [v & 0x00FF, v & 0xFF00]
 
 const getFlag = v => v[0]
@@ -60,7 +62,7 @@ const command = (cmd: number, payload: string) => {
   return [].concat(mspCmdHeader.split('').map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
-export const getPortName = (driver: Driver) => driver.serialPort?.value.path
+export const getPortName = (driver: Driver) => driver.serialPort.value?.path
 
 export const mspRequest = (driver: Driver, cmd: number, payload: string) => write(driver.serialPort, Buffer.from(command(cmd, payload)))
 

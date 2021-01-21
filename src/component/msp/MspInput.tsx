@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
 import { distinctUntilChanged, map, filter, tap, startWith, mergeMap, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviour, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { createDriver, MspMsg, mspRequest, useDriverEffect } from '@/component/msp/MspDriver'
+import { createDriver, getMspResponse$, MspMsg, mspRequest, useDriverEffect } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField, Theme } from '@material-ui/core'
@@ -19,7 +19,7 @@ export const MspInput = props => {
   const [cmd, setCmd] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [mspClick, mspClick$] = useObservableEvent()
-  const mspMsg = useStatefulObservable<MspMsg>(driver.mspResponse$
+  const mspMsg = useStatefulObservable<MspMsg>(getMspResponse$(driver)
     .pipe(
       map(mspMsg  => viewMspMsg(mspMsg))
   ))
