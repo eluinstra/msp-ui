@@ -265,6 +265,8 @@ class WitMotionDriver extends Component<Props, State> {
 
             let resolutie = 100;
 
+            let timestamp = new Date().getTime();
+
             let yx = imuAccelero(iWitmotionAccelerometer.AxH, iWitmotionAccelerometer.AxL);
             let yy = imuAccelero(iWitmotionAccelerometer.AyH, iWitmotionAccelerometer.AyL);
             let yz = imuAccelero(iWitmotionAccelerometer.AzH, iWitmotionAccelerometer.AzL);
@@ -294,13 +296,21 @@ class WitMotionDriver extends Component<Props, State> {
 
             var originName = "";
             
-            lpushAsync(originName+'_Accelero_X', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yx)
-            lpushAsync(originName+'_Accelero_Y', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yy)
-            lpushAsync(originName+'_Accelero_Z', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + yz)
+            lpushAsync(originName+'_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx)
+            lpushAsync(originName+'_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy)
+            lpushAsync(originName+'_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz)
 
-            lpushAsync(originName+'_AngularVelocity_X', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + avyx)
-            lpushAsync(originName+'_AngularVelocity_Y', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + avyy)
-            lpushAsync(originName+'_AngularVelocity_Z', "ts:" + new Date().getTime() + "^x:" + new Date().getTime() + "^y:" + avyz)
+            lpushAsync(originName+'_AngularVelocity_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyx)
+            lpushAsync(originName+'_AngularVelocity_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyy)
+            lpushAsync(originName+'_AngularVelocity_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyz)
+
+            lpushAsync(originName+'_Angle_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyx)
+            lpushAsync(originName+'_Angle_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyy)
+            lpushAsync(originName+'_Angle_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyz)
+            
+            lpushAsync(originName+'_AngularMagnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
+            lpushAsync(originName+'_AngularMagnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
+            lpushAsync(originName+'_AngularMagnetic_Z', "ts:" + timestamp+ "^x:" + timestamp + "^y:" + mgyz)
 
             lpushAsync('dataTemp', "ts:" + new Date().getTime() + "^Tx:" + T);
 
