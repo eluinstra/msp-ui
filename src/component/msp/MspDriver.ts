@@ -60,6 +60,8 @@ const command = (cmd: number, payload: string) => {
   return [].concat(mspCmdHeader.split('').map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
+export const getPortName = (driver: Driver) => driver.serialPort?.value.path
+
 export const mspRequest = (driver: Driver, cmd: number, payload: string) => write(driver.serialPort, Buffer.from(command(cmd, payload)))
 
 const createMspResponse$ = () => new Subject<MspMsg>()
