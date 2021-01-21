@@ -96,7 +96,7 @@ function parseIncommingString(num: number) {
       parseState = 1
       break;
     case 1:
-      if ([ImuState.IMU_TIME, ImuState.IMU_ACC, ImuState.IMU_ANGULAR, ImuState.IMU_ANGLE, ImuState.IMU_MAGN].includes(num)) {
+      if ([ImuState.IMU_TIME, ImuState.IMU_ACCELERO, ImuState.IMU_ANGLE, ImuState.IMU_ANGULARVELOCITY, ImuState.IMU_MAGN].includes(num)) {
         cmd = num
         parseState = 2
         datasegmentcounter = 0
