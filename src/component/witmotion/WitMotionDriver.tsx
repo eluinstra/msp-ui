@@ -328,9 +328,9 @@ class WitMotionDriver extends Component<Props, State> {
             let mgyy = imuMagnetic(iWitmotionMagnetic.HyH, iWitmotionMagnetic.HyL);
             let mgyz = imuMagnetic(iWitmotionMagnetic.HzH, iWitmotionMagnetic.HzL);
 
-            lpushAsync(originName+'_AngularMagnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
-            lpushAsync(originName+'_AngularMagnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
-            lpushAsync(originName+'_AngularMagnetic_Z', "ts:" + timestamp+ "^x:" + timestamp + "^y:" + mgyz)
+            lpushAsync(originName+'_Magnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
+            lpushAsync(originName+'_Magnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
+            lpushAsync(originName+'_Magnetic_Z', "ts:" + timestamp+ "^x:" + timestamp + "^y:" + mgyz)
 
             imuMsg.state = ImuState.IMU_IDLE
 
