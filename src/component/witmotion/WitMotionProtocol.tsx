@@ -3,7 +3,7 @@ export enum ImuState {
     IMU_ACCELERO = 81, //0x51,
     IMU_ANGULARVELOCITY = 82,
     IMU_ANGLE = 83,
-    IMU_MAGN = 84,
+    IMU_MAGNETIC = 84,
     IMU_PREFIX = 85, //0x55,
     IMU_COMMAND_RECEIVED = 97,
     IMU_COMMAND_IDLE = 98,

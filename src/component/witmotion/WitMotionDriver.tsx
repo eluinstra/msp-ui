@@ -6,7 +6,7 @@ import { BehaviorSubject, interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { props } from "rambda";
 import { CChartContainerRedis } from '@/component/charts/ChartContainerRedis'
-import { ImuState, ImuMsg, IWitmotionAccelerometer, IWitmotionAngle } from '@/component/witmotion/WitMotionProtocol'
+import { ImuState, ImuMsg, IWitmotionAccelerometer, IWitmotionAngularVelocity, IWitmotionAngle, IWitmotionMagnetic } from '@/component/witmotion/WitMotionProtocol'
 import { Button } from '@material-ui/core'
 import Typography from "@material-ui/core/Typography";
 import { lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
@@ -59,6 +59,20 @@ const iWitmotionAccelerometer: IWitmotionAccelerometer = {
   SUM: 0
 }
 
+const iWitmotionAngularVelocity: IWitmotionAngularVelocity = {
+  enable: false,
+  dscnt: 0,
+  wxL: 0,
+  wxH: 0,
+  wyL: 0,
+  wyH: 0,
+  wzL: 0,
+  wzH: 0,
+  TL: 0,
+  TH: 0,
+  SUM: 0
+}
+
 const iWitmotionAngle: IWitmotionAngle = {
   enable: false,
   dscnt: 0,
@@ -72,6 +86,21 @@ const iWitmotionAngle: IWitmotionAngle = {
   TH: 0,
   SUM: 0
 }
+
+const iWitmotionMagnetic: IWitmotionMagnetic = {
+  enable: false,
+  dscnt: 0,
+  HxL: 0,
+  HxH: 0,
+  HyL: 0,
+  HyH: 0,
+  HzL: 0,
+  HzH: 0,
+  TL: 0,
+  TH: 0,
+  SUM: 0
+}
+
 
 function parseIncommingString(num: number) {
 
@@ -96,7 +125,7 @@ function parseIncommingString(num: number) {
       parseState = 1
       break;
     case 1:
-      if ([ImuState.IMU_TIME, ImuState.IMU_ACCELERO, ImuState.IMU_ANGLE, ImuState.IMU_ANGULARVELOCITY, ImuState.IMU_MAGN].includes(num)) {
+      if ([ImuState.IMU_TIME, ImuState.IMU_ACCELERO, ImuState.IMU_ANGLE, ImuState.IMU_ANGULARVELOCITY, ImuState.IMU_MAGNETIC].includes(num)) {
         cmd = num
         parseState = 2
         datasegmentcounter = 0
@@ -127,6 +156,24 @@ function parseIncommingString(num: number) {
         }
       }
 
+      if (cmd == ImuState.IMU_ANGULARVELOCITY) {
+        iWitmotionAngularVelocity.dscnt = datasegmentcounter;
+        switch (datasegmentcounter) {
+          case 1: iWitmotionAngularVelocity.wxL = num; break;
+          case 2: iWitmotionAngularVelocity.wxH = num; break;
+          case 3: iWitmotionAngularVelocity.wyL = num; break;
+          case 4: iWitmotionAngularVelocity.wyH = num; break;
+          case 5: iWitmotionAngularVelocity.wzL = num; break;
+          case 6: iWitmotionAngularVelocity.wzH = num; break;
+          case 7: iWitmotionAngularVelocity.TL = num; break;
+          case 8: iWitmotionAngularVelocity.TH = num; break;
+          case 9: iWitmotionAngularVelocity.SUM = num; break;
+        }
+        if (datasegmentcounter == 9) {
+          imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
+        }
+      }
+
       if (cmd == ImuState.IMU_ANGLE) {
         iWitmotionAngle.dscnt = datasegmentcounter;
         switch (datasegmentcounter) {
@@ -139,6 +186,24 @@ function parseIncommingString(num: number) {
           case 7: iWitmotionAngle.TL = num; break;
           case 8: iWitmotionAngle.TH = num; break;
           case 9: iWitmotionAngle.SUM = num; break;
+        }
+        if (datasegmentcounter == 9) {
+          imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
+        }
+      }
+
+      if (cmd == ImuState.IMU_MAGNETIC) {
+        iWitmotionMagnetic.dscnt = datasegmentcounter;
+        switch (datasegmentcounter) {
+          case 1: iWitmotionMagnetic.HxL = num; break;
+          case 2: iWitmotionMagnetic.HxH = num; break;
+          case 3: iWitmotionMagnetic.HyL = num; break;
+          case 4: iWitmotionMagnetic.HyH = num; break;
+          case 5: iWitmotionMagnetic.HzL = num; break;
+          case 6: iWitmotionMagnetic.HzH = num; break;
+          case 7: iWitmotionMagnetic.TL = num; break;
+          case 8: iWitmotionMagnetic.TH = num; break;
+          case 9: iWitmotionMagnetic.SUM = num; break;
         }
         if (datasegmentcounter == 9) {
           imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
