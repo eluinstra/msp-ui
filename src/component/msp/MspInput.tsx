@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
 import { distinctUntilChanged, map, filter, tap, startWith, mergeMap, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviour, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { MspMsg, mspRequest, createMspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
+import { createDriver, startDriver, stopDriver, MspMsg, mspRequest } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField, Theme } from '@material-ui/core'
@@ -15,12 +15,12 @@ const notEmpty = v => v != ""
 
 export const MspInput = props => {
   const { serialPort } = props
+  const [driver] = useState(createDriver(serialPort))
   const { enqueueSnackbar } = useSnackbar();
   const [cmd, setCmd] = useState(null);
   const [inputValue, setInputValue] = useState('');
-  const [mspResponse$] = useState(createMspResponse$())
   const [mspClick, mspClick$] = useObservableEvent()
-  const mspMsg = useStatefulObservable<MspMsg>(mspResponse$
+  const mspMsg = useStatefulObservable<MspMsg>(driver.mspResponse$
     .pipe(
       map(mspMsg  => viewMspMsg(mspMsg))
   ))
@@ -30,11 +30,11 @@ export const MspInput = props => {
         filter(p => isOpen(p)),
       )
       .subscribe(p => {
-        registerPort(p, mspResponse$)
+        startDriver(driver)
       })
     return () => {
       sub.unsubscribe()
-      unregisterPort(serialPort)
+      stopDriver(driver)
     }
   }, [])
   useEffect(() => {
@@ -45,7 +45,7 @@ export const MspInput = props => {
       )
       .subscribe(val => {
         try {
-          mspRequest(serialPort,val,[])
+          mspRequest(driver,val,'')
         } catch(e) {
           console.log(e)
           enqueueSnackbar(e.message, { variant: 'error' })

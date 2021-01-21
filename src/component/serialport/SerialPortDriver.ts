@@ -10,6 +10,11 @@ export const openPort = (serialPort, port, baudrate) => serialPort.next(new Seri
 
 export const isOpen = (serialPort) => Boolean(serialPort)
 
+export const write = (serialPort, value) => {
+  console.log("WRITE" + serialPort)
+  serialPort.value.write(value)
+}
+
 export const closePort = (serialPort) => {
   serialPort.value?.close()
   serialPort.next(null)

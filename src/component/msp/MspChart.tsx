@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { interval, merge, NEVER } from 'rxjs'
 import { map, filter, tap, mapTo, startWith, switchMap, delayWhen } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviourOf } from '@/common/RxTools'
-import { mspRequest, createMspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
+import { createDriver, startDriver, stopDriver, mspRequest } from '@/component/msp/MspDriver'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/core'
 import { viewMspChart } from '@/component/msp/MspChartView'
@@ -11,16 +11,16 @@ import { isOpen } from '@/component/serialport/SerialPortDriver'
 
 export const MspChart = props => {
   const { serialPort } = props
+  const [driver] = useState(createDriver(serialPort))
   const [state, changeState, state$] = useObservableBehaviourOf({
     checked: false,
     interval: 100,
   });
   const [cmd, setCmd] = useState(null);
   const [inputValue, setInputValue] = useState('');
-  const [mspResponse$] = useState(createMspResponse$())
-  const mspMsg = useStatefulObservable<number>(mspResponse$
+  const mspMsg = useStatefulObservable<number>(driver.mspResponse$
     .pipe(
-      map(mspMsg  => viewMspChart(mspMsg))
+      map(msg  => viewMspChart(driver, msg))
       // mapTo(Math.random())
   ))
   // useEffect(() => {
@@ -56,28 +56,28 @@ export const MspChart = props => {
         filter(p => isOpen(p)),
       )
       .subscribe(p => {
-        registerPort(p, mspResponse$)
+        startDriver(driver)
       })
     return () => {
       sub.unsubscribe()
-      unregisterPort(serialPort)
+      stopDriver(driver)
     }
   }, [])
   useEffect(() => {
-    const sub = merge(state$,mspResponse$)
+    const sub = merge(state$,driver.mspResponse$)
       .pipe(
         startWith(state.checked),
         filter(v => v == true),
         delayWhen(_ => interval(state.interval)),
         mapTo(MspCmd[cmd]),
-        tap(v => mspRequest(serialPort,v,[])),
-        switchMap(_ => mspResponse$),
+        tap(v => mspRequest(driver,v,'')),
+        switchMap(_ => driver.mspResponse$),
       )
       .subscribe(v => {
         console.log(v.cmd)
       })
     return () => sub.unsubscribe()
-  }, [state$, mspResponse$])
+  }, [state$, driver.mspResponse$])
   return (
     <React.Fragment>
       <FormControl>

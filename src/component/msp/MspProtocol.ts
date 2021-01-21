@@ -249,7 +249,7 @@ export const MspCmd =
   MSP_SET_SIGNATURE:        249,    //in message          Sets the signature of the board and serial number
 };
 
-export const mspCmdHeader = '$X<';
+export const mspCmdHeader: string = '$X<';
 
 export const mspMessageType =
 {
