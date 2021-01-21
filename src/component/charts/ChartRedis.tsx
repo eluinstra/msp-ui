@@ -25,22 +25,6 @@ function timeformat(date: Date) {
   return "" + date.getTime();
 }
 
-// var chartJsData = function() {
-//     for (var ci=0; ci < this.N; ci++ )
-//     {
-//       datapoints[ci] = {x:0, y:0};
-//     }
-//     return datapoints;
-// }
-
-// var chartJsData2 = function() {
-//   for (var ci=0; ci < this.N; ci++ )
-//   {
-//     datapoints2[ci] = {x:0, y:0};
-//   }
-//   return datapoints2;
-//}
-
 const chartData = {
   type: 'line',
   datasets: [
@@ -136,10 +120,6 @@ class ChartRedis extends React.Component<Props, State> {
 
   constructor(props) {
     super(props)
-    //const { datasets } = props
-    // const data = {
-    //   datasets: datasets
-    // }
     this.state = {
       points: 0,
       value: [10, 40],
@@ -148,30 +128,20 @@ class ChartRedis extends React.Component<Props, State> {
       step: 1
     };
 
-    //this.fillChartData = this.fillChartData.bind(this);
     this.getNValue(this.state);
   }
 
   getNValue = (value) => {
+
+    /* Redis interaction */
+
     llenAsync('dataAccx').then(function (result: string) {
 
-
-      //if(result && NSlider == 1)
-      //{
       N = parseInt(result.valueOf()) - 10;
-      //console.log("Dataset length: "+ N);
-      //}
-      //else
-      //{
 
-      //  N = this.state.value;
-      //}
-      //console.log("--> "+N+"max: ");
       value.max = N;
       return N;
     });
-
-    //this.getChartData()
 
   }
 
