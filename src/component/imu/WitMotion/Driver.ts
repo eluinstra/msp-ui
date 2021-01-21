@@ -205,35 +205,45 @@ function parseIMUData(num: number) {
   }
 }
 
+let parseState = 0
+let cmd = undefined
+
 function parseIMUAngle(num: number) {
-  switch (num) {
-    case ImuState.IMU_PREFIX:
-      if (!messageStarted) {
-        messageStarted = true
-        imuMsgAngle.enable = false
+  switch (parseState) {
+    case 0:
+      imuMsg.state = ImuState.IMU_IDLE;
+      if (num == ImuState.IMU_PREFIX)
+        parseState = 1
+      break;
+    case 1:
+      if ([ImuState.IMU_TIME, ImuState.IMU_ACC, ImuState.IMU_ANGULAR, ImuState.IMU_ANGLE, ImuState.IMU_MAGN].includes(num))
+      {
+        cmd = num
+        parseState = 2
+        datasegmentcounter = 0
       }
+      else
+        parseState = 0
       break;
-    case ImuState.IMU_ANGLE:
-      messageStarted = false
-      imuMsgAngle.enable = true
-      datasegmentcounter = 0;
+    case 2:
+      datasegmentcounter++;
+      if (cmd == ImuState.IMU_ANGLE) {
+        switch (datasegmentcounter) {
+          case 1: imuMsgAngle.RollL = num; break;
+          case 2: imuMsgAngle.RollH = num; break;
+          case 3: imuMsgAngle.PitchL = num; break;
+          case 4: imuMsgAngle.PitchH = num; break;
+          case 5: imuMsgAngle.YawL = num; break;
+          case 6: imuMsgAngle.YawH = num; break;
+          case 7: imuMsgAngle.TL = num; break;
+          case 8: imuMsgAngle.TH = num; break;
+          case 9: imuMsgAngle.SUM = num; break;
+        }
+        if (datasegmentcounter == 9)
+          imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
+      }
+      if (datasegmentcounter == 9)
+        parseState = 0
       break;
-  }
-  datasegmentcounter++;
-  if (imuMsgAngle.enable) {
-    imuMsg.state = ImuState.IMU_IDLE;
-    switch (datasegmentcounter) {
-      case 1: break;
-      case 2: imuMsgAngle.RollL = num; break;
-      case 3: imuMsgAngle.RollH = num; break;
-      case 4: imuMsgAngle.PitchL = num; break;
-      case 5: imuMsgAngle.PitchH = num; break;
-      case 6: imuMsgAngle.YawL = num; break;
-      case 7: imuMsgAngle.YawH = num; break;
-      case 8: imuMsgAngle.TL = num; break;
-      case 9: imuMsgAngle.TH = num; break;
-      case 10: imuMsgAngle.SUM = num; break;
-    }
-    imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
   }
 }
