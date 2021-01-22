@@ -1,13 +1,10 @@
 import React from 'react'
-import { Card, CardContent, Paper } from '@material-ui/core';
+import { Card, CardContent } from '@material-ui/core'
 import { MspCmd } from '@/component/msp/MspProtocol'
-import { MspMsg, MspState } from '@/component/msp/MspDriver';
-import { parseMspMsg } from '@/component/msp/MspModel';
-import { showError } from '../Notification';
+import { MspMsg, MspState } from '@/component/msp/MspDriver'
+import { parseMspMsg } from '@/component/msp/MspModel'
 
-export const viewMspMsg = (msg: MspMsg) => {
-  return msg.state == MspState.MSP_COMMAND_RECEIVED ? mspOutputFunctions[msg.cmd](parseMspMsg(msg)) : renderError()
-}
+export const viewMspMsg = (msg: MspMsg) => msg.state == MspState.MSP_COMMAND_RECEIVED ? mspOutputFunctions[msg.cmd](parseMspMsg(msg)) : renderError()
 
 const renderError = () => {
   return (
@@ -29,7 +26,7 @@ const renderDefault = (msg: string) => {
   )
 }
 
-const mspOutputFunctions = [];
+const mspOutputFunctions = []
 
 Object.values(MspCmd).forEach(v => mspOutputFunctions[v] = renderDefault)
 

@@ -1,9 +1,9 @@
 import React from 'react'
-import { Card, CardContent, Paper } from '@material-ui/core';
+import { Card, CardContent, Paper } from '@material-ui/core'
 import { MspCmd } from '@/component/msp/MspProtocol'
-import { Driver, MspMsg } from '@/component/msp/MspDriver';
-import { parseMspMsg } from '@/component/msp/MspModel';
-import { Chart } from '@/component/Chart';
+import { Driver, MspMsg } from '@/component/msp/MspDriver'
+import { parseMspMsg } from '@/component/msp/MspModel'
+import { Chart } from '@/component/Chart'
 
 export const viewMspChart = (driver: Driver, msg: MspMsg) => {
   return mspOutputFunctions[msg.cmd](driver, parseMspMsg(msg))
@@ -19,7 +19,7 @@ const renderDefault = (msg: string) => {
   )
 }
 
-const mspOutputFunctions = [];
+const mspOutputFunctions = []
 
 Object.values(MspCmd).forEach(v => mspOutputFunctions[v] = renderDefault)
 

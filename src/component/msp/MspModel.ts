@@ -1,32 +1,26 @@
 import _ from 'lodash'
 import { MspCmd } from '@/component/msp/MspProtocol'
-import { MspMsg } from '@/component/msp//MspDriver';
+import { MspMsg } from '@/component/msp//MspDriver'
 
-const hexInt = (num: number, width: number) => num.toString(16).padStart(width,"0").toUpperCase();
-const hexInt8 = (num: number) => hexInt(num & 0xFF, 2);
+const hexInt = (num: number, width: number) => num.toString(16).padStart(width,"0").toUpperCase()
+const hexInt8 = (num: number) => hexInt(num & 0xFF, 2)
 const int16 = (buffer: number[], index: number) => buffer[index] + (buffer[index + 1] << 8)
 const string = (buffer: number[]) => buffer.reduce((p, c) => p + String.fromCharCode(c),"")
 const substring = (buffer: number[], start: number, num: number) =>
   _.take(_.drop(buffer, start), num).reduce((s, n) => s + String.fromCharCode(n),"")
 
-export const parseMspMsg = (msg: MspMsg) => {
-  return mspOutputParser[msg.cmd](msg)
-}
+export const parseMspMsg = (msg: MspMsg) => mspOutputParser[msg.cmd](msg)
 
-const parseDefault = (msg: MspMsg) => {
-  return msg.buffer.map(v => hexInt8(v))
-}
+const parseDefault = (msg: MspMsg) => msg.buffer.map(v => hexInt8(v))
 
-const parseString = (msg: MspMsg) => {
-  return string(msg.buffer)
-}
+const parseString = (msg: MspMsg) => string(msg.buffer)
 
-const mspOutputParser = [];
+const mspOutputParser = []
 
 Object.values(MspCmd).forEach(v => mspOutputParser[v] = parseDefault)
 
 mspOutputParser[MspCmd.MSP_API_VERSION] = (msg: MspMsg) => {
-  const [head, ...tail] = msg.buffer;
+  const [head, ...tail] = msg.buffer
   return {
     protocolVersion: head.toString(),
     apiVersion: tail.join(".")
@@ -35,9 +29,7 @@ mspOutputParser[MspCmd.MSP_API_VERSION] = (msg: MspMsg) => {
 
 mspOutputParser[MspCmd.MSP_FC_VARIANT] = parseString
 
-mspOutputParser[MspCmd.MSP_FC_VERSION] = (msg: MspMsg) => {
-  return msg.buffer.join(".")
-}
+mspOutputParser[MspCmd.MSP_FC_VERSION] = (msg: MspMsg) => msg.buffer.join(".")
 
 mspOutputParser[MspCmd.MSP_BOARD_INFO] = (msg: MspMsg) => {
   return {

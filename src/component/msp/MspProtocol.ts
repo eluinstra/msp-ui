@@ -1,5 +1,4 @@
-export const MspCmd =
-{
+export const MspCmd = {
   MSP_API_VERSION:                 1,    //out message *
   MSP_FC_VARIANT:                  2,    //out message *
   MSP_FC_VERSION:                  3,    //out message *
@@ -249,12 +248,11 @@ export const MspCmd =
   MSP_RTC:                  247,    //out message         Gets the RTC clock
   MSP_SET_BOARD_INFO:       248,    //in message          Sets the board information for this board
   MSP_SET_SIGNATURE:        249,    //in message          Sets the signature of the board and serial number
-};
+}
 
-export const mspCmdHeader: string = '$X<';
+export const mspCmdHeader: string = '$X<'
 
-export const mspMessageType =
-{
+export const mspMessageType = {
   OUT: "<",
   IN: ">",
   ERROR: "!"

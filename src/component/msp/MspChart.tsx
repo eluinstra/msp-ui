@@ -16,9 +16,9 @@ export const MspChart = props => {
   const [state, changeState, state$] = useObservableBehaviourOf({
     checked: false,
     interval: 100,
-  });
-  const [cmd, setCmd] = useState(null);
-  const [inputValue, setInputValue] = useState('');
+  })
+  const [cmd, setCmd] = useState(null)
+  const [inputValue, setInputValue] = useState('')
   const mspMsg = useStatefulObservable<number>(getMspResponse$(driver)
     .pipe(
       map(msg  => viewMspChart(driver, msg))

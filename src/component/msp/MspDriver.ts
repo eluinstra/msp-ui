@@ -1,7 +1,7 @@
 import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs'
-import { mspCmdHeader } from '@/component/msp/MspProtocol';
-import { filter, share, tap } from 'rxjs/operators';
-import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver';
+import { mspCmdHeader } from '@/component/msp/MspProtocol'
+import { filter, share, tap } from 'rxjs/operators'
+import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver'
 
 export enum MspState {
   MSP_IDLE,
