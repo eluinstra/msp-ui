@@ -10,20 +10,20 @@ import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField,
 import { useSnackbar } from 'notistack';
 import { Autocomplete } from '@material-ui/lab'
 
-const notEmpty = v => v != ""
+const notEmpty = v => !!v
 
 export const MspInput = props => {
   const { serialPort } = props
   const [driver] = useState(createDriver(serialPort))
   const { enqueueSnackbar } = useSnackbar();
   const [cmd, setCmd] = useState(null);
-  const [inputValue, setInputValue] = useState('');
+  const [payload, setPayload] = useState('');
   const [mspClick, mspClick$] = useObservableEvent()
   const mspMsg = useStatefulObservable<MspMsg>(getMspResponse$(driver)
     .pipe(
       map(viewMspMsg)
   ))
-  useEffect(useDriverEffect(driver), [])
+  useEffect(useDriverEffect(driver, enqueueSnackbar), [])
   useEffect(() => {
     const sub = mspClick$
       .pipe(
@@ -32,7 +32,7 @@ export const MspInput = props => {
       )
       .subscribe(val => {
         try {
-          mspRequest(driver,val,'')
+          mspRequest(driver,val,payload)
         } catch(e) {
           console.log(e)
           enqueueSnackbar(e.message, { variant: 'error' })
@@ -45,14 +45,15 @@ export const MspInput = props => {
       <FormControl>
         <Autocomplete
           value={cmd}
-          onChange={(_, v: string) => { setCmd(v) }}
-          inputValue={inputValue}
-          onInputChange={(_, v) => setInputValue(v)}
+          onChange={(_, v: string) => { setPayload(''); setCmd(v) }}
           options={Object.keys(MspCmd)}
           getOptionLabel={option => option}
-          renderInput={params => <TextField {...params} variant="standard" />}
+          renderInput={params => <TextField label="cmd" {...params} variant="standard" />}
           style={{ width: 350 }}
         />
+      </FormControl>
+      <FormControl>
+          <TextField label="value" value={payload} onChange={e => setPayload(e.target.value)} variant="standard" />
       </FormControl>
       <FormControl>
         <Button variant="contained" onClick={_ => mspClick()}>MSP Go</Button>

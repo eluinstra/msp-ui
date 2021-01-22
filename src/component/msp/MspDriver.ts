@@ -58,7 +58,7 @@ const crc8_dvb_s2 = (crc, num) => {
 
 const command = (cmd: number, payload: string) => {
   const flag = 0
-  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.length),payload.split(''))
+  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.length),payload.split('').map(ch => ch.charCodeAt(0)))
   return [].concat(mspCmdHeader.split('').map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
@@ -83,13 +83,13 @@ export const createDriver = (serialPort: BehaviorSubject<any>) : Driver => {
   }
 }
 
-export const useDriverEffect = (driver: Driver) => {
+export const useDriverEffect = (driver: Driver, enqueueSnackbar?) => {
   const sub = getPort$(driver.serialPort)
     .pipe(
       filter(isOpen),
     )
     .subscribe(p => {
-      startDriver(driver)
+      startDriver(driver, enqueueSnackbar)
     })
   return () => {
     sub.unsubscribe()
@@ -97,7 +97,7 @@ export const useDriverEffect = (driver: Driver) => {
   }
 }
 
-const startDriver = (driver: Driver) => {
+const startDriver = (driver: Driver, enqueueSnackbar?) => {
   const { serialPort, mspMsg, mspResponse$ } = driver
   registerFunction(serialPort, function (data) {
     for (let i = 0; i < data.length; i++) {
@@ -106,7 +106,9 @@ const startDriver = (driver: Driver) => {
         mspResponse$.next({...mspMsg})
         mspMsg.state = MspState.MSP_IDLE
       } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
-        mspResponse$.error(new Error('MSP error received!'))
+        //mspResponse$.error(new Error('MSP error received!'))
+        mspResponse$.next({...mspMsg})
+        if (enqueueSnackbar) enqueueSnackbar('MSP error received!', { variant: 'error' })
         mspMsg.state = MspState.MSP_IDLE
       }
     }

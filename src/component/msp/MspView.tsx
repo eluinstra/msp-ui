@@ -1,11 +1,22 @@
 import React from 'react'
 import { Card, CardContent, Paper } from '@material-ui/core';
 import { MspCmd } from '@/component/msp/MspProtocol'
-import { MspMsg } from '@/component/msp/MspDriver';
+import { MspMsg, MspState } from '@/component/msp/MspDriver';
 import { parseMspMsg } from '@/component/msp/MspModel';
+import { showError } from '../Notification';
 
 export const viewMspMsg = (msg: MspMsg) => {
-  return mspOutputFunctions[msg.cmd](parseMspMsg(msg))
+  return msg.state == MspState.MSP_COMMAND_RECEIVED ? mspOutputFunctions[msg.cmd](parseMspMsg(msg)) : renderError()
+}
+
+const renderError = () => {
+  return (
+    <Card>
+      <CardContent>
+        MSP error received!
+      </CardContent>
+    </Card>
+  )
 }
 
 const renderDefault = (msg: string) => {
@@ -77,6 +88,16 @@ mspOutputFunctions[MspCmd.MSP_BUILD_INFO] = (msg: { buildDate: string, buildTime
         Build Time: {msg.buildTime}
         <br />
         Git Revision: {msg.shortGitRevision}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_ECHO] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Echo: {msg}
       </CardContent>
     </Card>
   )

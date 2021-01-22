@@ -5,8 +5,7 @@ import { MspMsg } from '@/component/msp//MspDriver';
 const hexInt = (num: number, width: number) => num.toString(16).padStart(width,"0").toUpperCase();
 const hexInt8 = (num: number) => hexInt(num & 0xFF, 2);
 const int16 = (buffer: number[], index: number) => buffer[index] + (buffer[index + 1] << 8)
-const string = (buffer: number[]) =>
-  _.takeWhile(buffer, n => n != 0).reduce((s, n) => s + String.fromCharCode(n),"")
+const string = (buffer: number[]) => buffer.reduce((p, c) => p + String.fromCharCode(c),"")
 const substring = (buffer: number[], start: number, num: number) =>
   _.take(_.drop(buffer, start), num).reduce((s, n) => s + String.fromCharCode(n),"")
 
@@ -55,6 +54,8 @@ mspOutputParser[MspCmd.MSP_BUILD_INFO] = (msg: MspMsg) => {
     shortGitRevision: substring(msg.buffer, 19, 7)
   }
 }
+
+mspOutputParser[MspCmd.MSP_ECHO] = parseString
 
 mspOutputParser[MspCmd.MSP_REBOOT] = parseString
 
