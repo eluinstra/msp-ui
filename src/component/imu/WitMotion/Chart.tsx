@@ -7,7 +7,7 @@ import { sample } from "rxjs/operators"
 import { imuResponse$, registerPort, unregisterPort } from '@/component/imu/WitMotion/Driver'
 import { isOpen } from "@/component/serialport/SerialPortDriver"
 
-const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
+const imuAcc= (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 180
 
 export const Chart = props => {
   const { serialPort } = props
@@ -61,11 +61,10 @@ export const Chart = props => {
   const [imu$] = useState(imuResponse$
     .pipe(
       sample(interval(500)),
-      map(imuMsgAngle => {
+      map(imuMsgAcc => {
         return {
-          roll: imuAngle(imuMsgAngle.RollH, imuMsgAngle.RollL),
-          pitch: imuAngle(imuMsgAngle.PitchH, imuMsgAngle.PitchL),
-          yaw: imuAngle(imuMsgAngle.YawH, imuMsgAngle.YawL)
+          ax: imuAcc(imuMsgAcc.AxH, imuMsgAcc.AxL),
+          ay: imuAcc(imuMsgAcc.AyH, imuMsgAcc.AyL)
         }
       })
     )
