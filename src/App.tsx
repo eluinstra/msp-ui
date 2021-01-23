@@ -20,7 +20,6 @@ import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { WitMotion } from '@/page/WitMotion'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
-import { UseWitMotionDriver } from '@/component/witmotion/WitMotionDriver'
 import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
 import { useStatefulObservable } from '@/common/RxTools'
 import { map } from 'rxjs/operators';
@@ -119,19 +118,18 @@ const useStyles = makeStyles((theme) => ({
 export const App = () => {
   const classes = useStyles()
   const { content, toolbar, root } = classes
-  const [ serialPort1 ] = useState(createSerialPort())
-  const [ serialPort2 ] = useState(createSerialPort())
+  const [ serialPort ] = useState(createSerialPort())
   return (
   <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
     <CssBaseline />
     <ThemeProvider theme={theme}>
       <div className={root}>
-        <MSPAppBar classes={classes} serialPort1={serialPort1} serialPort2={serialPort2} />
+        <MSPAppBar classes={classes} serialPort={serialPort} />
         <Router>
-          <MSPDrawer classes={classes} serialPort={serialPort1} />
+          <MSPDrawer classes={classes} serialPort={serialPort} />
           <main className={content}>
             <Toolbar className={toolbar} />
-            <MSPRouter serialPort1={serialPort1} serialPort2={serialPort2} />
+            <MSPRouter serialPort={serialPort} />
           </main>
         </Router>
       </div>
@@ -141,7 +139,7 @@ export const App = () => {
 }
 
 const MSPAppBar = props => {
-  const { classes, serialPort1, serialPort2 } = props
+  const { classes, serialPort } = props
   const { appBar, toolbar, title } = classes
   return (
     <AppBar position="fixed" className={appBar}>
@@ -149,8 +147,7 @@ const MSPAppBar = props => {
         <Typography variant="h6" className={title}>
           Alpha|BOT
         </Typography>
-        <SerialPortConnect serialPort={serialPort1} />
-        <SerialPortConnect serialPort={serialPort2} />
+        <SerialPortConnect serialPort={serialPort} />
       </Toolbar>
     </AppBar>
   )
@@ -199,7 +196,6 @@ const MSPDrawer = props => {
           <React.Fragment>
             <MenuListItem text="IMU" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
             <MenuListItem text="Wit Motion" to="/wit-motion" mode={Mode.IMU} setMode={setMode} />
-            <MenuListItem text="Redis Chart" to="/redis-chart" mode={Mode.IMU} setMode={setMode} />
           </React.Fragment>
         )}
       </div>
@@ -219,7 +215,7 @@ const MenuListItem = props => {
 }
 
 const MSPRouter = props => {
-  const { serialPort1, serialPort2 } = props
+  const { serialPort } = props
   return (
     <Switch>
       <Route path="/settings">
@@ -238,19 +234,16 @@ const MSPRouter = props => {
         <Msp />
       </Route>
       <Route path="/msp-input">
-        <MspInputPage serialPort={serialPort1} />
+        <MspInputPage serialPort={serialPort} />
       </Route>
       <Route path="/msp-chart">
-        <MspChartPage serialPort={serialPort1} />
+        <MspChartPage serialPort={serialPort} />
       </Route>
       <Route path="/imu">
         <Imu />
       </Route>
       <Route path="/wit-motion">
-        <WitMotion serialPort={serialPort1} />
-      </Route>
-      <Route path="/redis-chart">
-        <UseWitMotionDriver serialPort1={serialPort1} serialPort2={serialPort2} />
+        <WitMotion serialPort={serialPort} />
       </Route>
       <Route path="/gps">
         <GPSPage />

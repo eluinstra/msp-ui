@@ -1,41 +1,27 @@
-import { Notification } from 'electron'
 import React, { useState, useEffect } from 'react'
-import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
-import { distinctUntilChanged, map, filter, tap, startWith, mergeMap, mapTo } from 'rxjs/operators'
-import { useStatefulObservable, useObservableBehaviour, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { MspMsg, mspRequest, mspResponse$, registerPort, unregisterPort } from '@/component/msp/MspDriver'
+import { map, filter, mapTo } from 'rxjs/operators'
+import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
+import { createDriver, getMspResponse$, MspMsg, mspRequest, useDriverEffect } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
-import { Button, createStyles, FormControl, makeStyles, NativeSelect, TextField, Theme } from '@material-ui/core'
-import { useSnackbar } from 'notistack';
+import { Button, FormControl, TextField } from '@material-ui/core'
+import { useSnackbar } from 'notistack'
 import { Autocomplete } from '@material-ui/lab'
-import { isOpen } from '../serialport/SerialPortDriver'
 
-const notEmpty = v => v != ""
+const notEmpty = v => !!v
 
 export const MspInput = props => {
   const { serialPort } = props
-  const { enqueueSnackbar } = useSnackbar();
-  const [cmd, setCmd] = useState(null);
-  const [inputValue, setInputValue] = useState('');
+  const [driver] = useState(createDriver(serialPort))
+  const { enqueueSnackbar } = useSnackbar()
+  const [cmd, setCmd] = useState(null)
+  const [payload, setPayload] = useState('')
   const [mspClick, mspClick$] = useObservableEvent()
-  const mspMsg = useStatefulObservable<MspMsg>(mspResponse$
+  const mspMsg = useStatefulObservable<MspMsg>(getMspResponse$(driver)
     .pipe(
-      map(mspMsg  => viewMspMsg(mspMsg))
+      map(viewMspMsg)
   ))
-  useEffect(() => {
-    const sub = serialPort
-      .pipe(
-        filter(p => isOpen(p)),
-      )
-      .subscribe(p => {
-        registerPort(p)
-      })
-    return () => {
-      sub.unsubscribe()
-      unregisterPort(serialPort)
-    }
-  }, [])
+  useEffect(useDriverEffect(driver, enqueueSnackbar), [])
   useEffect(() => {
     const sub = mspClick$
       .pipe(
@@ -44,27 +30,28 @@ export const MspInput = props => {
       )
       .subscribe(val => {
         try {
-          mspRequest(serialPort,val,[])
+          mspRequest(driver,val,payload)
         } catch(e) {
           console.log(e)
           enqueueSnackbar(e.message, { variant: 'error' })
         }
       })
     return () => sub.unsubscribe()
-  }, [mspClick$]);
+  }, [mspClick$])
   return (
     <React.Fragment>
       <FormControl>
         <Autocomplete
           value={cmd}
-          onChange={(_, v: string) => { setCmd(v) }}
-          inputValue={inputValue}
-          onInputChange={(_, v) => setInputValue(v)}
+          onChange={(_, v: string) => { setPayload(''); setCmd(v) }}
           options={Object.keys(MspCmd)}
           getOptionLabel={option => option}
-          renderInput={params => <TextField {...params} variant="standard" />}
+          renderInput={params => <TextField label="cmd" {...params} variant="standard" />}
           style={{ width: 350 }}
         />
+      </FormControl>
+      <FormControl>
+          <TextField label="value" value={payload} onChange={e => setPayload(e.target.value)} variant="standard" />
       </FormControl>
       <FormControl>
         <Button variant="contained" onClick={_ => mspClick()}>MSP Go</Button>

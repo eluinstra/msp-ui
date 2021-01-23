@@ -1,10 +1,11 @@
-export const MspCmd =
-{
+export const MspCmd = {
   MSP_API_VERSION:                 1,    //out message *
   MSP_FC_VARIANT:                  2,    //out message *
   MSP_FC_VERSION:                  3,    //out message *
   MSP_BOARD_INFO:                  4,    //out message *
   MSP_BUILD_INFO:                  5,    //out message *
+  
+  MSP_ECHO:                        9,   //in/out message
   
   MSP_NAME:                        10,   //out message          Returns user set board name - betaflight
   MSP_SET_NAME:                    11,   //in message           Sets board name - betaflight
@@ -247,12 +248,11 @@ export const MspCmd =
   MSP_RTC:                  247,    //out message         Gets the RTC clock
   MSP_SET_BOARD_INFO:       248,    //in message          Sets the board information for this board
   MSP_SET_SIGNATURE:        249,    //in message          Sets the signature of the board and serial number
-};
+}
 
-export const mspCmdHeader = '$X<';
+export const mspCmdHeader: string = '$X<'
 
-export const mspMessageType =
-{
+export const mspMessageType = {
   OUT: "<",
   IN: ">",
   ERROR: "!"

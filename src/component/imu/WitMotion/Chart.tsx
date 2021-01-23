@@ -7,8 +7,7 @@ import { sample } from "rxjs/operators"
 import { imuResponse$, registerPort, unregisterPort } from '@/component/imu/WitMotion/Driver'
 import { isOpen } from "@/component/serialport/SerialPortDriver"
 
-const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 180
-const imuAcc = (h: number, l:number) => ((h << 8) | (l & 0xFF)) / 32768 * 16;
+const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
 
 export const Chart = props => {
   const { serialPort } = props
@@ -17,29 +16,26 @@ export const Chart = props => {
     datasets: [
       {
         type: "line",
-        label: "X",
+        label: "Roll",
         backgroundColor: "green",
         borderWidth: "2",
         lineTension: 0.45,
-        fill: false,
         data: []
       },
       {
         type: "line",
-        label: "Y",
+        label: "Pitch",
         backgroundColor: "blue",
         borderWidth: "2",
         lineTension: 0.45,
-        fill: false,
         data: []
       },
       {
         type: "line",
-        label: "Z",
+        label: "Yaw",
         backgroundColor: "cyan",
         borderWidth: "2",
         lineTension: 0.45,
-        fill: false,
         data: []
       }
     ]
@@ -52,7 +48,7 @@ export const Chart = props => {
     },
     plugins: {
       streaming: {
-        delay: 100,
+        delay: 2000,
       }
     },
     events: ['click'],
@@ -64,16 +60,12 @@ export const Chart = props => {
   })
   const [imu$] = useState(imuResponse$
     .pipe(
-      sample(interval(100)),
-      map(imuMsgAcc => {
-        console.log("--> "+ imuAcc(imuMsgAcc.AxH, imuMsgAcc.AxL));
+      sample(interval(500)),
+      map(imuMsgAngle => {
         return {
-          // roll: imuAngle(imuMsgAngle.RollH, imuMsgAngle.RollL),
-          // pitch: imuAngle(imuMsgAngle.PitchH, imuMsgAngle.PitchL),
-          // yaw: imuAngle(imuMsgAngle.YawH, imuMsgAngle.YawL)
-          ax: imuAcc(imuMsgAcc.AxH, imuMsgAcc.AxL),
-          ay: imuAcc(imuMsgAcc.AyH, imuMsgAcc.AyL)
-          //az: imuAcc(imuMsgAcc.AzH, imuMsgAcc.AzL)
+          roll: imuAngle(imuMsgAngle.RollH, imuMsgAngle.RollL),
+          pitch: imuAngle(imuMsgAngle.PitchH, imuMsgAngle.PitchL),
+          yaw: imuAngle(imuMsgAngle.YawH, imuMsgAngle.YawL)
         }
       })
     )
@@ -103,7 +95,7 @@ export const Chart = props => {
       })
     })
     return () => sub.unsubscribe()
-  }, [imu$])
+  }, [])
   return (
     <Line data={state} options={options} height={150} />
   )

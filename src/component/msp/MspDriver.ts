@@ -1,6 +1,7 @@
-import { fromEvent, Subject } from 'rxjs'
-import { mspCmdHeader } from '@/component/msp/MspProtocol';
-import { share, tap } from 'rxjs/operators';
+import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs'
+import { mspCmdHeader } from '@/component/msp/MspProtocol'
+import { filter, share, tap } from 'rxjs/operators'
+import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver'
 
 export enum MspState {
   MSP_IDLE,
@@ -22,16 +23,15 @@ export interface MspMsg {
   checksum: number
 }
 
-const mspMsg : MspMsg = {
-  state: MspState.MSP_IDLE,
-  flag: 0,
-  cmd: 0,
-  length: 0,
-  buffer: [],
-  checksum: 0
+export interface Driver {
+  serialPort: BehaviorSubject<any>,
+  mspMsg: MspMsg,
+  mspResponse$: Subject<MspMsg>
 }
 
-const hexInt16 = v => [v & 0x00FF, v & 0xFF00]
+export const getMspResponse$ = (driver: Driver) => driver.mspResponse$
+
+const hexInt16 = (v: number) => [v & 0x00FF, v & 0xFF00]
 
 const getFlag = v => v[0]
 const getCmd = v => v[1] + (v[2] << 8)
@@ -47,48 +47,78 @@ const parseCmd = (b: number[]) => {
 
 const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0)
 
-function crc8_dvb_s2(crc, num) {
+const crc8_dvb_s2 = (crc, num) => {
   crc = (crc ^ num) & 0xFF
   for (let i = 0; i < 8; i++)
-    crc = ((crc & 0x80) != 0) 
+    crc = ((crc & 0x80 & 0xFF) != 0) 
       ? ((crc << 1) ^ 0xD5) & 0xFF
       : (crc << 1) & 0xFF
   return crc
 }
 
-function command(cmd, payload) {
+const command = (cmd: number, payload: string) => {
   const flag = 0
-  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.size),payload)
-  return [].concat(mspCmdHeader.split("").map(ch => ch.charCodeAt(0)),content,[checksum(content)])
+  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.length),payload.split('').map(ch => ch.charCodeAt(0)))
+  return [].concat(mspCmdHeader.split('').map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
-export const mspRequest = (serialPort, cmd, payload) => serialPort?.value.write(Buffer.from(command(cmd, payload)))
+export const getPortName = (driver: Driver) => getPath(driver.serialPort)
 
-export const mspResponseSubject = new Subject<MspMsg>()
+export const mspRequest = (driver: Driver, cmd: number, payload: string) => write(driver.serialPort, Buffer.from(command(cmd, payload)))
 
-export const mspResponse$ = mspResponseSubject
-  .pipe(
-    tap(e => console.log("RESPONSE")),
-    share()
-  )
+const createMspResponse$ = () => new Subject<MspMsg>()
 
-export const registerPort = (serialPort) =>
-  serialPort?.value.on('data', function (data) {
+export const createDriver = (serialPort: BehaviorSubject<any>) : Driver => {
+  return {
+    serialPort: serialPort,
+    mspMsg: {
+      state: MspState.MSP_IDLE,
+      flag: 0,
+      cmd: 0,
+      length: 0,
+      buffer: [],
+      checksum: 0
+    },
+    mspResponse$: createMspResponse$()
+  }
+}
+
+export const useDriverEffect = (driver: Driver, enqueueSnackbar?) => {
+  const sub = getPort$(driver.serialPort)
+    .pipe(
+      filter(isOpen),
+    )
+    .subscribe(p => {
+      startDriver(driver, enqueueSnackbar)
+    })
+  return () => {
+    sub.unsubscribe()
+    stopDriver(driver)
+  }
+}
+
+const startDriver = (driver: Driver, enqueueSnackbar?) => {
+  const { serialPort, mspMsg, mspResponse$ } = driver
+  registerFunction(serialPort, function (data) {
     for (let i = 0; i < data.length; i++) {
-      parseMSPCommand(data.readInt8(i))
+      parseMSPCommand(driver,data.readInt8(i))
       if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
-        mspResponseSubject.next({...mspMsg})
+        mspResponse$.next({...mspMsg})
         mspMsg.state = MspState.MSP_IDLE
       } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
-        mspResponseSubject.error(new Error('MSP error received!'))
+        //mspResponse$.error(new Error('MSP error received!'))
+        mspResponse$.next({...mspMsg})
+        if (enqueueSnackbar) enqueueSnackbar('MSP error received!', { variant: 'error' })
         mspMsg.state = MspState.MSP_IDLE
       }
     }
   })
+}
 
-export const unregisterPort = (serialPort) => serialPort?.value.on('data', function (data) {})
+const stopDriver = (driver: Driver) => registerFunction(driver.serialPort, function (data) {})
 
-function parseMSPCommand(num) {
+const parseMSPCommand = (driver, num) => {
+  const { mspMsg } = driver
   //console.log(num & 0xFF)
   //console.log(hexInt8(num & 0xFF))
   switch (mspMsg.state) {
