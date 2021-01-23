@@ -16,7 +16,7 @@ export const Chart = props => {
     datasets: [
       {
         type: "line",
-        label: "Roll",
+        label: "Accelero X",
         backgroundColor: "green",
         borderWidth: "2",
         lineTension: 0.45,
@@ -24,7 +24,7 @@ export const Chart = props => {
       },
       {
         type: "line",
-        label: "Pitch",
+        label: "Accelero Y",
         backgroundColor: "blue",
         borderWidth: "2",
         lineTension: 0.45,
@@ -32,7 +32,7 @@ export const Chart = props => {
       },
       {
         type: "line",
-        label: "Yaw",
+        label: "Accelero Z",
         backgroundColor: "cyan",
         borderWidth: "2",
         lineTension: 0.45,
@@ -61,11 +61,11 @@ export const Chart = props => {
   const [imu$] = useState(imuResponse$
     .pipe(
       sample(interval(500)),
-      map(imuMsgAngle => {
+      map(imuMsgAcc => {
         return {
-          roll: imuAngle(imuMsgAngle.RollH, imuMsgAngle.RollL),
-          pitch: imuAngle(imuMsgAngle.PitchH, imuMsgAngle.PitchL),
-          yaw: imuAngle(imuMsgAngle.YawH, imuMsgAngle.YawL)
+          ax: imuAngle(imuMsgAcc.AxH, imuMsgAcc.AxL),
+          ay: imuAngle(imuMsgAcc.AyH, imuMsgAcc.AyL),
+          az: imuAngle(imuMsgAcc.AzH, imuMsgAcc.AzL)
         }
       })
     )
