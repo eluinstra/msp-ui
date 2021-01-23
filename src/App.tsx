@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
-import { ArrowBackIos as ArrowBackIosIcon, BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon,
+import { ArrowBackIos as ArrowBackIosIcon, AlbumOutlined as AlbumOutlined, BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon,
           Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons'
 import { blueGrey, orange } from "@material-ui/core/colors";
 import { useLocation } from 'react-router'
@@ -18,6 +18,7 @@ import { MspChartPage } from '@/page/MspChart'
 import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
+import { UseWitMotionDriver } from '@/component/witmotion/WitMotionDriver'
 import { WitMotion } from '@/page/WitMotion'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
 import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
@@ -118,18 +119,19 @@ const useStyles = makeStyles((theme) => ({
 export const App = () => {
   const classes = useStyles()
   const { content, toolbar, root } = classes
-  const [ serialPort ] = useState(createSerialPort())
+  const [ serialPort1 ] = useState(createSerialPort())
+  const [ serialPort2 ] = useState(createSerialPort())
   return (
   <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
     <CssBaseline />
     <ThemeProvider theme={theme}>
       <div className={root}>
-        <MSPAppBar classes={classes} serialPort={serialPort} />
+        <MSPAppBar classes={classes} serialPort1={serialPort1} serialPort2={serialPort2} /> 
         <Router>
-          <MSPDrawer classes={classes} serialPort={serialPort} />
+          <MSPDrawer classes={classes} serialPort={serialPort1} />
           <main className={content}>
             <Toolbar className={toolbar} />
-            <MSPRouter serialPort={serialPort} />
+            <MSPRouter serialPort1={serialPort1} serialPort2={serialPort2} />
           </main>
         </Router>
       </div>
@@ -139,7 +141,7 @@ export const App = () => {
 }
 
 const MSPAppBar = props => {
-  const { classes, serialPort } = props
+  const { classes, serialPort1, serialPort2 } = props
   const { appBar, toolbar, title } = classes
   return (
     <AppBar position="fixed" className={appBar}>
@@ -147,7 +149,8 @@ const MSPAppBar = props => {
         <Typography variant="h6" className={title}>
           Alpha|BOT
         </Typography>
-        <SerialPortConnect serialPort={serialPort} />
+        <SerialPortConnect serialPort={serialPort1} />
+        <SerialPortConnect serialPort={serialPort2} />
       </Toolbar>
     </AppBar>
   )
@@ -196,6 +199,7 @@ const MSPDrawer = props => {
           <React.Fragment>
             <MenuListItem text="IMU" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
             <MenuListItem text="Wit Motion" to="/wit-motion" mode={Mode.IMU} setMode={setMode} />
+            <MenuListItem text="Darting" icon={<AlbumOutlined />} to="/darting" mode={Mode.IMU} setMode={setMode} />
           </React.Fragment>
         )}
       </div>
@@ -215,7 +219,7 @@ const MenuListItem = props => {
 }
 
 const MSPRouter = props => {
-  const { serialPort } = props
+  const { serialPort1, serialPort2 } = props
   return (
     <Switch>
       <Route path="/settings">
@@ -234,16 +238,19 @@ const MSPRouter = props => {
         <Msp />
       </Route>
       <Route path="/msp-input">
-        <MspInputPage serialPort={serialPort} />
+        <MspInputPage serialPort={serialPort1} />
       </Route>
       <Route path="/msp-chart">
-        <MspChartPage serialPort={serialPort} />
+        <MspChartPage serialPort={serialPort1} />
       </Route>
       <Route path="/imu">
         <Imu />
       </Route>
       <Route path="/wit-motion">
-        <WitMotion serialPort={serialPort} />
+        <WitMotion serialPort={serialPort1} />
+      </Route>
+      <Route path="/darting">
+        <UseWitMotionDriver serialPort1={serialPort1} serialPort2={serialPort2} />
       </Route>
       <Route path="/gps">
         <GPSPage />
