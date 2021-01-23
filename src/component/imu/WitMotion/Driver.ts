@@ -116,15 +116,15 @@ export const imuMsgAngle: IImuMsgAngle = {
 
 export default imuMsgAngle;
 
-export const imuResponse$ = new Subject<IImuMsgAngle>();
+export const imuResponse$ = new Subject<IImuMsgAcc>();
 export const registerPort = (serialPort) => {
   serialPort?.on('data', function (data) {
     let counter = 0
     for (let i = 0; i < data.length; i++) {
       //if 0x55 is found unpack messages till next 0x55
-      parseIMUAngle(data.readInt8(i))
+      parseIMUAcc(data.readInt8(i))
       if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-        imuResponse$.next(imuMsgAngle)
+        imuResponse$.next(imuMsgAcc)
         imuMsg.state = ImuState.IMU_IDLE
       } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
         imuResponse$.error(new Error('MSP error received!'))
@@ -173,35 +173,43 @@ function parseIMUTime(num: number) {
   }
 }
 
-function parseIMUData(num: number) {
-  switch (num) {
-    case ImuState.IMU_PREFIX:
-      if (!messageStarted) {
-        messageStarted = true
-        imuMsgAcc.enable = false
+function parseIMUAcc(num: number) {
+  switch (parseState) {
+    case 0:
+      imuMsg.state = ImuState.IMU_IDLE;
+      if (num == ImuState.IMU_PREFIX)
+        parseState = 1
+      break;
+    case 1:
+      if ([ImuState.IMU_TIME, ImuState.IMU_ACC, ImuState.IMU_ANGULAR, ImuState.IMU_ANGLE, ImuState.IMU_MAGN].includes(num))
+      {
+        cmd = num
+        parseState = 2
+        datasegmentcounter = 0
       }
+      else
+        parseState = 0
       break;
-    case ImuState.IMU_ACC:
-      messageStarted = false
-      imuMsgAcc.enable = true
-      datasegmentcounter = 0;
+    case 2:
+      datasegmentcounter++;
+      if (cmd == ImuState.IMU_ACC) {
+        switch (datasegmentcounter) {
+          case 1: imuMsgAcc.AxL = num; break;
+          case 2: imuMsgAcc.AxH = num; break;
+          case 3: imuMsgAcc.AyL = num; break;
+          case 4: imuMsgAcc.AyH = num; break;
+          case 5: imuMsgAcc.AzL = num; break;
+          case 6: imuMsgAcc.AzH = num; break;
+          case 7: imuMsgAcc.TL = num; break;
+          case 8: imuMsgAcc.TH = num; break;
+          case 9: imuMsgAcc.SUM = num; break;
+        }
+        if (datasegmentcounter == 9)
+          imuMsg.state = ImuState.IMU_COMMAND_RECEIVED;
+      }
+      if (datasegmentcounter == 9)
+        parseState = 0
       break;
-  }
-  datasegmentcounter++;
-  if (imuMsgAcc.enable) {
-
-    switch (datasegmentcounter) {
-      case 1: break;
-      case 2: imuMsgAcc.AxL = num; break;
-      case 3: imuMsgAcc.AxH = num; break;
-      case 4: imuMsgAcc.AyL = num; break;
-      case 5: imuMsgAcc.AyH = num; break;
-      case 6: imuMsgAcc.AzL = num; break;
-      case 7: imuMsgAcc.AzH = num; break;
-      case 8: imuMsgAcc.TL = num; break;
-      case 9: imuMsgAcc.TH = num; break;
-      case 10: imuMsgAcc.SUM = num; break;
-    }
   }
 }
 
