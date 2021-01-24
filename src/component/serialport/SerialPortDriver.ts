@@ -10,7 +10,7 @@ export const getPort$ = serialPort => serialPort
 
 export const getPath = serialPort => serialPort.value?.path
 
-export const openPort = (serialPort, port, baudrate) => serialPort.next(new SerialPort(port, { baudRate: baudrate }))
+export const openPort = (serialPort, port, baudrate) => serialPort.next(new SerialPort(port, { baudRate: baudrate}))
 
 export const registerFunction = (serialPort, f) => serialPort.value?.on('data', f)
 
@@ -19,7 +19,11 @@ export const isOpen = (serialPort) => Boolean(serialPort)
 export const write = (serialPort, value) => serialPort.value.write(value)
 
 export const closePort = (serialPort) => {
-  serialPort.value?.close()
+  console.log("Open:"+serialPort.value?.isOpen)
+  if (serialPort.value?.isOpen)
+  {
+    serialPort.value?.close()
+  }
   serialPort.next(null)
 }
 

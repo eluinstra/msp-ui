@@ -21,8 +21,25 @@ const createWindow = () => {
 
 app.whenReady().then(createWindow)
 
-app.on('window-all-closed', () => {
+app.setUserTasks([
+  {
+    program: process.execPath,
+    arguments: '--new-window',
+    iconPath: process.execPath,
+    iconIndex: 0,
+    title: 'DartsInsight',
+    description: ''
+  }
+])
+
+app.on('before-quit', () => {
+  app.removeAllListeners('close');
+});
+
+app.on('window-all-closed', async () => {
+  
   if (process.platform !== 'darwin') {
+    app.setUserTasks([])
     app.quit()
   }
 })
