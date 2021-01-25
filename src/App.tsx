@@ -20,6 +20,9 @@ import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { UseWitMotionDriver } from '@/component/witmotion/WitMotionDriver'
 import { ExampleTable } from '@/component/witmotion/ExampleTable'
+import { ExampleChart2 } from '@/component/witmotion/ExampleChart2'
+import { ExampleChart4 } from '@/component/witmotion/ExampleChart4'
+import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
 import { WitMotion } from '@/page/WitMotion'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
 import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
@@ -202,6 +205,9 @@ const MSPDrawer = props => {
             <MenuListItem text="Wit Motion" to="/wit-motion" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Darting" icon={<AlbumOutlined />} to="/darting" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Statistics" to="/dartstats" mode={Mode.IMU} setMode={setMode} />
+            <MenuListItem text="Example2" to="/example2" mode={Mode.IMU} setMode={setMode} />
+            <MenuListItem text="Example4" to="/example4" mode={Mode.IMU} setMode={setMode} />
+            <MenuListItem text="Example5" to="/example5" mode={Mode.IMU} setMode={setMode} />
           </React.Fragment>
         )}
       </div>
@@ -256,6 +262,15 @@ const MSPRouter = props => {
       </Route>
       <Route path="/dartstats">
         <ExampleTable />
+      </Route>
+      <Route path="/example2">
+        <ExampleChart2 />
+      </Route>
+      <Route path="/example4">
+        <ExampleChart4 />
+      </Route>
+      <Route path="/example5">
+        <ExampleChart5 />
       </Route>
       <Route path="/gps">
         <GPSPage />
