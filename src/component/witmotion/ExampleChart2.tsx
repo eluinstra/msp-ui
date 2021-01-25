@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
+import { AppBar, CssBaseline, Drawer, Grid, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
 import { llenAsync, lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
 import ReactApexChart from 'react-apexcharts'
 
@@ -74,8 +75,16 @@ export const ExampleChart2 = props => {
   }
   return (
     <div>
-      <ReactApexChart options={options.options} series={options.series} type="line" height={320} />
-      <ReactApexChart options={options2.options} series={options2.series} type="line" height={320} />
+      <React.Fragment>
+        <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <ReactApexChart options={options.options} series={options.series} type="line" height={320} />
+        </Grid>
+        <Grid item xs={12}>
+          <ReactApexChart options={options2.options} series={options2.series} type="line" height={320} />
+        </Grid>
+        </Grid>
+      </React.Fragment>
     </div>
 
   )

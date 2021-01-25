@@ -137,7 +137,7 @@ export const ExampleChart4 = props => {
       }])
       
       
-    }, 1000);
+    }, 2000);
     
     
 

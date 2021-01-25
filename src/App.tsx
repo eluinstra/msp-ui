@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
-import { ArrowBackIos as ArrowBackIosIcon, AlbumOutlined as AlbumOutlined, BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon,
+import { ArrowBackIos as ArrowBackIosIcon, AlbumOutlined as AlbumOutlined, BatteryStd as BatteryStdIcon, Build as BuildIcon,TrackChanges as TrackChangesIcon,
+          GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon, 
           Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons'
 import { blueGrey, orange } from "@material-ui/core/colors";
 import { useLocation } from 'react-router'
@@ -24,6 +25,7 @@ import { ExampleChart2 } from '@/component/witmotion/ExampleChart2'
 import { ExampleChart4 } from '@/component/witmotion/ExampleChart4'
 import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
 import { ExampleChart6 } from '@/component/witmotion/ExampleChart6'
+import { MainContainer } from '@/component/witmotion/MainContainer'
 import { AudioPlayExample } from '@/component/witmotion/AudioPlayExample'
 import { WitMotion } from '@/page/WitMotion'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
@@ -153,7 +155,7 @@ const MSPAppBar = props => {
     <AppBar position="fixed" className={appBar}>
       <Toolbar className={toolbar}>
         <Typography variant="h6" className={title}>
-          Alpha|BOT
+          BOT4Darts
         </Typography>
         <SerialPortConnect serialPort={serialPort1} />
         <SerialPortConnect serialPort={serialPort2} />
@@ -185,27 +187,28 @@ const MSPDrawer = props => {
                 <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} setMode={setMode} />
                 <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} setMode={setMode} />
                 <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} setMode={setMode} />
-                <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} setMode={setMode} />
-                <MenuListItem text="MSP" to="/msp" icon={<InputIcon />} mode={Mode.MSP} setMode={setMode} />
-                <MenuListItem text="IMU" to="/imu" icon={<OpenWithIcon />} mode={Mode.IMU} setMode={setMode} />
+                {/* <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} setMode={setMode} /> */}
+                {/* <MenuListItem text="MSP" to="/msp" icon={<InputIcon />} mode={Mode.MSP} setMode={setMode} /> */}
+                <MenuListItem text="DSA" to="/imu" icon={<TrackChangesIcon />} mode={Mode.IMU} setMode={setMode} />
               </React.Fragment>
             )}
-            <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} setMode={setMode} />
+            {/* <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} setMode={setMode} /> */}
             <MenuListItem text="About" to="/about" icon={<InfoIcon />} setMode={setMode} />
           </List>
         }
-        {mode == Mode.MSP && (
+        {/* {mode == Mode.MSP && (
           <React.Fragment>
             <MenuListItem text="MSP" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
             <MenuListItem text="Input" to="/msp-input" icon={<InputIcon />} mode={Mode.MSP} setMode={setMode} />
             <MenuListItem text="Chart" to="/msp-chart" icon={<ShowChartIcon />} mode={Mode.MSP} setMode={setMode} />
           </React.Fragment>
-        )}
+        )} */}
         {mode == Mode.IMU && (
           <React.Fragment>
-            <MenuListItem text="IMU" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
-            <MenuListItem text="Wit Motion" to="/wit-motion" mode={Mode.IMU} setMode={setMode} />
+            <MenuListItem text="Do Some Analytics" to="/" icon={<TrackChangesIcon />} setMode={setMode} />
+            <MenuListItem text="Live Tracker" to="/wit-motion" icon={<ShowChartIcon />} mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Darting" icon={<AlbumOutlined />} to="/darting" mode={Mode.IMU} setMode={setMode} />
+            <MenuListItem text="Main Container" to="/maincontainer" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Statistics" to="/dartstats" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Example2" to="/example2" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Example4" to="/example4" mode={Mode.IMU} setMode={setMode} />
@@ -246,7 +249,7 @@ const MSPRouter = props => {
       <Route path="/power">
         <PowerAndBatteryPage />
       </Route>
-      <Route path="/msp">
+      {/* <Route path="/msp">
         <Msp />
       </Route>
       <Route path="/msp-input">
@@ -254,7 +257,7 @@ const MSPRouter = props => {
       </Route>
       <Route path="/msp-chart">
         <MspChartPage serialPort={serialPort1} />
-      </Route>
+      </Route> */}
       <Route path="/imu">
         <Imu />
       </Route>
@@ -263,6 +266,9 @@ const MSPRouter = props => {
       </Route>
       <Route path="/darting">
         <UseWitMotionDriver serialPort1={serialPort1} serialPort2={serialPort2} />
+      </Route>
+      <Route path="/maincontainer">
+        <MainContainer />
       </Route>
       <Route path="/dartstats">
         <ExampleTable />

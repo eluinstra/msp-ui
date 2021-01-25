@@ -397,24 +397,7 @@ export const ExampleTable = props => {
     }
   return (
     <div>
-    <div className="row">
-      <div className="col-md-4">
-        <div id="chart-spark1">
-    <ReactApexChart options={options.options} series={options.series} type="area" height={160} />
-  </div>
-      </div>
-      <div className="col-md-4">
-        <div id="chart-spark2">
-    <ReactApexChart options={options.optionsSpark2} series={options.seriesSpark2} type="area" height={160} />
-  </div>
-      </div>
-      <div className="col-md-4">
-        <div id="chart-spark3">
-    <ReactApexChart options={options.optionsSpark3} series={options.seriesSpark3} type="area" height={160} />
-  </div>
-      </div>
-    </div>
-  
+     
     <div className="row">
       <table>
         <thead>
