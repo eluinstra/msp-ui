@@ -22,14 +22,11 @@ export const ExampleChart6 = props => {
   //const [data, updateData] = useState([1, 2, 3, 4, 5, 6]);
   const [state] = useState({
     series: [{
-      name: 'Series 1',
-      data: [80, 50, 30, 40, 100, 20],
+      name: 'Person 1',
+      data: [60, 50, 70, 80, 100, 90],
     }, {
-      name: 'Series 2',
-      data: [20, 30, 40, 80, 20, 80],
-    }, {
-      name: 'Series 3',
-      data: [44, 76, 78, 13, 43, 10],
+      name: 'Person 2',
+      data: [70, 60, 65, 50, 80, 80],
     }],
     options: {
       chart: {
@@ -43,7 +40,7 @@ export const ExampleChart6 = props => {
         }
       },
       title: {
-        text: 'Radar Chart - Multi Series'
+        text: 'Radar Chart - Dart Performance'
       },
       stroke: {
         width: 2
@@ -55,7 +52,7 @@ export const ExampleChart6 = props => {
         size: 0
       },
       xaxis: {
-        categories: ['2011', '2012', '2013', '2014', '2015', '2016']
+        categories: ['TC', 'LD', 'StS', 'AC', 'ME', 'UBS']
       }
     }
   })
