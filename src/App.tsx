@@ -23,6 +23,7 @@ import { ExampleTable } from '@/component/witmotion/ExampleTable'
 import { ExampleChart2 } from '@/component/witmotion/ExampleChart2'
 import { ExampleChart4 } from '@/component/witmotion/ExampleChart4'
 import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
+import { ExampleChart6 } from '@/component/witmotion/ExampleChart6'
 import { WitMotion } from '@/page/WitMotion'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
 import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
@@ -208,6 +209,7 @@ const MSPDrawer = props => {
             <MenuListItem text="Example2" to="/example2" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Example4" to="/example4" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Example5" to="/example5" mode={Mode.IMU} setMode={setMode} />
+            <MenuListItem text="Example6" to="/example6" mode={Mode.IMU} setMode={setMode} />
           </React.Fragment>
         )}
       </div>
@@ -271,6 +273,9 @@ const MSPRouter = props => {
       </Route>
       <Route path="/example5">
         <ExampleChart5 />
+      </Route>
+      <Route path="/example6">
+        <ExampleChart6 />
       </Route>
       <Route path="/gps">
         <GPSPage />
