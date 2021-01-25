@@ -1,0 +1,170 @@
+// import React, { useEffect, useState, Component } from 'react'
+// import ReactDOM from 'react'
+// import { interval } from 'rxjs'
+// import { map, sample } from 'rxjs/operators'
+// import { llenAsync, lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
+// import ReactApexChart from 'react-apexcharts'
+// import { SentimentSatisfiedAltTwoTone } from '@material-ui/icons'
+
+// var lastDate = 0;
+// let XAXISRANGE = 777600000
+// var TICKINTERVAL = 86400000
+
+// var data = [];
+
+// function getDayWiseTimeSeries(baseval, count, yrange) {
+//   var i = 0;
+//   while (i < count) {
+//     var x = baseval;
+//     var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+
+//     data.push({
+//       x, y
+//     });
+//     lastDate = baseval
+//     baseval += TICKINTERVAL;
+//     i++;
+//   }
+// }
+
+// getDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 10, {
+//   min: 10,
+//   max: 90
+// })
+
+// function generateDayWiseTimeSeries(baseval, count, yrange) {
+//   var i = 0;
+//   var series = [];
+//   while (i < count) {
+//     var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+
+//     series.push([baseval, y]);
+//     baseval += 86400000;
+//     i++;
+//   }
+//   return series;
+// }
+
+// function getNewSeries(baseval, yrange) {
+//   console.log(""+baseval);
+//   var newDate = baseval + TICKINTERVAL;
+//   lastDate = newDate
+
+//   for(var i = 0; i< data.length - 10; i++) {
+//     // IMPORTANT
+//     // we reset the x and y of the data which is out of drawing area
+//     // to prevent memory leaks
+//     data[i].x = newDate - XAXISRANGE - TICKINTERVAL
+//     data[i].y = 0
+//   }
+
+//   data.push({
+//     x: newDate,
+//     y: Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
+//   })
+// }
+
+// function resetData(){
+//   // Alternatively, you can also reset the data at certain intervals to prevent creating a huge series 
+//   data = data.slice(data.length - 10, data.length);
+// }
+
+// useEffect(() => {
+//   setInterval(() => {
+//     getNewSeries(lastDate, {
+//       min: 10,
+//       max: 90
+//     })
+
+//     setState(data)
+
+//   }, 2000);
+// }, [])
+
+// class ExampleChart3 extends React.Component<{}, any> {
+
+//   constructor(props) {
+//     super(props);
+
+//     this.state = {
+    
+//       series: [{
+//         data: data.slice()
+//       }],
+//       options: {
+//         chart: {
+//           id: 'realtime',
+//           height: 350,
+//           type: 'line',
+//           animations: {
+//             enabled: true,
+//             easing: 'linear',
+//             dynamicAnimation: {
+//               speed: 1000
+//             }
+//           },
+//           toolbar: {
+//             show: false
+//           },
+//           zoom: {
+//             enabled: false
+//           }
+//         },
+//         dataLabels: {
+//           enabled: false
+//         },
+//         stroke: {
+//           curve: 'smooth'
+//         },
+//         title: {
+//           text: 'Dynamic Updating Chart',
+//           align: 'left'
+//         },
+//         markers: {
+//           size: 0
+//         },
+//         xaxis: {
+//           type: 'datetime',
+//           min: new Date('01 Mar 2012').getTime(),
+//           range: XAXISRANGE,
+//           tickAmount: 6,
+//         },
+//         yaxis: {
+//           max: 100
+//         },
+//         legend: {
+//           show: false
+//         },
+//       },
+    
+    
+//     };
+//   }
+
+// //   componentDidMount() {
+// //     setInterval(() => {
+// //       getNewSeries(lastDate, {
+// //         min: 10,
+// //         max: 90
+// //       })
+      
+// //       // this.setState('realtime', 'updateSeries', [{
+// //       //    data: data
+// //       //  }]
+// //   }
+// // }
+   
+//   render() {
+//     return (
+      
+
+// <div id="chart">
+// <ReactApexChart options={this.state.options} series={this.state.series} type="line" height={350} />
+// </div>
+
+
+//     );
+//   }
+// }
+
+// export default ExampleChart3;
