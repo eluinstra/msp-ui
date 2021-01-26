@@ -19,7 +19,6 @@ import { MspChartPage } from '@/page/MspChart'
 import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
-import { UseWitMotionDriver } from '@/component/witmotion/WitMotionDriver'
 import { ExampleTable } from '@/component/witmotion/ExampleTable'
 import { ExampleChart2 } from '@/component/witmotion/ExampleChart2'
 import { ExampleChart4 } from '@/component/witmotion/ExampleChart4'
@@ -206,7 +205,7 @@ const MSPDrawer = props => {
         {mode == Mode.IMU && (
           <React.Fragment>
             <MenuListItem text="Do Some Analytics" to="/" icon={<TrackChangesIcon />} setMode={setMode} />
-            <MenuListItem text="Live Tracker" to="/wit-motion" icon={<ShowChartIcon />} mode={Mode.IMU} setMode={setMode} />
+            {/* <MenuListItem text="Live Tracker" to="/wit-motion" icon={<ShowChartIcon />} mode={Mode.IMU} setMode={setMode} /> */}
             <MenuListItem text="Darting" icon={<AlbumOutlined />} to="/darting" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Main Container" to="/maincontainer" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Statistics" to="/dartstats" mode={Mode.IMU} setMode={setMode} />
@@ -261,14 +260,14 @@ const MSPRouter = props => {
       <Route path="/imu">
         <Imu />
       </Route>
-      <Route path="/wit-motion">
+      {/* <Route path="/wit-motion">
         <WitMotion serialPort={serialPort1} />
-      </Route>
-      <Route path="/darting">
+      </Route> */}
+      {/* <Route path="/darting">
         <UseWitMotionDriver serialPort1={serialPort1} serialPort2={serialPort2} />
-      </Route>
+      </Route> */}
       <Route path="/maincontainer">
-        <MainContainer />
+        <MainContainer serialPort1={serialPort1} serialPort2={serialPort2} />
       </Route>
       <Route path="/dartstats">
         <ExampleTable />

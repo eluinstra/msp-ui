@@ -19,7 +19,6 @@ export const isOpen = (serialPort) => Boolean(serialPort)
 export const write = (serialPort, value) => serialPort.value.write(value)
 
 export const closePort = (serialPort) => {
-  console.log("Open:"+serialPort.value?.isOpen)
   if (serialPort.value?.isOpen)
   {
     serialPort.value?.close()

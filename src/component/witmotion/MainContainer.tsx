@@ -17,6 +17,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import { ExampleChart4 } from '@/component/witmotion/ExampleChart4'
 import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
 import { ExampleTable } from '@/component/witmotion/ExampleTable'
+import { createSensorDriver, getSensorResponse$, SensorState, SensorMsg, sensorRequest } from '@/component/witmotion/WitMotionDriver'
+import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
+import { useSnackbar } from 'notistack'
 
 enum Mode { DEFAULT, COLLECTING, IDLE }
 enum ChartMode { DEFAULT, REALTIME, CHART4 }
@@ -34,25 +37,61 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const MainContainer = props => {
-  const { driver, datasets } = props
+  const { serialPort1, serialPort2 } = props
+  const { enqueueSnackbar } = useSnackbar()
+  const [driver1] = useState(createSensorDriver(serialPort1))
+  const [driver2] = useState(createSensorDriver(serialPort2))
   const [mode, setMode] = useState(Mode.DEFAULT)
   const [navValue, setNavValue] = useState('')
   const [chartMode, setChartMode] = useState(ChartMode.DEFAULT)
   const [statsMode, setStatsMode] = useState(StatsMode.DEFAULT)
+  
+  const sensorMsg1 = useStatefulObservable<SensorMsg>(getSensorResponse$(driver1)
+  .pipe(
+    //map(viewSensorMsg)
+))
+
+  //useEffect(useSensorDriverEffect(driver1, enqueueSnackbar), [])
 
   const classes = useStyles();
 
   function clickCollectingEvent(event) {
     setMode(Mode.COLLECTING);
-    console.log(mode);
+
+    {/* Trigger with a subject the respons object of the driver */}
+
+    try {
+      sensorRequest(driver1, SensorState.SENSOR_COLLECTING, 'collecting-driver1')
+      sensorRequest(driver2, SensorState.SENSOR_COLLECTING, 'collecting=driver2')
+    } catch(e) {
+      console.log(e)
+      enqueueSnackbar(e.message, { variant: 'error' })
+    }
+
+
   }
 
   function clickCollectingEndEvent(event) {
     setMode(Mode.DEFAULT);
-    console.log(mode);
+
+    try {
+      sensorRequest(driver1, SensorState.SENSOR_ENDED_COLLECTING, 'end-collecting-driver1')
+      sensorRequest(driver2, SensorState.SENSOR_ENDED_COLLECTING, 'end-collecting-driver2')
+    } catch(e) {
+      console.log(e)
+      enqueueSnackbar(e.message, { variant: 'error' })
+    }
   }
 
   function clickFlushDataEvent(event) {
+
+    try {
+      sensorRequest(driver1, SensorState.SENSOR_FLUSHING, 'flushing-driver1')
+      sensorRequest(driver2, SensorState.SENSOR_FLUSHING, 'flushing-driver2')
+    } catch(e) {
+      console.log(e)
+      enqueueSnackbar(e.message, { variant: 'error' })
+    }
 
   }
 

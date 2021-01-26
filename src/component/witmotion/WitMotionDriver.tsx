@@ -1,17 +1,65 @@
+{/****************************************************************************
+ * src/components/witmotion/WitMotionDriver.rsx
+ *
+ *   Copyright (C) 2020-2021 Edwin Luinstra & Ben van der Veen. All rights reserved.
+ *   Author:  Ben <disruptivesolutionsnl@gmail.com>
+ *
+ *   Based on: MspDriver
+ *   Author:  Edwin Luinstra
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name Bot4 nor the names of its contributors may be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************/}
+
+{/****************************************************************************
+ * Included Files
+ ****************************************************************************/}
+
 import React, { Component } from "react";
+import { BehaviorSubject, interval, fromEvent, Observable, Subject } from 'rxjs'
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import { Line } from 'react-chartjs-2'
-import { BehaviorSubject, interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { props } from "rambda";
 import { CChartContainerRedis } from '@/component/charts/ChartContainerRedis'
 import { ImuState, ImuMsg, IWitmotionAccelerometer, IWitmotionAngularVelocity, IWitmotionAngle, IWitmotionMagnetic } from '@/component/witmotion/WitMotionProtocol'
 import { Button } from '@material-ui/core'
 import Typography from "@material-ui/core/Typography";
-import { lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
+import { lpushAsync, lrangeAsync, delAsync, flushallAsync, flushDBAsync } from '@/services/dbcapturing'
 import SerialPort from "serialport";
 import { ContentSort } from "material-ui/svg-icons";
+import { filter, share, tap } from 'rxjs/operators'
+import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver'
+
+{/****************************************************************************
+ * Private Types
+****************************************************************************/}
 
 type Props = {
   serialPort1: any;
@@ -29,13 +77,25 @@ let datasegmentcounter = 0
 let parseState = 0
 let cmd = undefined
 
+{/****************************************************************************
+ * Private Function Prototypes
+****************************************************************************/}
+
+{/* Algorithms */ }
+
 const imuTimeMs = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf())
 const imuAccelero = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 16;
 const imuAngularVelocity = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 2000;
 const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180;
 const imuMagnetic = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 100;
 
-/* public interface - convention place on top */
+
+{/****************************************************************************
+ * Private Data
+****************************************************************************/}
+
+{/* public interface - convention place on top */ }
+
 const imuMsg: ImuMsg = {
   state: ImuState.IMU_IDLE,
   flag: 0,
@@ -101,6 +161,44 @@ const iWitmotionMagnetic: IWitmotionMagnetic = {
   SUM: 0
 }
 
+export enum SensorState {
+  SENSOR_IDLE,
+  SENSOR_COLLECTING,
+  SENSOR_ENDED_COLLECTING,
+  SENSOR_FLUSHING,
+  SENSOR_ERROR_RECEIVED
+}
+export interface SensorMsg {
+  state: SensorState,
+  flag: number,
+  cmd: number,
+  length: number,
+  buffer: number[],
+  checksum: number
+}
+export interface SensorDriver {
+  serialPort: BehaviorSubject<any>,
+  sensorMsg: SensorMsg,
+  sensorResponse$: Subject<SensorMsg>
+}
+
+{/****************************************************************************
+ * Private Functions
+****************************************************************************/}
+
+{/****************************************************************************
+ * Name: parseIncommingString
+ *
+ * Description:
+ *   A parser vor the hex values comming from the Serialport.
+ *
+ * Input Parameters:
+ *   num : number - Hex values in Readint8() format.
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
 
 function parseIncommingString(num: number) {
 
@@ -219,168 +317,233 @@ function parseIncommingString(num: number) {
   }
 }
 
-/* @TODO: Dit moet nog verplaatst worden */
+{/****************************************************************************
+ * Public Functions
+ *
+ * We have to implement it in a form that the driver can be used with 
+ * multiple other serial drivers. And the trigger is not comming from
+ * serial stream and data, but from the : "front-end"
+****************************************************************************/}
 
-class WitMotionDriver extends Component<Props, State> {
+{/****************************************************************************
+ * Name: getSensorResponse$
+ *
+ * Description:
+ *   Observable from RxJS.
+ *
+ * Input Parameters:
+ *   driver - The driver object is given to the Observable
+ *
+ * Returned Value:
+ *   The Subject from the Observable.
+ *
+****************************************************************************/}
+export const getSensorResponse$ = (driver: SensorDriver) => driver.sensorResponse$
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      name: "",
-      // serialPort: props.serialPort
-    };
+const createSensorResponse$ = () => new Subject<SensorMsg>()
+
+{/* Get serialdriver from props */ }
+export const getPortName = (driver: SensorDriver) => getPath(driver.serialPort)
+
+export const sensorRequest = (driver: SensorDriver, cmd: SensorState, payload: string) => {
+
+  const { serialPort, sensorMsg, sensorResponse$ } = driver
+
+  parseSensorCommand(driver, cmd)
+
+  if (cmd == SensorState.SENSOR_COLLECTING) {
+    sensorResponse$.next({ ...driver.sensorMsg })
+    driver.sensorMsg.state = SensorState.SENSOR_IDLE
+  } else if (cmd == SensorState.SENSOR_ERROR_RECEIVED) {
+    sensorResponse$.error(new Error('MSP error received!'))
+    sensorResponse$.next({ ...driver.sensorMsg })
+    console.log('Sensor error received!\n');
+    driver.sensorMsg.state = SensorState.SENSOR_IDLE
   }
 
-  clickEvent(event) {
-    //   this.setState({
-    //   name: 'Getting data!'
-    // });
-    /* get database records */
-    //fillChartData();
+}
 
+export const createSensorDriver = (serialPort: BehaviorSubject<any>): SensorDriver => {
+  console.log("WMD.createSensorDriver: " + getPath(serialPort))
+  return {
+    serialPort: serialPort,
+    sensorMsg: {
+      state: SensorState.SENSOR_IDLE,
+      flag: 0,
+      cmd: 0,
+      length: 0,
+      buffer: [],
+      checksum: 0
+    },
+    sensorResponse$: createSensorResponse$()
   }
+}
 
-  clickEventFlush(event) {
-    isCollecting = false;
-    flushallAsync();
+// export const useSensorDriverEffect = (driver: SensorDriver, enqueueSnackbar?) => {
+//   const sub = getPort$(driver.serialPort)
+//     .pipe(
+//       filter(isOpen),
+//     )
+//     .subscribe(p => {
+//       startSensorDriver(driver, enqueueSnackbar)
+//     })
+//   return () => {
+//     sub.unsubscribe()
+//     stopSensorDriver(driver)
+//   }
+// }
+
+// const startSensorDriver = (driver: SensorDriver, enqueueSnackbar?) => {
+//   const { serialPort, sensorMsg, sensorResponse$ } = driver
+
+//   //registerFunction(serialPort, function (data) {
+
+//   // for (let i = 0; i < data.length; i++) {
+
+//   //   {/* Read instruction */ }
+
+//   parseSensorCommand(driver)
+
+//   if (sensorMsg.state == SensorState.SENSOR_COLLECTING) {
+//     sensorResponse$.next({ ...sensorMsg })
+//     sensorMsg.state = SensorState.SENSOR_IDLE
+//   } else if (sensorMsg.state == SensorState.SENSOR_ERROR_RECEIVED) {
+//     sensorResponse$.error(new Error('MSP error received!'))
+//     sensorResponse$.next({ ...sensorMsg })
+//     if (enqueueSnackbar) enqueueSnackbar('Sensor error received!', { variant: 'error' })
+//     sensorMsg.state = SensorState.SENSOR_IDLE
+//   }
+//   // }
+//   //})
+// }
+
+const parseSensorCommand = (driver: SensorDriver, cmd: SensorState) => {
+  const { serialPort, sensorMsg, sensorResponse$ } = driver
+
+  switch (cmd) {
+    case SensorState.SENSOR_COLLECTING:
+      console.log("parser started: - [ " + sensorMsg.state + " ]-> " + getPath(serialPort))
+
+      break;
+    case SensorState.SENSOR_ENDED_COLLECTING:
+      console.log("parser ending: - [ " + sensorMsg.state + " ]-> " + getPath(serialPort))
+      break;
+    case SensorState.SENSOR_FLUSHING:
+      console.log("parser flushing: - [ " + sensorMsg.state + " ]-> " + getPath(serialPort))
+      flushRedisData(driver, cmd)
+      break;
   }
+}
 
-  clickEventStartProcess(event) {
-    /* start capturing */
-    this.props.serialPort1?.value.on('data', function (data) {
-      if (isCollecting) {
+const stopSensorDriver = (driver: SensorDriver) => registerFunction(driver.serialPort, function (data) { })
 
-        for (let i = 0; i < data.length; i++) {
-          //if 0x55 is found unpack messages till next 0x55
+function flushRedisData(driver: SensorDriver, cmd: SensorState) {
 
-          parseIncommingString(data.readInt8(i))
+  const { serialPort, sensorMsg, sensorResponse$ } = driver
 
-          //console.log("data: ["+num+"] inputH: ["+imuMsgAcc.TH+"] inputL: ["+imuMsgAcc.TL+"] = output T ["+T+"]\n");
+  var originName = "" + getPath(serialPort);
 
-          let resolutie = 100;
+  delAsync(originName + '_Accelero_X', 0);
+  delAsync(originName + '_Accelero_Y', 0);
+  delAsync(originName + '_Accelero_Z', 0);
 
-          let timestamp = new Date().getTime();
+}
 
-          /* Redis calls */
+function startCapturing(driver: SensorDriver, cmd: SensorState) {
 
-            /* @TODO: Prefix Poort variabel maken */
+  const { serialPort, sensorMsg, sensorResponse$ } = driver
 
-          var originName = "";
+  /* start capturing */
+  driver.serialPort?.value.on('data', function (data) {
+    if (isCollecting) {
 
-          if (imuMsg.state == ImuState.IMU_ACCELERO_RECEIVED)
-          {
+      for (let i = 0; i < data.length; i++) {
+        //if 0x55 is found unpack messages till next 0x55
 
-            //imuResponse$.next(imuMsgAngle) --> This was to place it back in the Subject for the chart
+        parseIncommingString(data.readInt8(i))
 
-            let T = ((iWitmotionAccelerometer.TH << 8) | iWitmotionAccelerometer.TL & 0xFF) / 100;
+        //console.log("data: ["+num+"] inputH: ["+imuMsgAcc.TH+"] inputL: ["+imuMsgAcc.TL+"] = output T ["+T+"]\n");
 
-            lpushAsync('dataTemp', "ts:" + new Date().getTime() + "^Tx:" + T);
+        let resolutie = 100;
 
-            /* @TODO: Function toevoegen [Clean code] Function insert in Database{object) Function Accelero */
+        let timestamp = new Date().getTime();
 
-            let yx = imuAccelero(iWitmotionAccelerometer.AxH, iWitmotionAccelerometer.AxL);
-            let yy = imuAccelero(iWitmotionAccelerometer.AyH, iWitmotionAccelerometer.AyL);
-            let yz = imuAccelero(iWitmotionAccelerometer.AzH, iWitmotionAccelerometer.AzL);
+        /* Redis calls */
 
-            lpushAsync(originName+'_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx)
-            lpushAsync(originName+'_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy)
-            lpushAsync(originName+'_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz)
+        /* @TODO: Prefix Poort variabel maken */
 
-            let CHK = 85 + 81 + (iWitmotionAccelerometer.AxH + iWitmotionAccelerometer.AxL +
+        var originName = "" + getPath(serialPort);
+
+        if (imuMsg.state == ImuState.IMU_ACCELERO_RECEIVED) {
+
+          //imuResponse$.next(imuMsgAngle) --> This was to place it back in the Subject for the chart
+
+          let T = ((iWitmotionAccelerometer.TH << 8) | iWitmotionAccelerometer.TL & 0xFF) / 100;
+
+          lpushAsync('dataTemp', "ts:" + new Date().getTime() + "^Tx:" + T);
+
+          /* @TODO: Function toevoegen [Clean code] Function insert in Database{object) Function Accelero */
+
+          let yx = imuAccelero(iWitmotionAccelerometer.AxH, iWitmotionAccelerometer.AxL);
+          let yy = imuAccelero(iWitmotionAccelerometer.AyH, iWitmotionAccelerometer.AyL);
+          let yz = imuAccelero(iWitmotionAccelerometer.AzH, iWitmotionAccelerometer.AzL);
+
+          lpushAsync(originName + '_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx)
+          lpushAsync(originName + '_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy)
+          lpushAsync(originName + '_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz)
+
+          let CHK = 85 + 81 + (iWitmotionAccelerometer.AxH + iWitmotionAccelerometer.AxL +
             iWitmotionAccelerometer.AyH + iWitmotionAccelerometer.AyL +
             iWitmotionAccelerometer.AzH + iWitmotionAccelerometer.AzL +
             iWitmotionAccelerometer.TH + iWitmotionAccelerometer.TL);
 
-            let CHKVAL = CHK & 0xFF;
+          let CHKVAL = CHK & 0xFF;
 
-            imuMsg.state = ImuState.IMU_IDLE;
-          }
+          imuMsg.state = ImuState.IMU_IDLE;
+        }
 
-          else if (imuMsg.state == ImuState.IMU_ANGULARVELOCITY_RECEIVED)
-          {
-            let avyx = imuAngularVelocity(iWitmotionAngularVelocity.wxH, iWitmotionAngularVelocity.wxL);
-            let avyy = imuAngularVelocity(iWitmotionAngularVelocity.wyH, iWitmotionAngularVelocity.wyL);
-            let avyz = imuAngularVelocity(iWitmotionAngularVelocity.wzH, iWitmotionAngularVelocity.wzL);
+        else if (imuMsg.state == ImuState.IMU_ANGULARVELOCITY_RECEIVED) {
+          let avyx = imuAngularVelocity(iWitmotionAngularVelocity.wxH, iWitmotionAngularVelocity.wxL);
+          let avyy = imuAngularVelocity(iWitmotionAngularVelocity.wyH, iWitmotionAngularVelocity.wyL);
+          let avyz = imuAngularVelocity(iWitmotionAngularVelocity.wzH, iWitmotionAngularVelocity.wzL);
 
-            lpushAsync(originName+'_AngularVelocity_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyx)
-            lpushAsync(originName+'_AngularVelocity_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyy)
-            lpushAsync(originName+'_AngularVelocity_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyz)
-            
-            imuMsg.state = ImuState.IMU_IDLE
-          }
+          lpushAsync(originName + '_AngularVelocity_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyx)
+          lpushAsync(originName + '_AngularVelocity_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyy)
+          lpushAsync(originName + '_AngularVelocity_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyz)
 
-          else if (imuMsg.state == ImuState.IMU_ANGLE_RECEIVED)
-          {
-            let anyx = imuAngle(iWitmotionAngle.RollH, iWitmotionAngle.RollL);
-            let anyy = imuAngle(iWitmotionAngle.PitchH, iWitmotionAngle.PitchL);
-            let anyz = imuAngle(iWitmotionAngle.YawH, iWitmotionAngle.YawL);
+          imuMsg.state = ImuState.IMU_IDLE
+        }
 
-            lpushAsync(originName+'_Angle_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyx)
-            lpushAsync(originName+'_Angle_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyy)
-            lpushAsync(originName+'_Angle_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyz)
+        else if (imuMsg.state == ImuState.IMU_ANGLE_RECEIVED) {
+          let anyx = imuAngle(iWitmotionAngle.RollH, iWitmotionAngle.RollL);
+          let anyy = imuAngle(iWitmotionAngle.PitchH, iWitmotionAngle.PitchL);
+          let anyz = imuAngle(iWitmotionAngle.YawH, iWitmotionAngle.YawL);
 
-            imuMsg.state = ImuState.IMU_IDLE
-          }
+          lpushAsync(originName + '_Angle_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyx)
+          lpushAsync(originName + '_Angle_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyy)
+          lpushAsync(originName + '_Angle_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyz)
 
-          else if (imuMsg.state == ImuState.IMU_MAGNETIC_RECEIVED)
-          {
-            let mgyx = imuMagnetic(iWitmotionMagnetic.HxH, iWitmotionMagnetic.HxL);
-            let mgyy = imuMagnetic(iWitmotionMagnetic.HyH, iWitmotionMagnetic.HyL);
-            let mgyz = imuMagnetic(iWitmotionMagnetic.HzH, iWitmotionMagnetic.HzL);
+          imuMsg.state = ImuState.IMU_IDLE
+        }
 
-            lpushAsync(originName+'_Magnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
-            lpushAsync(originName+'_Magnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
-            lpushAsync(originName+'_Magnetic_Z', "ts:" + timestamp+ "^x:" + timestamp + "^y:" + mgyz)
+        else if (imuMsg.state == ImuState.IMU_MAGNETIC_RECEIVED) {
+          let mgyx = imuMagnetic(iWitmotionMagnetic.HxH, iWitmotionMagnetic.HxL);
+          let mgyy = imuMagnetic(iWitmotionMagnetic.HyH, iWitmotionMagnetic.HyL);
+          let mgyz = imuMagnetic(iWitmotionMagnetic.HzH, iWitmotionMagnetic.HzL);
 
-            imuMsg.state = ImuState.IMU_IDLE
+          lpushAsync(originName + '_Magnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
+          lpushAsync(originName + '_Magnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
+          lpushAsync(originName + '_Magnetic_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyz)
 
-          } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
-            //imuResponse$.error(new Error('MSP error received!'))
-            imuMsg.state = ImuState.IMU_IDLE
-          }
+          imuMsg.state = ImuState.IMU_IDLE
+
+        } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
+          //imuResponse$.error(new Error('MSP error received!'))
+          imuMsg.state = ImuState.IMU_IDLE
         }
       }
-    })
-
-  }
-
-  clickEventStartCapture(event) {
-    /* start capturing */
-    isCollecting = true;
-
-  }
-
-  clickEventStopCapture(event) {
-    /* start capturing */
-    isCollecting = false;
-
-  }
-
-  //  <!--<button title="Get Data" color="#841584" id="name" onClick={this.changeText.bind(this)} />-->
-
-  render() {
-    return (
-      <div>
-        <Button variant="contained" onClick={() => { { this.clickEvent(this) } }}>Test Button</Button>
-        <Button variant="contained" color="primary" onClick={() => { { this.clickEventStartCapture(this); } }}>Start Capture</Button>
-        <Button variant="contained" color="primary" onClick={() => { { this.clickEventStartProcess(this) } }}>Start Process</Button>
-        <Button variant="contained" color="secondary" onClick={() => { { this.clickEventStopCapture(this); } }}>Stop Capture</Button>
-        <Button variant="outlined" color="primary" onClick={() => { { this.clickEventFlush(this) } }}>Flush Data</Button>
-        <h3>Answer: {this.state.name}</h3>
-      </div>
-    );
-  }
+    }
+  })
 }
 
-export const UseWitMotionDriver = (props) => {
-  const { serialPort1, serialPort2 } = props
-  return (
-    <React.Fragment>
-      <h2>Chart from Redis</h2>
-      <WitMotionDriver serialPort1={serialPort1} serialPort2={serialPort2} />
 
-      <CChartContainerRedis />
-
-    </React.Fragment>
-  )
-}
