@@ -42,6 +42,7 @@
 
 import React, { Component } from "react";
 import { BehaviorSubject, interval, fromEvent, Observable, Subject } from 'rxjs'
+import { filter, share, tap } from 'rxjs/operators'
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import { Line } from 'react-chartjs-2'
@@ -51,10 +52,9 @@ import { CChartContainerRedis } from '@/component/charts/ChartContainerRedis'
 import { ImuState, ImuMsg, IWitmotionAccelerometer, IWitmotionAngularVelocity, IWitmotionAngle, IWitmotionMagnetic } from '@/component/witmotion/WitMotionProtocol'
 import { Button } from '@material-ui/core'
 import Typography from "@material-ui/core/Typography";
+import { ContentSort } from "material-ui/svg-icons";
 import { lpushAsync, lrangeAsync, delAsync, flushallAsync, flushDBAsync } from '@/services/dbcapturing'
 import SerialPort from "serialport";
-import { ContentSort } from "material-ui/svg-icons";
-import { filter, share, tap } from 'rxjs/operators'
 import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver'
 
 {/****************************************************************************
@@ -75,6 +75,7 @@ let messageStarted = false
 let datasegmentcounter = 0
 let parseState = 0
 let cmd = undefined
+let isCollecting = false
 
 {/****************************************************************************
  * Private Function Prototypes
@@ -525,9 +526,11 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState, isCollect
 
   const { serialPort, sensorMsg, sensorResponse$ } = driver
 
+  this.isCollecting = isCollecting;
+
   /* start capturing */
   driver.serialPort?.value.on('data', function (data) {
-    if (isCollecting) {
+    if (this.isCollecting) {
 
       for (let i = 0; i < data.length; i++) {
         //if 0x55 is found unpack messages till next 0x55
