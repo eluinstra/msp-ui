@@ -72,7 +72,6 @@ type State = {
 }
 
 let messageStarted = false
-let isCollecting = false
 let datasegmentcounter = 0
 let parseState = 0
 let cmd = undefined
@@ -382,7 +381,7 @@ export const sensorRequest = (driver: SensorDriver, cmd: SensorState, payload: s
     driver.sensorMsg.state = SensorState.SENSOR_IDLE
   } else if (cmd == SensorState.SENSOR_ENDED_COLLECTING) {
     sensorResponse$.next({ ...driver.sensorMsg })
-    driver.sensorMsg.state = SensorState.SENSOR_IDLE)
+    driver.sensorMsg.state = SensorState.SENSOR_IDLE
   } else if (cmd == SensorState.SENSOR_ERROR_RECEIVED) {
     sensorResponse$.error(new Error('MSP error received!'))
     sensorResponse$.next({ ...driver.sensorMsg })
