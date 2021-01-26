@@ -1,6 +1,49 @@
+{/****************************************************************************
+ * src/components/witmotion/WitMotionDriver.rsx
+ *
+ *   Copyright (C) 2020-2021 Edwin Luinstra & Ben van der Veen. All rights reserved.
+ *   Author:  Ben <disruptivesolutionsnl@gmail.com>
+ *
+ *   Based on: MspDriver
+ *   Author:  Edwin Luinstra
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name Bot4 nor the names of its contributors may be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************/}
+
+{/****************************************************************************
+ * Included Files
+ ****************************************************************************/}
+
 import React, { useEffect, useState } from 'react'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
+import ReactApexChart from 'react-apexcharts'
 import {
   AppBar, ButtonGroup, Button, BottomNavigation, BottomNavigationAction, CssBaseline, Drawer, Grid, List, ListItem, ListItemIcon,
   ListItemText, Paper, Toolbar, Typography
@@ -10,9 +53,6 @@ import {
   GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon, Equalizer as EqualizerIcon, Favorite as FavoriteIcon, LocationOn as LocationOnIcon,
   Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon
 } from '@material-ui/icons'
-
-import { llenAsync, lpushAsync, lrangeAsync, delAsync, flushallAsync } from '@/services/dbcapturing'
-import ReactApexChart from 'react-apexcharts'
 import { makeStyles } from '@material-ui/core/styles';
 import { ExampleChart4 } from '@/component/witmotion/ExampleChart4'
 import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
@@ -20,10 +60,19 @@ import { ExampleTable } from '@/component/witmotion/ExampleTable'
 import { createSensorDriver, getSensorResponse$, SensorState, SensorMsg, sensorRequest } from '@/component/witmotion/WitMotionDriver'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
 import { useSnackbar } from 'notistack'
+import { llenAsync, lpushAsync, lrangeAsync, delAsync, flushallAsync } from '@/services/dbcapturing'
+
+{/****************************************************************************
+ * Private Types
+****************************************************************************/}
 
 enum Mode { DEFAULT, COLLECTING, IDLE }
 enum ChartMode { DEFAULT, REALTIME, CHART4 }
 enum StatsMode { DEFAULT, STATS }
+
+{/****************************************************************************
+ * Private Function Prototypes
+****************************************************************************/}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,6 +84,10 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
 }));
+
+{/****************************************************************************
+ * Public Functions
+****************************************************************************/}
 
 export const MainContainer = props => {
   const { serialPort1, serialPort2 } = props
@@ -55,6 +108,23 @@ export const MainContainer = props => {
 
   const classes = useStyles();
 
+{/****************************************************************************
+ * Private Functions
+****************************************************************************/}
+
+{/****************************************************************************
+ * Name: clickCollectingEvent
+ *
+ * Description:
+ *   The function that starts the collecting process
+ *
+ * Input Parameters:
+ *   event : an event from the user-interface
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
   function clickCollectingEvent(event) {
     setMode(Mode.COLLECTING);
 
@@ -71,6 +141,19 @@ export const MainContainer = props => {
 
   }
 
+ {/****************************************************************************
+ * Name: clickCollectingEndEvent
+ *
+ * Description:
+ *   The function that stops or stalls the collecting process
+ *
+ * Input Parameters:
+ *   event : an event from the user-interface
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
   function clickCollectingEndEvent(event) {
     setMode(Mode.DEFAULT);
 
@@ -83,6 +166,19 @@ export const MainContainer = props => {
     }
   }
 
+ {/****************************************************************************
+ * Name: clickFlushDataEvent
+ *
+ * Description:
+ *   The function that flushes redis data
+ *
+ * Input Parameters:
+ *   event : an event from the user-interface
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
   function clickFlushDataEvent(event) {
 
     try {
@@ -95,6 +191,19 @@ export const MainContainer = props => {
 
   }
 
+  {/****************************************************************************
+ * Name: clickRealtimeChartEvent
+ *
+ * Description:
+ *   The function that shows the Realtime chart
+ *
+ * Input Parameters:
+ *   event : an event from the user-interface
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
   function clickRealtimeChartEvent(event) {
     if (chartMode != ChartMode.REALTIME) {
       setChartMode(ChartMode.REALTIME);
@@ -114,8 +223,6 @@ export const MainContainer = props => {
   }
 
   function handleChange(event, value) {
-    //this.setState({ value });
-    console.log("-->" + value)
     if (value == 'stats') {
       if (statsMode != StatsMode.STATS) {
         setStatsMode(StatsMode.STATS);
@@ -126,7 +233,7 @@ export const MainContainer = props => {
     }
   };
   useEffect(() => {
-    //console.log("-->"+navValue)
+    
   }, [mode])
   return (
 
