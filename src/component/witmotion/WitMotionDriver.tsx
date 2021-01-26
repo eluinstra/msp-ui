@@ -41,6 +41,7 @@
  ****************************************************************************/}
 
 import React, { Component } from "react";
+import { useEffect, useState } from 'react'
 import { BehaviorSubject, interval, fromEvent, Observable, Subject } from 'rxjs'
 import { filter, share, tap } from 'rxjs/operators'
 import ReactDOM from "react-dom";
@@ -75,7 +76,6 @@ let messageStarted = false
 let datasegmentcounter = 0
 let parseState = 0
 let cmd = undefined
-let isCollecting = false
 
 {/****************************************************************************
  * Private Function Prototypes
@@ -88,7 +88,6 @@ const imuAccelero = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() 
 const imuAngularVelocity = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 2000;
 const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180;
 const imuMagnetic = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 100;
-
 
 {/****************************************************************************
  * Private Data
@@ -174,7 +173,8 @@ export interface SensorMsg {
   cmd: number,
   length: number,
   buffer: number[],
-  checksum: number
+  checksum: number,
+  collecting: boolean
 }
 export interface SensorDriver {
   serialPort: BehaviorSubject<any>,
@@ -414,7 +414,8 @@ export const createSensorDriver = (serialPort: BehaviorSubject<any>): SensorDriv
       cmd: 0,
       length: 0,
       buffer: [],
-      checksum: 0
+      checksum: 0,
+      collecting: false
     },
     sensorResponse$: createSensorResponse$()
   }
@@ -439,12 +440,15 @@ const parseSensorCommand = (driver: SensorDriver, cmd: SensorState) => {
 
   switch (cmd) {
     case SensorState.SENSOR_COLLECTING:
-      startAndStopCapturing(driver,cmd, true);
+      sensorMsg.collecting = true;
+      startAndStopCapturing(driver,cmd);
       break;
     case SensorState.SENSOR_ENDED_COLLECTING:
-      startAndStopCapturing(driver,cmd, false);
+      sensorMsg.collecting = false;
+      startAndStopCapturing(driver,cmd);
       break;
     case SensorState.SENSOR_FLUSHING:
+      sensorMsg.collecting = false;
       flushRedisData(driver, cmd)
       break;
   }
@@ -522,15 +526,13 @@ function flushRedisData(driver: SensorDriver, cmd: SensorState) {
  *   None
  *
 ****************************************************************************/}
-function startAndStopCapturing(driver: SensorDriver, cmd: SensorState, isCollecting: boolean) {
+function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
   const { serialPort, sensorMsg, sensorResponse$ } = driver
 
-  this.isCollecting = isCollecting;
-
-  /* start capturing */
+   /* start capturing */
   driver.serialPort?.value.on('data', function (data) {
-    if (this.isCollecting) {
+    if (sensorMsg.collecting) {
 
       for (let i = 0; i < data.length; i++) {
         //if 0x55 is found unpack messages till next 0x55

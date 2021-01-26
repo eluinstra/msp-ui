@@ -11,7 +11,7 @@ import {
   Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon
 } from '@material-ui/icons'
 
-import { llenAsync, lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
+import { llenAsync, lpushAsync, lrangeAsync, delAsync, flushallAsync } from '@/services/dbcapturing'
 import ReactApexChart from 'react-apexcharts'
 import { makeStyles } from '@material-ui/core/styles';
 import { ExampleChart4 } from '@/component/witmotion/ExampleChart4'
