@@ -3,11 +3,13 @@ import string
 import codecs
 import csv
 
+#redis: redis-cli --csv lrange COM18_Magnetic_Z 0 -1 > data_COM18_M_Z.txt
+
 # open csv file...in read mode
 #inFile= open("data_COM18_M_Z.csv", "rb", "utf-16")
-outFile= open("data_COM18_M_Z.txt", 'wb')
+#outFile= open("data_COM18_M_Z.txt", 'wb')
 
-f=codecs.open("data_COM18_M_Z.csv","rb","utf-16")
+f=codecs.open("data_COM18_ACC_Y.csv","rb","utf-16")
 
 
 reader = csv.reader(f, delimiter=',')
@@ -15,7 +17,7 @@ for row in reader:
     #lineList = line.split(',') # Really, you should use csv reader
 # Open the file to write to
     for vals in row:
-        with open("data_COM18_M_Z.txt", 'a') as outFile:
+        with open("data_COM18_ACC_Y.txt", 'a') as outFile:
             # iterate through the line
             #s= lineList)
             print(vals)
