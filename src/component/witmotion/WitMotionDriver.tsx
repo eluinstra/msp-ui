@@ -83,10 +83,10 @@ let cmd = undefined
 
 {/* Algorithms */ }
 
-const imuTimeMs = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf())
+const imuTimeMs = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF)
 const imuAccelero = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 16;
-const imuAngularVelocity = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 2000;
-const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180;
+const imuAngularVelocity = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 2000;
+const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 180;
 const imuMagnetic = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 100;
 
 {/****************************************************************************
