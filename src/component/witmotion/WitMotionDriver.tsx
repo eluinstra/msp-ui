@@ -380,6 +380,9 @@ export const sensorRequest = (driver: SensorDriver, cmd: SensorState, payload: s
   if (cmd == SensorState.SENSOR_COLLECTING) {
     sensorResponse$.next({ ...driver.sensorMsg })
     driver.sensorMsg.state = SensorState.SENSOR_IDLE
+  } else if (cmd == SensorState.SENSOR_ENDED_COLLECTING) {
+    sensorResponse$.next({ ...driver.sensorMsg })
+    driver.sensorMsg.state = SensorState.SENSOR_IDLE)
   } else if (cmd == SensorState.SENSOR_ERROR_RECEIVED) {
     sensorResponse$.error(new Error('MSP error received!'))
     sensorResponse$.next({ ...driver.sensorMsg })
@@ -403,7 +406,6 @@ export const sensorRequest = (driver: SensorDriver, cmd: SensorState, payload: s
  *
 ****************************************************************************/}
 export const createSensorDriver = (serialPort: BehaviorSubject<any>): SensorDriver => {
-  console.log("WMD.createSensorDriver: " + getPath(serialPort))
   return {
     serialPort: serialPort,
     sensorMsg: {
@@ -437,15 +439,12 @@ const parseSensorCommand = (driver: SensorDriver, cmd: SensorState) => {
 
   switch (cmd) {
     case SensorState.SENSOR_COLLECTING:
-      console.log("parser started: - [ " + sensorMsg.state + " ]-> " + getPath(serialPort))
       startAndStopCapturing(driver,cmd, true);
       break;
     case SensorState.SENSOR_ENDED_COLLECTING:
-      console.log("parser ending: - [ " + sensorMsg.state + " ]-> " + getPath(serialPort))
       startAndStopCapturing(driver,cmd, false);
       break;
     case SensorState.SENSOR_FLUSHING:
-      console.log("parser flushing: - [ " + sensorMsg.state + " ]-> " + getPath(serialPort))
       flushRedisData(driver, cmd)
       break;
   }
@@ -536,15 +535,11 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState, isCollect
 
         parseIncommingString(data.readInt8(i))
 
-        //console.log("data: ["+num+"] inputH: ["+imuMsgAcc.TH+"] inputL: ["+imuMsgAcc.TL+"] = output T ["+T+"]\n");
-
         let resolutie = 100;
 
         let timestamp = new Date().getTime();
 
         /* Redis calls */
-
-        /* @TODO: Prefix Poort variabel maken */
 
         var originName = "" + getPath(serialPort);
 
