@@ -202,20 +202,6 @@ export interface SensorDriver {
 
 function parseIncommingString(num: number) {
 
-  /* Example converting to hex values */
-  // let sprefix = parseInt("85", 10).toString(16);
-  // let ssid = parseInt("81", 10).toString(16);
-  // let saxH = parseInt("" + imuMsgAcc.AxH, 10).toString(16);
-  // let saxL = parseInt("" + imuMsgAcc.AxL, 10).toString(16);
-  // let sayH = parseInt("" + imuMsgAcc.AyH, 10).toString(16);
-  // let sayL = parseInt("" + imuMsgAcc.AyL, 10).toString(16);
-  // let sazH = parseInt("" + imuMsgAcc.AzH, 10).toString(16);
-  // let sazL = parseInt("" + imuMsgAcc.AzL, 10).toString(16);
-  // let sth = parseInt("" + imuMsgAcc.TH, 10).toString(16);
-  // let stl = parseInt("" + imuMsgAcc.TL, 10).toString(16);
-  // let ssum = parseInt("" + imuMsgAcc.SUM, 10).toString(16);
-  // let T = ((imuMsgAcc.TH << 8) | imuMsgAcc.TL) / 100;
-
   switch (parseState) {
     case 0:
       if (num == ImuState.IMU_PREFIX)
@@ -340,11 +326,51 @@ function parseIncommingString(num: number) {
 ****************************************************************************/}
 export const getSensorResponse$ = (driver: SensorDriver) => driver.sensorResponse$
 
+{/****************************************************************************
+ * Name: createSensorResponse$
+ *
+ * Description:
+ *   New Observable Subject from RxJS.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   The Subject from the Observable.
+ *
+****************************************************************************/}
 const createSensorResponse$ = () => new Subject<SensorMsg>()
 
-{/* Get serialdriver from props */ }
+{/****************************************************************************
+ * Name: getPortName$
+ *
+ * Description:
+ *   Gets the pathname from the serialport.
+ *
+ * Input Parameters:
+ *   driver - The driver object
+ *
+ * Returned Value:
+ *   The path from a serialport.
+ *
+****************************************************************************/}
 export const getPortName = (driver: SensorDriver) => getPath(driver.serialPort)
 
+{/****************************************************************************
+ * Name: sensorRequest$
+ *
+ * Description:
+ *   A sensor request enrtypoint for the frontend.
+ *
+ * Input Parameters:
+ *   driver - The driver object is given to the Observable
+ *   cmd - The command in a enumaration format as validation
+ *   payload: A string given in what the function is which is used
+ *
+ * Returned Value:
+ *   A response to the Observable Subject (sensorResponse$.next)
+ *
+****************************************************************************/}
 export const sensorRequest = (driver: SensorDriver, cmd: SensorState, payload: string) => {
 
   const { serialPort, sensorMsg, sensorResponse$ } = driver
@@ -363,6 +389,19 @@ export const sensorRequest = (driver: SensorDriver, cmd: SensorState, payload: s
 
 }
 
+{/****************************************************************************
+ * Name: createSensorDriver
+ *
+ * Description:
+ *   The initialization of the sensor driver and making the object driver.
+ *
+ * Input Parameters:
+ *   serialPort - The serialport which the driver/parsers is/are connected to
+ *
+ * Returned Value:
+ *   A response subject is created (Observable)
+ *
+****************************************************************************/}
 export const createSensorDriver = (serialPort: BehaviorSubject<any>): SensorDriver => {
   console.log("WMD.createSensorDriver: " + getPath(serialPort))
   return {
@@ -379,54 +418,31 @@ export const createSensorDriver = (serialPort: BehaviorSubject<any>): SensorDriv
   }
 }
 
-// export const useSensorDriverEffect = (driver: SensorDriver, enqueueSnackbar?) => {
-//   const sub = getPort$(driver.serialPort)
-//     .pipe(
-//       filter(isOpen),
-//     )
-//     .subscribe(p => {
-//       startSensorDriver(driver, enqueueSnackbar)
-//     })
-//   return () => {
-//     sub.unsubscribe()
-//     stopSensorDriver(driver)
-//   }
-// }
-
-// const startSensorDriver = (driver: SensorDriver, enqueueSnackbar?) => {
-//   const { serialPort, sensorMsg, sensorResponse$ } = driver
-
-//   //registerFunction(serialPort, function (data) {
-
-//   // for (let i = 0; i < data.length; i++) {
-
-//   //   {/* Read instruction */ }
-
-//   parseSensorCommand(driver)
-
-//   if (sensorMsg.state == SensorState.SENSOR_COLLECTING) {
-//     sensorResponse$.next({ ...sensorMsg })
-//     sensorMsg.state = SensorState.SENSOR_IDLE
-//   } else if (sensorMsg.state == SensorState.SENSOR_ERROR_RECEIVED) {
-//     sensorResponse$.error(new Error('MSP error received!'))
-//     sensorResponse$.next({ ...sensorMsg })
-//     if (enqueueSnackbar) enqueueSnackbar('Sensor error received!', { variant: 'error' })
-//     sensorMsg.state = SensorState.SENSOR_IDLE
-//   }
-//   // }
-//   //})
-// }
-
+{/****************************************************************************
+ * Name: parseSensorCommand
+ *
+ * Description:
+ *   A parser for the command comming from the frontend dialog.
+ *
+ * Input Parameters:
+ *   driver - The driver object is given from (passthrough) from the frontend.
+ *   cmd - The state given from the frontend
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
 const parseSensorCommand = (driver: SensorDriver, cmd: SensorState) => {
   const { serialPort, sensorMsg, sensorResponse$ } = driver
 
   switch (cmd) {
     case SensorState.SENSOR_COLLECTING:
       console.log("parser started: - [ " + sensorMsg.state + " ]-> " + getPath(serialPort))
-
+      startAndStopCapturing(driver,cmd, true);
       break;
     case SensorState.SENSOR_ENDED_COLLECTING:
       console.log("parser ending: - [ " + sensorMsg.state + " ]-> " + getPath(serialPort))
+      startAndStopCapturing(driver,cmd, false);
       break;
     case SensorState.SENSOR_FLUSHING:
       console.log("parser flushing: - [ " + sensorMsg.state + " ]-> " + getPath(serialPort))
@@ -435,8 +451,38 @@ const parseSensorCommand = (driver: SensorDriver, cmd: SensorState) => {
   }
 }
 
+{/****************************************************************************
+ * Name: stopSensorDriver
+ *
+ * Description:
+ *   Stops the serialport driver when one determines to close the serialport.
+ *
+ * Input Parameters:
+ *   driver - The driver object is given from (passthrough) from the frontend.
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
 const stopSensorDriver = (driver: SensorDriver) => registerFunction(driver.serialPort, function (data) { })
 
+{/****************************************************************************
+ * Name: flushRedisData
+ *
+ * Description:
+ *   It also "deletes" the Redis Keys.
+ *   It also "sets" the origin name obtained from the driver Path.
+ * 
+ *   We could use flushAllAsync. But we wanted to keep control for now.
+ *
+ * Input Parameters:
+ *   driver - The driver object is given from (passthrough) from the frontend.
+ *   cmd - One gives the SensorState
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
 function flushRedisData(driver: SensorDriver, cmd: SensorState) {
 
   const { serialPort, sensorMsg, sensorResponse$ } = driver
@@ -447,9 +493,37 @@ function flushRedisData(driver: SensorDriver, cmd: SensorState) {
   delAsync(originName + '_Accelero_Y', 0);
   delAsync(originName + '_Accelero_Z', 0);
 
+  delAsync(originName + '_AngularVelocity_X', 0);
+  delAsync(originName + '_AngularVelocity_Y', 0);
+  delAsync(originName + '_AngularVelocity_Z', 0);
+  
+  delAsync(originName + '_Angle_X', 0)
+  delAsync(originName + '_Angle_Y', 0)
+  delAsync(originName + '_Angle_Z', 0)
+  
+  delAsync(originName + '_Magnetic_X', 0)
+  delAsync(originName + '_Magnetic_Y', 0)
+  delAsync(originName + '_Magnetic_Z', 0)
+    
 }
 
-function startCapturing(driver: SensorDriver, cmd: SensorState) {
+{/****************************************************************************
+ * Name: startAndStopCapturing
+ *
+ * Description:
+ *   In this function the real capturing takes place and storage from the data
+ *   in Redis. Also you can stop the process without shutting down the serial
+ *   connections.
+ *
+ * Input Parameters:
+ *   driver - The driver object is given from (passthrough) from the frontend.
+ *   cmd - One gives the SensorState
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
+function startAndStopCapturing(driver: SensorDriver, cmd: SensorState, isCollecting: boolean) {
 
   const { serialPort, sensorMsg, sensorResponse$ } = driver
 
