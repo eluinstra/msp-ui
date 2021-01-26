@@ -441,11 +441,11 @@ const parseSensorCommand = (driver: SensorDriver, cmd: SensorState) => {
   switch (cmd) {
     case SensorState.SENSOR_COLLECTING:
       sensorMsg.collecting = true;
-      startAndStopCapturing(driver,cmd);
+      startAndStopCapturing(driver, cmd);
       break;
     case SensorState.SENSOR_ENDED_COLLECTING:
       sensorMsg.collecting = false;
-      startAndStopCapturing(driver,cmd);
+      startAndStopCapturing(driver, cmd);
       break;
     case SensorState.SENSOR_FLUSHING:
       sensorMsg.collecting = false;
@@ -499,15 +499,15 @@ function flushRedisData(driver: SensorDriver, cmd: SensorState) {
   delAsync(originName + '_AngularVelocity_X', 0);
   delAsync(originName + '_AngularVelocity_Y', 0);
   delAsync(originName + '_AngularVelocity_Z', 0);
-  
+
   delAsync(originName + '_Angle_X', 0)
   delAsync(originName + '_Angle_Y', 0)
   delAsync(originName + '_Angle_Z', 0)
-  
+
   delAsync(originName + '_Magnetic_X', 0)
   delAsync(originName + '_Magnetic_Y', 0)
   delAsync(originName + '_Magnetic_Z', 0)
-    
+
 }
 
 {/****************************************************************************
@@ -530,7 +530,7 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
   const { serialPort, sensorMsg, sensorResponse$ } = driver
 
-   /* start capturing */
+  /* start capturing */
   driver.serialPort?.value.on('data', function (data) {
     if (sensorMsg.collecting) {
 

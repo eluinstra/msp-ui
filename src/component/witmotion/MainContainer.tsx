@@ -98,21 +98,21 @@ export const MainContainer = props => {
   const [navValue, setNavValue] = useState('')
   const [chartMode, setChartMode] = useState(ChartMode.DEFAULT)
   const [statsMode, setStatsMode] = useState(StatsMode.DEFAULT)
-  
-  const sensorMsg1 = useStatefulObservable<SensorMsg>(getSensorResponse$(driver1)
-  .pipe(
-    //map(viewSensorMsg)
-))
 
-  //useEffect(useSensorDriverEffect(driver1, enqueueSnackbar), [])
+  //   const sensorMsg1 = useStatefulObservable<SensorMsg>(getSensorResponse$(driver1)
+  //   .pipe(
+  //     //map(viewSensorMsg)
+  // ))
+
+  //   //useEffect(useSensorDriverEffect(driver1, enqueueSnackbar), [])
 
   const classes = useStyles();
 
-{/****************************************************************************
+  {/****************************************************************************
  * Private Functions
 ****************************************************************************/}
 
-{/****************************************************************************
+  {/****************************************************************************
  * Name: clickCollectingEvent
  *
  * Description:
@@ -128,12 +128,12 @@ export const MainContainer = props => {
   function clickCollectingEvent(event) {
     setMode(Mode.COLLECTING);
 
-    {/* Trigger with a subject the respons object of the driver */}
+    {/* Trigger with a subject the respons object of the driver */ }
 
     try {
       sensorRequest(driver1, SensorState.SENSOR_COLLECTING, 'collecting-driver1')
       sensorRequest(driver2, SensorState.SENSOR_COLLECTING, 'collecting=driver2')
-    } catch(e) {
+    } catch (e) {
       console.log(e)
       enqueueSnackbar(e.message, { variant: 'error' })
     }
@@ -141,7 +141,7 @@ export const MainContainer = props => {
 
   }
 
- {/****************************************************************************
+  {/****************************************************************************
  * Name: clickCollectingEndEvent
  *
  * Description:
@@ -160,13 +160,13 @@ export const MainContainer = props => {
     try {
       sensorRequest(driver1, SensorState.SENSOR_ENDED_COLLECTING, 'end-collecting-driver1')
       sensorRequest(driver2, SensorState.SENSOR_ENDED_COLLECTING, 'end-collecting-driver2')
-    } catch(e) {
+    } catch (e) {
       console.log(e)
       enqueueSnackbar(e.message, { variant: 'error' })
     }
   }
 
- {/****************************************************************************
+  {/****************************************************************************
  * Name: clickFlushDataEvent
  *
  * Description:
@@ -184,7 +184,7 @@ export const MainContainer = props => {
     try {
       sensorRequest(driver1, SensorState.SENSOR_FLUSHING, 'flushing-driver1')
       sensorRequest(driver2, SensorState.SENSOR_FLUSHING, 'flushing-driver2')
-    } catch(e) {
+    } catch (e) {
       console.log(e)
       enqueueSnackbar(e.message, { variant: 'error' })
     }
@@ -233,7 +233,7 @@ export const MainContainer = props => {
     }
   };
   useEffect(() => {
-    
+
   }, [mode])
   return (
 
