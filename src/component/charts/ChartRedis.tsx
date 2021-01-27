@@ -200,7 +200,6 @@ class ChartRedis extends React.Component<Props, State> {
           var xyes = valStr[1].includes("x:");
           var yyes = valStr[2].includes("y:");
 
-
           if (xyes && yyes) {
 
             var xi = parseFloat(valStr[1].split("x:")[1].valueOf());

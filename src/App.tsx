@@ -21,7 +21,7 @@ import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { ExampleTable } from '@/component/witmotion/ExampleTable'
 import { ExampleChart2 } from '@/component/witmotion/ExampleChart2'
-import { ExampleChart4 } from '@/component/witmotion/ExampleChart4'
+import { RealTimeChart } from '@/component/witmotion/RealTimeChart'
 import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
 import { ExampleChart6 } from '@/component/witmotion/ExampleChart6'
 import { MainContainer } from '@/component/witmotion/MainContainer'
@@ -276,7 +276,7 @@ const MSPRouter = props => {
         <ExampleChart2 />
       </Route>
       <Route path="/example4">
-        <ExampleChart4 />
+        <RealTimeChart />
       </Route>
       <Route path="/example5">
         <ExampleChart5 />

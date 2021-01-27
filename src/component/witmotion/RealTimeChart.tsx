@@ -46,6 +46,8 @@ import { imuResponse$, registerPort, unregisterPort } from '@/component/imu/WitM
 import { isOpen } from "@/component/serialport/SerialPortDriver"
 import ReactApexChart from 'react-apexcharts'
 import ApexCharts from 'apexcharts'
+import { llenAsync, lpushAsync, lrangeAsync, delAsync, flushallAsync } from '@/services/dbcapturing'
+import { letProto } from "rxjs-compat/operator/let"
 
 {/****************************************************************************
  * Private Types
@@ -54,7 +56,7 @@ let XAXISRANGE = 777600000
 var TICKINTERVAL = 86400000
 
 let data = [];
-let lastDate = () => { 0 };
+let lastDate = () => {0};
 
 {/****************************************************************************
  * Private Function Prototypes
@@ -67,10 +69,10 @@ const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 
 ****************************************************************************/}
 
 {/****************************************************************************
- * Name: getNewSeries
+ * Name: getDataFromRedis
  *
  * Description:
- *   The function to make dummy data
+ *   The function to obtain data for the chart
  *
  * Input Parameters:
  *   baseval : the starting position
@@ -80,11 +82,15 @@ const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 
  *   None
  *
 ****************************************************************************/}
-function getNewSeries(baseval, yrange) {
+function getDataFromRedis(baseval, yrange) {
+  //var dateBased = new Date('11 Feb 2017 GMT').getTime();
+  //var dateNow = new Date('1 Jan 2021 ECT').getTime();
   var newDate = baseval + TICKINTERVAL;
   lastDate = newDate
 
-  for (var i = 0; i < data.length - 10; i++) {
+  let dataLength = llenAsync('COM18_Accelero_X');
+
+  for (var i = 0; i < dataLength - 10; i++) {
     // IMPORTANT
     // we reset the x and y of the data which is out of drawing area
     // to prevent memory leaks
@@ -97,6 +103,7 @@ function getNewSeries(baseval, yrange) {
     y: Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
   })
 }
+
 
 {/****************************************************************************
  * Name: generateDayWiseTimeSeries
@@ -171,7 +178,7 @@ function getDayWiseTimeSeries(baseval, count, yrange) {
  *   None
  *
 ****************************************************************************/}
-getDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 10, {
+getDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 20, {
   min: 10,
   max: 90
 })
@@ -191,8 +198,7 @@ getDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 10, {
 ****************************************************************************/}
 export const RealTimeChart = props => {
   const { serialPort } = props
-  //const [data, updateData] = useState([1, 2, 3, 4, 5, 6]);
-  const [state] = useState({
+   const [state] = useState({
     series: [{
       data: data.slice()
     }],
@@ -205,7 +211,7 @@ export const RealTimeChart = props => {
           enabled: true,
           easing: 'linear',
           dynamicAnimation: {
-            speed: 1000
+            speed: 200
           }
         },
         toolbar: {
@@ -230,7 +236,7 @@ export const RealTimeChart = props => {
       },
       xaxis: {
         type: 'datetime',
-        min: new Date('01 Mar 2012').getTime(),
+        min: new Date('1 Jan 2021 ECT').getTime(),
         range: XAXISRANGE,
         tickAmount: 6,
       },
@@ -246,7 +252,7 @@ export const RealTimeChart = props => {
   useEffect(() => {
     setInterval(() => {
 
-      getNewSeries(lastDate, {
+      getDataFromRedis(lastDate, {
         min: 10,
         max: 90
       })
@@ -258,7 +264,7 @@ export const RealTimeChart = props => {
       }])
 
 
-    }, 2000);
+    }, 200);
 
 
 
