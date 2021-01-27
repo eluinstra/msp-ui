@@ -1,11 +1,8 @@
 {/****************************************************************************
- * src/components/witmotion/WitMotionDriver.rsx
+ * src/components/witmotion/MainContainer.tsx
  *
  *   Copyright (C) 2020-2021 Edwin Luinstra & Ben van der Veen. All rights reserved.
  *   Author:  Ben <disruptivesolutionsnl@gmail.com>
- *
- *   Based on: MspDriver
- *   Author:  Edwin Luinstra
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,7 +36,6 @@
 {/****************************************************************************
  * Included Files
  ****************************************************************************/}
-
 import React, { useEffect, useState } from 'react'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
@@ -54,7 +50,7 @@ import {
   Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon
 } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/core/styles';
-import { ExampleChart4 } from '@/component/witmotion/ExampleChart4'
+import { RealTimeChart } from '@/component/witmotion/RealTimeChart'
 import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
 import { ExampleTable } from '@/component/witmotion/ExampleTable'
 import { createSensorDriver, getSensorResponse$, SensorState, SensorMsg, sensorRequest } from '@/component/witmotion/WitMotionDriver'
@@ -273,7 +269,7 @@ export const MainContainer = props => {
           {/* Here are the charts which can be called on */}
           <Grid item xs={12}>
             {chartMode == ChartMode.REALTIME &&
-              <ExampleChart4 />
+              <RealTimeChart />
             }
             {chartMode == ChartMode.CHART4 &&
               <ExampleChart5 />

@@ -1,5 +1,5 @@
 {/****************************************************************************
- * src/components/witmotion/WitMotionDriver.rsx
+ * src/components/witmotion/WitMotionDriver.tsx
  *
  *   Copyright (C) 2020-2021 Edwin Luinstra & Ben van der Veen. All rights reserved.
  *   Author:  Ben <disruptivesolutionsnl@gmail.com>
@@ -39,7 +39,6 @@
 {/****************************************************************************
  * Included Files
  ****************************************************************************/}
-
 import React, { Component } from "react";
 import { useEffect, useState } from 'react'
 import { BehaviorSubject, interval, fromEvent, Observable, Subject } from 'rxjs'
