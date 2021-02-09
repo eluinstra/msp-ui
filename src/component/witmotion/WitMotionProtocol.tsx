@@ -1,3 +1,9 @@
+export const imuTimeMs = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF)
+export const imuAccelero = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 16;
+export const imuAngularVelocity = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 2000;
+export const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 180;
+export const imuMagnetic = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 100;
+
 export enum ImuState {
     IMU_TIME = 80,
     IMU_ACCELERO = 81, //0x51,

@@ -24,6 +24,7 @@ import { ExampleChart2 } from '@/component/witmotion/ExampleChart2'
 import { RealTimeChart } from '@/component/witmotion/RealTimeChart'
 import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
 import { ExampleChart6 } from '@/component/witmotion/ExampleChart6'
+import { SerialRTChartPage } from '@/page/SerialRTChartPage'
 import { MainContainer } from '@/component/witmotion/MainContainer'
 import { AudioPlayExample } from '@/component/witmotion/AudioPlayExample'
 import { WitMotion } from '@/page/WitMotion'
@@ -213,6 +214,7 @@ const MSPDrawer = props => {
             <MenuListItem text="Example4" to="/example4" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Example5" to="/example5" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Example6" to="/example6" mode={Mode.IMU} setMode={setMode} />
+            <MenuListItem text="Serial RT" to="/serialrtchart" mode={Mode.IMU} setMode={setMode} />
             <MenuListItem text="Audio Test" to="/audioplayexample" mode={Mode.IMU} setMode={setMode} />
           </React.Fragment>
         )}
@@ -283,6 +285,10 @@ const MSPRouter = props => {
       </Route>
       <Route path="/example6">
         <ExampleChart6 />
+      </Route>
+      <Route path="/serialrtchart">
+        <SerialRTChartPage serialPort={serialPort1} />
+        <SerialRTChartPage serialPort={serialPort2} />
       </Route>
       <Route path="/audioplayexample">
         <AudioPlayExample />

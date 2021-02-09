@@ -49,7 +49,8 @@ import { Line } from 'react-chartjs-2'
 import { map, sample } from 'rxjs/operators'
 import { props } from "rambda";
 import { CChartContainerRedis } from '@/component/charts/ChartContainerRedis'
-import { ImuState, ImuMsg, IWitmotionAccelerometer, IWitmotionAngularVelocity, IWitmotionAngle, IWitmotionMagnetic } from '@/component/witmotion/WitMotionProtocol'
+import { ImuState, ImuMsg, IWitmotionAccelerometer, IWitmotionAngularVelocity, IWitmotionAngle, IWitmotionMagnetic,
+         imuTimeMs, imuAccelero, imuAngularVelocity, imuAngle, imuMagnetic } from '@/component/witmotion/WitMotionProtocol'
 import { Button } from '@material-ui/core'
 import Typography from "@material-ui/core/Typography";
 import { ContentSort } from "material-ui/svg-icons";
@@ -81,12 +82,6 @@ let cmd = undefined
 ****************************************************************************/}
 
 {/* Algorithms */ }
-
-const imuTimeMs = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF)
-const imuAccelero = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 16;
-const imuAngularVelocity = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 2000;
-const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 180;
-const imuMagnetic = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 100;
 
 {/****************************************************************************
  * Private Data

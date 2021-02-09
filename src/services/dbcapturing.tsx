@@ -2,7 +2,8 @@ import { remote } from 'electron'
 import { fromEvent, Subject } from 'rxjs'
 import { ImuDataTypeSensor } from "../common/types";
 export const redis = remote.require('redis')
-const client = redis.createClient();
+const masterClientW = redis.createClient({host: '127.0.0.1', port: 6379});
+const replicationClientR = redis.createClient({host: '127.0.0.1', port: 6380});
 const { promisify } = require('util');
 
 
@@ -18,16 +19,17 @@ var sensorImuDataType: ImuDataTypeSensor = {
 };
 
 //use const always, unless you have to reassign it. then use let.
-export const getAsync = promisify(client.get).bind(client);
-export const hmsetAsync = promisify(client.hmset).bind(client);
-export const hsetAsync = promisify(client.hset).bind(client);
-export const lrangeAsync = promisify(client.lrange).bind(client);
-export const lpushAsync = promisify(client.lpush).bind(client);
-export const smembersAsync = promisify(client.smembers).bind(client);
-export const flushallAsync = promisify(client.flushall).bind(client);
-export const flushDBAsync = promisify(client.flushdb).bind(client);
-export const zaddAsync = promisify(client.zadd).bind(client);
-export const zrangeAsync = promisify(client.zrange).bind(client);
-export const sortAsync = promisify(client.sort).bind(client);
-export const llenAsync = promisify(client.llen).bind(client);
-export const delAsync = promisify(client.del).bind(client);
+export const getAsync = promisify(masterClientW.get).bind(masterClientW);
+export const hmsetAsync = promisify(masterClientW.hmset).bind(masterClientW);
+export const hsetAsync = promisify(masterClientW.hset).bind(masterClientW);
+export const lpushAsync = promisify(masterClientW.lpush).bind(masterClientW);
+export const smembersAsync = promisify(masterClientW.smembers).bind(masterClientW);
+export const flushallAsync = promisify(masterClientW.flushall).bind(masterClientW);
+export const flushDBAsync = promisify(masterClientW.flushdb).bind(masterClientW);
+export const zaddAsync = promisify(masterClientW.zadd).bind(masterClientW);
+export const zrangeAsync = promisify(masterClientW.zrange).bind(masterClientW);
+export const sortAsync = promisify(masterClientW.sort).bind(masterClientW);
+export const llenAsync = promisify(masterClientW.llen).bind(masterClientW);
+export const delAsync = promisify(masterClientW.del).bind(masterClientW);
+
+export const lrangeAsync = promisify(replicationClientR.lrange).bind(replicationClientR);

@@ -48,15 +48,19 @@ import ReactApexChart from 'react-apexcharts'
 import ApexCharts from 'apexcharts'
 import { llenAsync, lpushAsync, lrangeAsync, delAsync, flushallAsync } from '@/services/dbcapturing'
 import { letProto } from "rxjs-compat/operator/let"
+import { truncateSync } from "fs"
 
 {/****************************************************************************
  * Private Types
 ****************************************************************************/}
-let XAXISRANGE = 777600000
-var TICKINTERVAL = 86400000
+let XAXISRANGE = 1000 //777600000
+//var TICKINTERVAL = 86400000 /* 1000 * 60 * 60 * 24 * 365 = each calander year milliseconds * seconds * minutes * hours * days = 1 year */
+var TICKINTERVAL = 100 /* 1000 * 60 * 60 * 24 * 365 = each calander year */
 
-let data = [];
 let lastDate = () => {0};
+let data = [];
+var lengtepromise = 0;
+const dataNumber = 40;
 
 {/****************************************************************************
  * Private Function Prototypes
@@ -88,20 +92,86 @@ function getDataFromRedis(baseval, yrange) {
   var newDate = baseval + TICKINTERVAL;
   lastDate = newDate
 
-  let dataLength = llenAsync('COM18_Accelero_X');
+  var test = false;
 
-  for (var i = 0; i < dataLength - 10; i++) {
-    // IMPORTANT
-    // we reset the x and y of the data which is out of drawing area
-    // to prevent memory leaks
-    data[i].x = newDate - XAXISRANGE - TICKINTERVAL
-    data[i].y = 0
-  }
+//D:\msp-ui\dist\component\witmotion\RealTimeChart.js:108 1611829139017
+//D:\msp-ui\dist\component\witmotion\RealTimeChart.js:109 1609459204400
+//D:\msp-ui\dist\component\witmotion\RealTimeChart.js:109 1609459204500
 
-  data.push({
+if (test)
+{
+for (var i = 0; i < data.length -dataNumber; i++) {
+  // IMPORTANT
+  // we reset the x and y of the data which is out of drawing area
+  // to prevent memory leaks
+  data[i].x = newDate - XAXISRANGE - TICKINTERVAL
+  data[i].y = 0
+}
+
+data.push({
     x: newDate,
     y: Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
   })
+}
+
+  // llenAsync('COM18_Accelero_X').then(function (lengte: number) {
+  //   lengtepromise = lengte;
+  // });
+
+  /* realtime redis collecting and reading is not fast enough */
+
+  lrangeAsync('COM6_Accelero_X', 0, dataNumber).then(function (result: string[]) {
+
+  //   //console.log(1611751086158 - XAXISRANGE - TICKINTERVAL);
+
+    if (result) {
+
+      for (var i = 0; i < result.length; i++) {
+        // IMPORTANT
+        // we reset the x and y of the data which is out of drawing area
+        // to prevent memory leaks
+        data[i].x = newDate - XAXISRANGE - TICKINTERVAL
+        data[i].y = 0
+      }
+
+      for (let j = 0; j < result.length; j++) {
+        var vali: string = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
+
+
+        var valStr = vali.split("\^");
+        var xyes = valStr[1].includes("x:");
+        var yyes = valStr[2].includes("y:");
+
+        if (xyes && yyes) {
+          data.push({
+            x: newDate, //parseFloat(valStr[1].split("x:")[1].valueOf()),
+            y: parseFloat(valStr[2].split("y:")[1].valueOf())
+          });
+
+        }
+      }
+    }
+  });
+
+    // let dataLength = llenAsync('COM18_Accelero_X');
+
+  // for (var i = 0; i < dataLength - 10; i++) {
+  //   // IMPORTANT
+  //   // we reset the x and y of the data which is out of drawing area
+  //   // to prevent memory leaks
+  //   data[i].x = newDate - XAXISRANGE - TICKINTERVAL
+  //   data[i].y = 0
+  // }
+
+  // data.push({
+  //   x: newDate,
+  //   y: Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
+  // })
+}
+
+function resetData() {
+  // Alternatively, you can also reset the data at certain intervals to prevent creating a huge series 
+  data = data.slice(data.length - dataNumber, data.length);
 }
 
 
@@ -120,18 +190,18 @@ function getDataFromRedis(baseval, yrange) {
  *   None
  *
 ****************************************************************************/}
-function generateDayWiseTimeSeries(baseval, count, yrange) {
-  var i = 0;
-  var series = [];
-  while (i < count) {
-    var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+// function generateDayWiseTimeSeries(baseval, count, yrange) {
+//   var i = 0;
+//   var series = [];
+//   while (i < count) {
+//     var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
 
-    series.push([baseval, y]);
-    baseval += 86400000;
-    i++;
-  }
-  return series;
-}
+//     series.push([baseval, y]);
+//     baseval += TICKINTERVAL;
+//     i++;
+//   }
+//   return series;
+// }
 
 {/****************************************************************************
  * Name: getDayWiseTimeSeries
@@ -152,7 +222,7 @@ function getDayWiseTimeSeries(baseval, count, yrange) {
   var i = 0;
   while (i < count) {
     var x = baseval;
-    var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+    var y = 0 //Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
 
     data.push({
       x, y
@@ -178,9 +248,16 @@ function getDayWiseTimeSeries(baseval, count, yrange) {
  *   None
  *
 ****************************************************************************/}
-getDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 20, {
-  min: 10,
-  max: 90
+// getDayWiseTimeSeries(new Date('2021-01-27').getTime(), 10, {
+//   min: -20,
+//   max: 20
+// })
+
+var dt = new Date()
+
+getDayWiseTimeSeries(dt.setHours(dt.getHours() + 1), dataNumber, {
+  min: -2,
+  max: 2
 })
 
 {/****************************************************************************
@@ -198,7 +275,7 @@ getDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 20, {
 ****************************************************************************/}
 export const RealTimeChart = props => {
   const { serialPort } = props
-   const [state] = useState({
+  const [state] = useState({
     series: [{
       data: data.slice()
     }],
@@ -211,7 +288,7 @@ export const RealTimeChart = props => {
           enabled: true,
           easing: 'linear',
           dynamicAnimation: {
-            speed: 200
+            speed: 1000
           }
         },
         toolbar: {
@@ -235,13 +312,14 @@ export const RealTimeChart = props => {
         size: 0
       },
       xaxis: {
-        type: 'datetime',
-        min: new Date('1 Jan 2021 ECT').getTime(),
-        range: XAXISRANGE,
-        tickAmount: 6,
+        type: 'category',
+        //min: new Date('1 Jan 2021 ECT').getTime(),
+        //CRUSIAL! THESE SETTINGS!
+        range: XAXISRANGE
       },
       yaxis: {
-        max: 100
+        min: -2,
+        max: 2
       },
       legend: {
         show: false
@@ -252,19 +330,19 @@ export const RealTimeChart = props => {
   useEffect(() => {
     setInterval(() => {
 
+      resetData();
+
       getDataFromRedis(lastDate, {
-        min: 10,
-        max: 90
+        min: -2,
+        max: 2
       })
-
-
 
       ApexCharts.exec('realtime', 'updateSeries', [{
         data: data
       }])
 
 
-    }, 200);
+    }, 2000);
 
 
 
