@@ -98,6 +98,6 @@ export const SerialChart = props => {
     return () => sub.unsubscribe()
   }, [])
   return (
-    <Line data={state} options={options} height={100} />
+    <Line key={id} data={state} options={options} height={100} />
   )
 }
