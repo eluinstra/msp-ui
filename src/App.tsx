@@ -25,7 +25,6 @@ import { RealTimeChart } from '@/component/witmotion/RealTimeChart'
 import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
 import { ExampleChart6 } from '@/component/witmotion/ExampleChart6'
 import { SerialRTChartPage } from '@/page/SerialRTChartPage'
-import { SerialRTChartPage2 } from '@/page/SerialRTChartPage2'
 import { MainContainer } from '@/component/witmotion/MainContainer'
 import { AudioPlayExample } from '@/component/witmotion/AudioPlayExample'
 import { WitMotion } from '@/page/WitMotion'
@@ -288,8 +287,7 @@ const MSPRouter = props => {
         <ExampleChart6 />
       </Route>
       <Route path="/serialrtchart">
-        <SerialRTChartPage id={1} serialPort={serialPort1} />
-        <SerialRTChartPage id={2} serialPort={serialPort2} />
+        <SerialRTChartPage id={1} serialPort1={serialPort1} serialPort2={serialPort2}  />
       </Route>
       <Route path="/audioplayexample">
         <AudioPlayExample />
