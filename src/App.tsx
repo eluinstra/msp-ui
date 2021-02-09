@@ -287,8 +287,8 @@ const MSPRouter = props => {
         <ExampleChart6 />
       </Route>
       <Route path="/serialrtchart">
-        <SerialRTChartPage serialPort={serialPort1} />
-        <SerialRTChartPage serialPort={serialPort2} />
+        <SerialRTChartPage id={1} serialPort={serialPort1}/>
+        <SerialRTChartPage id={2} serialPort={serialPort2}/>
       </Route>
       <Route path="/audioplayexample">
         <AudioPlayExample />

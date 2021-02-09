@@ -4,13 +4,13 @@ import 'chartjs-plugin-streaming'
 import { interval } from "rxjs"
 import { filter, map, startWith, tap } from "rxjs/operators"
 import { sample } from "rxjs/operators"
-import { imuResponse$, registerPort, unregisterPort } from '@/component/witmotion/SerialDriver'
+import { imuResponseRTChart$, registerPortRTChart, unregisterPortRTChart } from '@/component/witmotion/SerialDriver'
 import { isOpen } from "@/component/serialport/SerialPortDriver"
 
 const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
 
 export const SerialChart = props => {
-  const { serialPort } = props
+  const { id, serialPort } = props
   const [state] = useState({
     labels: [],
     datasets: [
@@ -58,7 +58,7 @@ export const SerialChart = props => {
       }]
     }
   })
-  const [imu$] = useState(imuResponse$
+  const [imu$] = useState(imuResponseRTChart$
     .pipe(
       sample(interval(500)),
       map(imuMsgAcc => {
@@ -77,11 +77,11 @@ export const SerialChart = props => {
       )
       .subscribe(p => {
         console.log("registerPort: "+p.value?.path);
-        registerPort(p)
+        registerPortRTChart(id, p)
       })
     return () => {
       sub.unsubscribe()
-      unregisterPort(serialPort)
+      unregisterPortRTChart(id, serialPort)
     }
   }, [])
   useEffect(() => {
