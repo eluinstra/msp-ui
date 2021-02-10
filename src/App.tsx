@@ -10,7 +10,6 @@ import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack'
 import { AboutPage } from '@/page/About'
 import { ConfigurationPage } from '@/page/Configuration'
-import { GPSPage } from './page/GPS'
 import { HomePage } from '@/page/Home'
 import { Imu } from '@/page/Imu'
 import { Msp } from '@/page/Msp'
@@ -185,22 +184,12 @@ const MSPDrawer = props => {
                 <MenuListItem text="Settings" to="/settings" icon={<BuildIcon />} setMode={setMode} />
                 <MenuListItem text="Ports" to="/ports" icon={<PowerIcon />} setMode={setMode} />
                 <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} setMode={setMode} />
-                {/* <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} setMode={setMode} /> */}
-                {/* <MenuListItem text="MSP" to="/msp" icon={<InputIcon />} mode={Mode.MSP} setMode={setMode} /> */}
                 <MenuListItem text="DSA" to="/imu" icon={<TrackChangesIcon />} mode={Mode.IMU} setMode={setMode} />
               </React.Fragment>
             )}
-            {/* <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} setMode={setMode} /> */}
             <MenuListItem text="About" to="/about" icon={<InfoIcon />} setMode={setMode} />
           </List>
         }
-        {/* {mode == Mode.MSP && (
-          <React.Fragment>
-            <MenuListItem text="MSP" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
-            <MenuListItem text="Input" to="/msp-input" icon={<InputIcon />} mode={Mode.MSP} setMode={setMode} />
-            <MenuListItem text="Chart" to="/msp-chart" icon={<ShowChartIcon />} mode={Mode.MSP} setMode={setMode} />
-          </React.Fragment>
-        )} */}
         {mode == Mode.IMU && (
           <React.Fragment>
             <MenuListItem text="Do Some Analytics" to="/" icon={<TrackChangesIcon />} setMode={setMode} />
@@ -248,24 +237,9 @@ const MSPRouter = props => {
       <Route path="/power">
         <PowerAndBatteryPage />
       </Route>
-      {/* <Route path="/msp">
-        <Msp />
-      </Route>
-      <Route path="/msp-input">
-        <MspInputPage serialPort={serialPort1} />
-      </Route>
-      <Route path="/msp-chart">
-        <MspChartPage serialPort={serialPort1} />
-      </Route> */}
       <Route path="/imu">
         <Imu />
       </Route>
-      {/* <Route path="/wit-motion">
-        <WitMotion serialPort={serialPort1} />
-      </Route> */}
-      {/* <Route path="/darting">
-        <UseWitMotionDriver serialPort1={serialPort1} serialPort2={serialPort2} />
-      </Route> */}
       <Route path="/maincontainer">
         <MainContainer serialPort1={serialPort1} serialPort2={serialPort2} />
       </Route>
@@ -289,9 +263,6 @@ const MSPRouter = props => {
       </Route>
       <Route path="/audioplayexample">
         <AudioPlayExample />
-      </Route>
-      <Route path="/gps">
-        <GPSPage />
       </Route>
       <Route path="/about">
         <AboutPage />
