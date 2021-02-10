@@ -48,7 +48,6 @@ import PropTypes from "prop-types";
 import { Line } from 'react-chartjs-2'
 import { map, sample } from 'rxjs/operators'
 import { props } from "rambda";
-import { CChartContainerRedis } from '@/component/charts/ChartContainerRedis'
 import { ImuState, ImuMsg, IWitmotionAccelerometer, IWitmotionAngularVelocity, IWitmotionAngle, IWitmotionMagnetic,
          imuTimeMs, imuAccelero, imuAngularVelocity, imuAngle, imuMagnetic } from '@/component/witmotion/WitMotionProtocol'
 import { Button } from '@material-ui/core'

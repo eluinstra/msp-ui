@@ -28,8 +28,6 @@
     "@react-rxjs/core": "^0.6.1",
     "@types/react": "^17.0.0",
     "apexcharts": "^3.23.1",
-    "chart.js": "^2.8.0",
-    "chartjs-plugin-streaming": "^1.8.0",
     "commonjs": "0.0.1",
     "copyfiles": "^2.4.1",
     "leaflet": "^1.7.1",

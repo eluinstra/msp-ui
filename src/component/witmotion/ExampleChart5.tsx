@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react"
-import { Line } from "react-chartjs-2"
-import 'chartjs-plugin-streaming'
 import { interval } from "rxjs"
 import { filter, map, startWith, tap } from "rxjs/operators"
 import { sample } from "rxjs/operators"
-import { imuResponse$, registerPort, unregisterPort } from '@/component/imu/WitMotion/Driver'
 import { isOpen } from "@/component/serialport/SerialPortDriver"
 import ReactApexChart from 'react-apexcharts'
 import ApexCharts from 'apexcharts'

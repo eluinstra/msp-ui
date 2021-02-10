@@ -50,7 +50,7 @@ import {
   Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon
 } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/core/styles';
-import { RealTimeChart } from '@/component/witmotion/RealTimeChart'
+import { SerialRTChartPage } from '@/page/SerialRTChartPage'
 import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
 import { ExampleTable } from '@/component/witmotion/ExampleTable'
 import { createSensorDriver, getSensorResponse$, SensorState, SensorMsg, sensorRequest } from '@/component/witmotion/WitMotionDriver'
@@ -269,7 +269,7 @@ export const MainContainer = props => {
           {/* Here are the charts which can be called on */}
           <Grid item xs={12}>
             {chartMode == ChartMode.REALTIME &&
-              <RealTimeChart />
+              <SerialRTChartPage id={1} serialPort1={serialPort1} serialPort2={serialPort2}  />
             }
             {chartMode == ChartMode.CHART4 &&
               <ExampleChart5 />
