@@ -45,7 +45,6 @@ import { BehaviorSubject, interval, fromEvent, Observable, Subject } from 'rxjs'
 import { filter, share, tap } from 'rxjs/operators'
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
-import { Line } from 'react-chartjs-2'
 import { map, sample } from 'rxjs/operators'
 import { props } from "rambda";
 import { ImuState, ImuMsg, IWitmotionAccelerometer, IWitmotionAngularVelocity, IWitmotionAngle, IWitmotionMagnetic,

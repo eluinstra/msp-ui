@@ -49,7 +49,7 @@ mspOutputFunctions[MspCmd.MSP_RAW_IMU] = (driver: Driver, msg: { acc_x: number, 
       data: []
   }]
   return (
-    <Chart driver={driver} datasets={datasets} />
+    {/*<Chart driver={driver} datasets={datasets} />*/}
   )
 }
 
@@ -62,6 +62,6 @@ mspOutputFunctions[MspCmd.MSP_ANALOG] = (driver: Driver, msg: { battery_voltage:
     borderDash: [8, 4]
   }]
   return (
-    <Chart driver={driver} datasets={datasets} />
+    {/*<Chart driver={driver} datasets={datasets} />*/}
   )
 }

@@ -45,7 +45,6 @@ import { BehaviorSubject, interval, fromEvent, Observable, Subject } from 'rxjs'
 import { filter, share, tap } from 'rxjs/operators'
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
-import { Line } from 'react-chartjs-2'
 import { map, sample } from 'rxjs/operators'
 import { props } from "rambda";
 import { ImuState, ImuMsg, IWitmotionAccelerometer, IWitmotionAngularVelocity, IWitmotionAngle, IWitmotionMagnetic,
@@ -413,7 +412,7 @@ function startAndStopCapturing(driver:TableDriver, cmd: TableActionState) {
               }
 
               /* De worpsnelheid is de hoek t.o.v. tijd. Dus stel arm rechtop en dan worp van terug halen naar maximaal en dan de tijd die is afgelegd = RPM */
-
+ 
 
               var oVar = yValSum / (nResults - 1);
 
