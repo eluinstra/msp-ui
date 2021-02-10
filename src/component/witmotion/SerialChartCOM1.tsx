@@ -102,14 +102,14 @@ export const SerialChartCOM1 = props => {
         max: 20
       },
       legend: {
-        show: false
+        show: true
       },
     }
   })
 
   const [imu$] = useState(imuResponseRTChart$
     .pipe(
-      sample(interval(500)),
+      sample(interval(100)),
       map(imuMsgAcc => {
         return {
           ax: imuAngle(imuMsgAcc.AxH, imuMsgAcc.AxL),

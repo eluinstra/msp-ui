@@ -4,7 +4,7 @@ import 'chartjs-plugin-streaming'
 import { interval } from "rxjs"
 import { filter, map, startWith, tap } from "rxjs/operators"
 import { sample } from "rxjs/operators"
-import { imuResponseRTChart$, registerPortRTChart, unregisterPortRTChart } from '@/component/witmotion/SerialDriver'
+import { imuResponseRTChart2$, registerPortRTChart2, unregisterPortRTChart2 } from '@/component/witmotion/SerialDriver2'
 import { isOpen } from "@/component/serialport/SerialPortDriver"
 import ApexCharts from 'apexcharts'
 import ReactApexChart from 'react-apexcharts'
@@ -107,9 +107,9 @@ export const SerialChartCOM2 = props => {
     }
   })
 
-  const [imu$] = useState(imuResponseRTChart$
+  const [imu2$] = useState(imuResponseRTChart2$
     .pipe(
-      sample(interval(500)),
+      sample(interval(100)),
       map(imuMsgAcc => {
         return {
           ax: imuAngle(imuMsgAcc.AxH, imuMsgAcc.AxL),
@@ -126,15 +126,15 @@ export const SerialChartCOM2 = props => {
       )
       .subscribe(p => {
         console.log("registerPort: "+p.value?.path);
-        registerPortRTChart(id, p)
+        registerPortRTChart2(id, p)
       })
     return () => {
       sub.unsubscribe()
-      unregisterPortRTChart(id, serialPort)
+      unregisterPortRTChart2(id, serialPort)
     }
   }, [])
   useEffect(() => {
-    const sub = imu$.subscribe(value => {
+    const sub2 = imu2$.subscribe(value => {
       const values = Object.values(value);
       const time = Date.now()
       values.forEach((v, i) => {
@@ -176,7 +176,7 @@ export const SerialChartCOM2 = props => {
       ])
       
     })
-    return () => sub.unsubscribe()
+    return () => sub2.unsubscribe()
   }, [])
   return (
     <React.Fragment>
