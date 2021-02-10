@@ -6,59 +6,107 @@ import { filter, map, startWith, tap } from "rxjs/operators"
 import { sample } from "rxjs/operators"
 import { imuResponseRTChart$, registerPortRTChart, unregisterPortRTChart } from '@/component/witmotion/SerialDriver'
 import { isOpen } from "@/component/serialport/SerialPortDriver"
+import ApexCharts from 'apexcharts'
+import ReactApexChart from 'react-apexcharts'
+
+
+{/****************************************************************************
+ * Private Types
+****************************************************************************/}
+let XAXISRANGE = 1000 //777600000
+//var TICKINTERVAL = 86400000 /* 1000 * 60 * 60 * 24 * 365 = each calander year milliseconds * seconds * minutes * hours * days = 1 year */
+var TICKINTERVAL = 100 /* 1000 * 60 * 60 * 24 * 365 = each calander year */
+
+let lastDate = () => {0};
+let datax = [];
+let datay = [];
+let dataz = [];
+var lengtepromise = 0;
+const dataNumber = 40;
+
+{/****************************************************************************
+ * Private Function Prototypes
+****************************************************************************/}
 
 const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
 
+
+{/****************************************************************************
+ * Name: RealTimeChart
+ *
+ * Description:
+ *   The Chart object
+ *
+ * Input Parameters:
+ *   props : the properties given to the object
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
 export const SerialChartCOM1 = props => {
   const { id, serialPort } = props
   const [state] = useState({
-    labels: [],
-    datasets: [
-      {
-        type: "line",
-        label: "Accelero X",
-        backgroundColor: "green",
-        borderWidth: "2",
-        lineTension: 0.45,
-        data: []
-      },
-      {
-        type: "line",
-        label: "Accelero Y",
-        backgroundColor: "blue",
-        borderWidth: "2",
-        lineTension: 0.45,
-        data: []
-      },
-      {
-        type: "line",
-        label: "Accelero Z",
-        backgroundColor: "cyan",
-        borderWidth: "2",
-        lineTension: 0.45,
-        data: []
-      }
-    ]
-  })
-  const [options] = useState({
-    responsive: true,
-    maintainAspectRatio: true,
-    tooltips: {
-      enabled: true
+    series: [{
+      type: 'line',
+      data: datax.slice()
     },
-    plugins: {
-      streaming: {
-        delay: 500,
-      }
+    {
+      type: 'line',
+      data: datay.slice()
     },
-    id: id,
-    events: ['click'],
-    scales: {
-      xAxes: [{
-        type: "realtime"
-      }]
+    {
+      type: 'line',
+      data: dataz.slice()
+    }],
+    options: {
+      chart: {
+        id: 'realtime1',
+        height: 350,
+        type: 'line',
+        animations: {
+          enabled: true,
+          easing: 'linear',
+          dynamicAnimation: {
+            speed: 500
+          }
+        },
+        toolbar: {
+          show: false
+        },
+        zoom: {
+          enabled: false
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'smooth'
+      },
+      title: {
+        text: 'Dynamic Updating Chart',
+        align: 'left'
+      },
+      markers: {
+        size: 0
+      },
+      xaxis: {
+        type: 'category',
+        //min: new Date('1 Jan 2021 ECT').getTime(),
+        //CRUSIAL! THESE SETTINGS!
+        range: XAXISRANGE
+      },
+      yaxis: {
+        min: -20,
+        max: 20
+      },
+      legend: {
+        show: false
+      },
     }
   })
+
   const [imu$] = useState(imuResponseRTChart$
     .pipe(
       sample(interval(500)),
@@ -90,15 +138,49 @@ export const SerialChartCOM1 = props => {
       const values = Object.values(value);
       const time = Date.now()
       values.forEach((v, i) => {
-        state.datasets[i].data.push({
-          x: time,
-          y: v
-        })
+        if (i == 0)
+        {
+          datax.push({
+            x: time - XAXISRANGE - TICKINTERVAL,
+            y: v
+          })
+        }
+        else if (i == 1)
+        {
+          datay.push({
+            x: time - XAXISRANGE - TICKINTERVAL,
+            y: v
+          })
+        }
+        else if (i == 2)
+        {
+          dataz.push({
+            x: time - XAXISRANGE - TICKINTERVAL,
+            y: v
+          })
+        }
+
       })
+
+      ApexCharts.exec('realtime1', 'updateSeries', [
+        {
+          data: datax
+        },
+        {
+          data: datay
+        }
+        ,
+        {
+          data: dataz
+        }
+      ])
+      
     })
     return () => sub.unsubscribe()
   }, [])
   return (
-    <Line key={id} data={state} options={options} height={100} />
+    <React.Fragment>
+      <ReactApexChart key={"COM1"} options={state.options} series={state.series} type="line" height={350} />
+    </React.Fragment>
   )
 }

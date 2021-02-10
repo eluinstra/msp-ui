@@ -7,8 +7,8 @@ export const SerialRTChartPage = props => {
   return (
     <React.Fragment>
       <h2>SerialRTChart</h2>
-      <SerialChartCOM1 serialPort={serialPort1} height={100}/>
-      <SerialChartCOM2 serialPort={serialPort2} height={100}/>
-    </React.Fragment>
+        <SerialChartCOM1 serialPort={serialPort1} height={200}/>
+        <SerialChartCOM2 serialPort={serialPort2} height={200}/>
+      </React.Fragment>
   )
 }
