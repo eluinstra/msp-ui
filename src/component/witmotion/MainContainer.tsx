@@ -269,7 +269,7 @@ export const MainContainer = props => {
           {/* Here are the charts which can be called on */}
           <Grid item xs={12}>
             {chartMode == ChartMode.REALTIME &&
-              <SerialRTChartPage id={1} serialPort1={serialPort1} serialPort2={serialPort2}  />
+              <ExampleTable />
             }
             {chartMode == ChartMode.CHART4 &&
               <ExampleChart5 />

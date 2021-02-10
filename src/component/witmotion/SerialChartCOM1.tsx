@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { interval } from "rxjs"
 import { filter, map, startWith, tap } from "rxjs/operators"
 import { sample } from "rxjs/operators"
-import { imuResponseRTChart$, registerPortRTChart, unregisterPortRTChart } from '@/component/witmotion/SerialDriver'
+import { imuResponseRTChart$, registerPortRTChart, unregisterPortRTChart } from '@/component/witmotion/SerialDriverCOM1'
 import { isOpen } from "@/component/serialport/SerialPortDriver"
 import ApexCharts from 'apexcharts'
 import ReactApexChart from 'react-apexcharts'

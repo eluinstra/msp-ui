@@ -3,6 +3,13 @@ import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { llenAsync, lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
 import ReactApexChart from 'react-apexcharts'
+import { useSnackbar } from 'notistack'
+import { createTableDriver, getStatisticsResponse$, TableActionState, TableActionMsg, statisticsRequest } from '@/component/witmotion/TableDriver'
+import { createSensorDriver } from './WitMotionDriver'
+import {
+  AppBar, ButtonGroup, Button, BottomNavigation, BottomNavigationAction, CssBaseline, Drawer, Grid, List, ListItem, ListItemIcon,
+  ListItemText, Paper, Toolbar, Typography
+} from '@material-ui/core'
 
 var randomizeArray = function (arg) {
     var array = arg.slice();
@@ -22,14 +29,43 @@ var randomizeArray = function (arg) {
     return array;
   }
 
+
 // data for the sparklines that appear below header area
 var sparklineData = [47, 45, 54, 38, 56, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 19, 46];
 
 export const ExampleTable = props => {
+    const [driver1] = useState(createTableDriver())
+    const { enqueueSnackbar } = useSnackbar()
     const { driver, datasets } = props
     const data = {
       datasets: datasets
     }
+
+    {/****************************************************************************
+ * Name: clickCollectingEvent
+ *
+ * Description:
+ *   The function that starts the collecting process
+ *
+ * Input Parameters:
+ *   event : an event from the user-interface
+ *
+ * Returned Value:
+ *   None
+ *
+****************************************************************************/}
+function clickCalculatingEvent(event) {
+
+  {/* Trigger with a subject the respons object of the driver */ }
+
+  try {
+    statisticsRequest(driver1, TableActionState.STATISTICS_COLLECTING, 'end-collecting-driver')
+  } catch (e) {
+    console.log(e)
+    enqueueSnackbar(e.message, { variant: 'error' })
+  }
+
+}
     
     const options = {
         series: [{
@@ -397,14 +433,16 @@ export const ExampleTable = props => {
     }
   return (
     <div>
-     
+    <Button color="primary" onClick={() => { { clickCalculatingEvent(this) } }} >COLLECTING</Button>
     <div className="row">
       <table>
         <thead>
-          <th>Total Value</th>
-          <th>Percentage of Portfolio</th>
-          <th>Last 10 days</th>
-          <th>Volume</th>
+          <tr>
+            <th>Total Value</th>
+            <th>Percentage of Portfolio</th>
+            <th>Last 10 days</th>
+            <th>Volume</th>
+          </tr>
         </thead>
         <tbody>
           <tr>
