@@ -91,6 +91,7 @@ export enum TableActionState {
 }
 
 const statisticsMsg: TableActionMsg = {
+  path: '',
   state: TableActionState.STATISTICS_IDLE,
   flag: 0,
   cmd: 0,
@@ -101,6 +102,7 @@ const statisticsMsg: TableActionMsg = {
 }
 
 export interface TableActionMsg {
+  path: string,
   state: TableActionState,
   flag: number,
   cmd: number,
@@ -249,9 +251,10 @@ export const statisticsRequest = (driver: TableDriver, cmd: TableActionState, pa
  *   A response subject is created (Observable)
  *
 ****************************************************************************/}
-export const createTableDriver = (): TableDriver => {
+export const createTableDriver = (serialPortPath): TableDriver => {
   return {
     statisticsMsg: {
+      path: serialPortPath,
       state: TableActionState.STATISTICS_IDLE,
       flag: 0,
       cmd: 0,
@@ -312,6 +315,7 @@ function startAndStopCapturing(driver:TableDriver, cmd: TableActionState) {
 
   const { statisticsMsg, statisticsResponse$ } = driver
           console.log("YES: "+driver.statisticsMsg.collecting);
+          console.log("PATH:"+driver.statisticsMsg.path);
 
           var nResults = 0;
           var xValSum = 0;
@@ -326,7 +330,7 @@ function startAndStopCapturing(driver:TableDriver, cmd: TableActionState) {
           var zMax = 0;
           var zMin = 0;
   
-          lrangeAsync("COM6" + '_Accelero_X', 0, -1).then(function (result: string[]) {
+          lrangeAsync(driver.statisticsMsg.path + '_Accelero_X', 0, -1).then(function (result: string[]) {
 
               if (result) {
 
@@ -370,14 +374,14 @@ function startAndStopCapturing(driver:TableDriver, cmd: TableActionState) {
 
                 /* push statistiek naar Redis primair */
 
-                lpushAsync('COM6_statistics', "xMin:" + xMin.toFixed(2));
-                lpushAsync('COM6_statistics', "xMax:" + xMax.toFixed(2));
+                lpushAsync(driver.statisticsMsg.path+'_statistics', "xMin:" + xMin.toFixed(2));
+                lpushAsync(driver.statisticsMsg.path+'_statistics', "xMax:" + xMax.toFixed(2));
 
               }
              }
            );
 
-           lrangeAsync("COM6" + '_Accelero_Y', 0, -1).then(function (result: string[]) {
+           lrangeAsync(driver.statisticsMsg.path + '_Accelero_Y', 0, -1).then(function (result: string[]) {
 
             if (result) {
 
@@ -424,14 +428,14 @@ function startAndStopCapturing(driver:TableDriver, cmd: TableActionState) {
 
               /* push statistiek naar Redis primair */
 
-              lpushAsync('COM6_statistics', "yMin:" + yMin.toFixed(2));
-              lpushAsync('COM6_statistics', "yMax:" + yMax.toFixed(2));
+              lpushAsync(driver.statisticsMsg.path+'_statistics', "yMin:" + yMin.toFixed(2));
+              lpushAsync(driver.statisticsMsg.path+'_statistics', "yMax:" + yMax.toFixed(2));
 
             }
            }
          );
 
-         lrangeAsync("COM6" + '_Accelero_Z', 0, -1).then(function (result: string[]) {
+         lrangeAsync(driver.statisticsMsg.path + '_Accelero_Z', 0, -1).then(function (result: string[]) {
 
           if (result) {
 
@@ -475,8 +479,8 @@ function startAndStopCapturing(driver:TableDriver, cmd: TableActionState) {
 
             /* push statistiek naar Redis primair */
 
-            lpushAsync('COM6_statistics', "zMin:" + zMin.toFixed(2));
-            lpushAsync('COM6_statistics', "zMax:" + zMax.toFixed(2));
+            lpushAsync(driver.statisticsMsg.path+'_statistics', "zMin:" + zMin.toFixed(2));
+            lpushAsync(driver.statisticsMsg.path+'_statistics', "zMax:" + zMax.toFixed(2));
 
           }
          }

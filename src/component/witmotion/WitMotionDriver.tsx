@@ -483,7 +483,7 @@ function flushRedisData(driver: SensorDriver, cmd: SensorState) {
   const { serialPort, sensorMsg, sensorResponse$ } = driver
 
   var originName = "" + getPath(serialPort);
-
+  
   delAsync(originName + '_Accelero_X', 0);
   delAsync(originName + '_Accelero_Y', 0);
   delAsync(originName + '_Accelero_Z', 0);
@@ -499,6 +499,8 @@ function flushRedisData(driver: SensorDriver, cmd: SensorState) {
   delAsync(originName + '_Magnetic_X', 0)
   delAsync(originName + '_Magnetic_Y', 0)
   delAsync(originName + '_Magnetic_Z', 0)
+
+  flushallAsync();
 
 }
 

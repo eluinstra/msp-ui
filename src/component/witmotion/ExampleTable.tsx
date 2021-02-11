@@ -10,6 +10,7 @@ import {
   AppBar, ButtonGroup, Button, BottomNavigation, BottomNavigationAction, CssBaseline, Drawer, Grid, List, ListItem, ListItemIcon,
   ListItemText, Paper, Toolbar, Typography
 } from '@material-ui/core'
+import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver'
 
 var randomizeArray = function (arg) {
     var array = arg.slice();
@@ -31,12 +32,13 @@ var randomizeArray = function (arg) {
 
 
 // data for the sparklines that appear below header area
+var datasets = [];
 var sparklineData = [47, 45, 54, 38, 56, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 19, 46];
 
 export const ExampleTable = props => {
-    const [driver1] = useState(createTableDriver())
+    const { serialPort1, serialPort2 } = props
+    const [driver1] = useState(createTableDriver(getPath(serialPort1)))
     const { enqueueSnackbar } = useSnackbar()
-    const { driver, datasets } = props
     const data = {
       datasets: datasets
     }

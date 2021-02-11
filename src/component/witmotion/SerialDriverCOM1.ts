@@ -50,8 +50,6 @@ export default iWitmotionAccelerometer;
 
 export const imuResponseRTChart$ = new Subject<IWitmotionAccelerometer>();
 export const registerPortRTChart = (id, serialPort) => {
-  console.log("serialPort: "+serialPort.value?.path);
-  console.log("ID: "+id);
   serialPort?.on('data', function (data) {
     let counter = 0
     for (let i = 0; i < data.length; i++) {

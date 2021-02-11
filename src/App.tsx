@@ -26,7 +26,7 @@ import { SerialRTChartPage } from '@/page/SerialRTChartPage'
 import { MainContainer } from '@/component/witmotion/MainContainer'
 import { AudioPlayExample } from '@/component/witmotion/AudioPlayExample'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
-import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
+import { createSerialPort, getPath, isOpen } from '@/component/serialport/SerialPortDriver';
 import { useStatefulObservable } from '@/common/RxTools'
 import { map } from 'rxjs/operators';
 
@@ -244,7 +244,7 @@ const MSPRouter = props => {
         <MainContainer serialPort1={serialPort1} serialPort2={serialPort2} />
       </Route>
       <Route path="/dartstats">
-        <ExampleTable />
+        <ExampleTable serialPort1={serialPort1} serialPort2={serialPort2} />
       </Route>
       <Route path="/example2">
         <ExampleChart2 />
