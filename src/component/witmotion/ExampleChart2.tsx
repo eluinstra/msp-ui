@@ -4,84 +4,158 @@ import { map, sample } from 'rxjs/operators'
 import { AppBar, CssBaseline, Drawer, Grid, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
 import { llenAsync, lpushAsync, lrangeAsync, flushallAsync } from '@/services/dbcapturing'
 import ReactApexChart from 'react-apexcharts'
+import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver'
 
-function generateDayWiseTimeSeries(baseval, count, yrange) {
-  var i = 0;
-  var series = [];
-  while (i < count) {
-    var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+var datasets = [];
+let dataAccx = [];
+let dataAccy = [];
+let dataAccz = [];
 
-    series.push([baseval, y]);
-    baseval += 86400000;
-    i++;
-  }
-  return series;
-}
-
-// data for the sparklines that appear below header area
-var sparklineData = [47, 45, 54, 38, 56, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 19, 46];
+let XAXISRANGE = 1000 //777600000
+//var TICKINTERVAL = 86400000 /* 1000 * 60 * 60 * 24 * 365 = each calander year milliseconds * seconds * minutes * hours * days = 1 year */
+var TICKINTERVAL = 100 /* 1000 * 60 * 60 * 24 * 365 = each calander year */
 
 export const ExampleChart2 = props => {
-  const { driver, datasets } = props
+  const { serialPort1, serialPort2 } = props
   const data = {
     datasets: datasets
   }
 
   const options = {
     series: [{
-      data: generateDayWiseTimeSeries(new Date('11 Feb 2017').getTime(), 20, {
-        min: 10,
-        max: 60
-      })
+      type: 'line',
+      data: dataAccx
+    },
+    {
+      type: 'line',
+      data: dataAccy
+    },
+    {
+      type: 'line',
+      data: dataAccz
     }],
     options: {
       chart: {
-        id: 'fb',
-        group: 'social',
+        id: 'accelerochart',
         type: 'line',
-        height: 160
+        height: 260
       },
       colors: ['#008FFB'],
       yaxis: {
         labels: {
-          minWidth: 40
+          minWidth: 20
         }
       }
     }
 
   }
-  const options2 = {
-    series: [{
-      data: generateDayWiseTimeSeries(new Date('11 Feb 2017').getTime(), 20, {
-        min: 10,
-        max: 30
-      })
-    }],
-    options: {
-      chart: {
-        id: 'tw',
-        group: 'social',
-        type: 'line',
-        height: 160
-      },
-      colors: ['#546E7A'],
-      yaxis: {
-        labels: {
-          minWidth: 40
+  useEffect(() => {
+    
+    var nResults = 0;
+
+    var pathOrigin = getPath(serialPort1);
+
+      lrangeAsync(pathOrigin + '_Accelero_X', 0, -1).then(function (result: string[]) {
+
+        if (result) {
+
+          nResults = result.length; 
+        
+          for (let j = 0; j < (result.length); j++) {
+            var vali = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
+            var valStr = vali.split("\^");
+
+            var xyes = valStr[1].includes("x:");
+            var yyes = valStr[2].includes("y:");
+            
+            if (xyes && yyes) {
+
+              var xi = parseFloat(valStr[1].split("x:")[1].valueOf());
+              var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
+    
+              dataAccx.push({
+              x: xi - XAXISRANGE - TICKINTERVAL,
+              y: yi
+            })
+          }
         }
       }
-    }
+      });
 
-  }
+      lrangeAsync(pathOrigin + '_Accelero_Y', 0, -1).then(function (result: string[]) {
+
+          if (result) {
+
+            nResults = result.length; 
+          
+            for (let j = 0; j < (result.length); j++) {
+              var vali = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
+              var valStr = vali.split("\^");
+
+              var xyes = valStr[1].includes("x:");
+              var yyes = valStr[2].includes("y:");
+              
+              if (xyes && yyes) {
+
+                var xi = parseFloat(valStr[1].split("x:")[1].valueOf());
+                var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
+      
+                dataAccy.push({
+                x: xi - XAXISRANGE - TICKINTERVAL,
+                y: yi
+              })
+            }
+          }
+        }
+      });
+
+      lrangeAsync(pathOrigin + '_Accelero_Z', 0, -1).then(function (result: string[]) {
+
+        if (result) {
+
+          nResults = result.length; 
+        
+          for (let j = 0; j < (result.length); j++) {
+            var vali = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
+            var valStr = vali.split("\^");
+
+            var xyes = valStr[1].includes("x:");
+            var yyes = valStr[2].includes("y:");
+            
+            if (xyes && yyes) {
+
+              var xi = parseFloat(valStr[1].split("x:")[1].valueOf());
+              var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
+    
+              dataAccz.push({
+              x: xi - XAXISRANGE - TICKINTERVAL,
+              y: yi
+            })
+          }
+        }
+
+        ApexCharts.exec('accelerochart', 'updateSeries', [
+          {
+            data: dataAccx
+          },
+          {
+            data: dataAccy
+          }
+          ,
+          {
+            data: dataAccz
+          }
+        ])
+      }
+    });
+  
+  }, [])
   return (
     <div>
       <React.Fragment>
         <Grid container spacing={3}>
         <Grid item xs={12}>
           <ReactApexChart options={options.options} series={options.series} type="line" height={320} />
-        </Grid>
-        <Grid item xs={12}>
-          <ReactApexChart options={options2.options} series={options2.series} type="line" height={320} />
         </Grid>
         </Grid>
       </React.Fragment>

@@ -33,11 +33,11 @@ var randomizeArray = function (arg) {
 
 // data for the sparklines that appear below header area
 var datasets = [];
-var sparklineData = [47, 45, 54, 38, 56, 24, 65, 31, 37, 39, 62, 51, 35, 41, 35, 27, 93, 53, 61, 27, 54, 43, 19, 46];
+var sparklineData = [];
 
 export const ExampleTable = props => {
     const { serialPort1, serialPort2 } = props
-    const [driver1] = useState(createTableDriver(getPath(serialPort1)))
+    const [driver1] = useState(createTableDriver(serialPort1))
     const { enqueueSnackbar } = useSnackbar()
     const data = {
       datasets: datasets

@@ -251,10 +251,10 @@ export const statisticsRequest = (driver: TableDriver, cmd: TableActionState, pa
  *   A response subject is created (Observable)
  *
 ****************************************************************************/}
-export const createTableDriver = (serialPortPath): TableDriver => {
+export const createTableDriver = (serialPort): TableDriver => {
   return {
     statisticsMsg: {
-      path: serialPortPath,
+      path: getPath(serialPort),
       state: TableActionState.STATISTICS_IDLE,
       flag: 0,
       cmd: 0,
@@ -472,9 +472,9 @@ function startAndStopCapturing(driver:TableDriver, cmd: TableActionState) {
             var oVar = zValSum / (nResults - 1);
 
             console.log("nResults: "+nResults.toFixed(2));
-            console.log("yValSum: "+zValSum.toFixed(2));
-            console.log("yMin: "+zMin.toFixed(2));
-            console.log("yMax: "+zMax.toFixed(2));
+            console.log("zValSum: "+zValSum.toFixed(2));
+            console.log("zMin: "+zMin.toFixed(2));
+            console.log("zMax: "+zMax.toFixed(2));
             console.log("oValSum: "+ oVar.toFixed(2));
 
             /* push statistiek naar Redis primair */
