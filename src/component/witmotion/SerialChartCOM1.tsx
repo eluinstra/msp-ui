@@ -3,6 +3,7 @@ import { interval } from "rxjs"
 import { filter, map, startWith, tap } from "rxjs/operators"
 import { sample } from "rxjs/operators"
 import { imuResponseRTChart$, registerPortRTChart, unregisterPortRTChart } from '@/component/witmotion/SerialDriverCOM1'
+import { imuAccelero } from '@/component/witmotion/WitMotionProtocol'
 import { isOpen } from "@/component/serialport/SerialPortDriver"
 import ApexCharts from 'apexcharts'
 import ReactApexChart from 'react-apexcharts'
@@ -25,9 +26,6 @@ const dataNumber = 40;
 {/****************************************************************************
  * Private Function Prototypes
 ****************************************************************************/}
-
-const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf()) / 32768 * 180
-
 
 {/****************************************************************************
  * Name: RealTimeChart
@@ -96,8 +94,8 @@ export const SerialChartCOM1 = props => {
         range: XAXISRANGE
       },
       yaxis: {
-        min: -20,
-        max: 20
+        min: -1,
+        max: 1
       },
       legend: {
         show: true
@@ -110,9 +108,9 @@ export const SerialChartCOM1 = props => {
       sample(interval(100)),
       map(imuMsgAcc => {
         return {
-          ax: imuAngle(imuMsgAcc.AxH, imuMsgAcc.AxL),
-          ay: imuAngle(imuMsgAcc.AyH, imuMsgAcc.AyL),
-          az: imuAngle(imuMsgAcc.AzH, imuMsgAcc.AzL)
+          ax: imuAccelero(imuMsgAcc.AxH, imuMsgAcc.AxL),
+          ay: imuAccelero(imuMsgAcc.AyH, imuMsgAcc.AyL),
+          az: imuAccelero(imuMsgAcc.AzH, imuMsgAcc.AzL)
         }
       })
     )

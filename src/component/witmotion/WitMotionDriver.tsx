@@ -533,7 +533,7 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
         parseIncommingString(data.readInt8(i))
 
-        let resolutie = 100;
+        let resolutie = 1;
 
         let timestamp = new Date().getTime();
 

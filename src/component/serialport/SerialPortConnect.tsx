@@ -26,7 +26,7 @@ export const SerialPortConnect = props => {
     const sub = connectClick$
       .pipe(
         filter(_ => notEmpty(state.port))
-      )
+      ) 
       .subscribe(val => {
         if (!connected) {
           openPort(serialPort, state.port, state.baudrate)

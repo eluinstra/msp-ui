@@ -225,15 +225,15 @@ export const statisticsRequest = (driver: TableDriver, cmd: TableActionState, pa
 
   if (cmd == TableActionState.STATISTICS_COLLECTING) {
     statisticsResponse$.next({ ...driver.statisticsMsg })
-    driver.statisticsMsg.state = TableActionState.STATISTICS_IDLE
+    //statisticsMsg.state = TableActionState.STATISTICS_IDLE
   } else if (cmd == TableActionState.STATISTICS_ENDED_COLLECTING) {
     statisticsResponse$.next({ ...driver.statisticsMsg })
-    driver.statisticsMsg.state = TableActionState.STATISTICS_IDLE
+    //statisticsMsg.state = TableActionState.STATISTICS_IDLE
   } else if (cmd == TableActionState.STATISTICS_ERROR_RECEIVED) {
     statisticsResponse$.error(new Error('MSP error received!'))
     statisticsResponse$.next({ ...driver.statisticsMsg })
     console.log('Sensor error received!\n');
-    driver.statisticsMsg.state = TableActionState.STATISTICS_IDLE
+    //statisticsMsg.state = TableActionState.STATISTICS_IDLE
   }
 
 }

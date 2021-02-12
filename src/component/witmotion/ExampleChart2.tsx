@@ -40,7 +40,7 @@ export const ExampleChart2 = props => {
         type: 'line',
         height: 260
       },
-      colors: ['#008FFB'],
+      colors: ['#2E93fA', '#66DA26', '#546E7A'],
       yaxis: {
         labels: {
           minWidth: 20
@@ -74,7 +74,7 @@ export const ExampleChart2 = props => {
               var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
     
               dataAccx.push({
-              x: xi - XAXISRANGE - TICKINTERVAL,
+              x: xi, // - XAXISRANGE - TICKINTERVAL,
               y: yi
             })
           }
@@ -101,7 +101,7 @@ export const ExampleChart2 = props => {
                 var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
       
                 dataAccy.push({
-                x: xi - XAXISRANGE - TICKINTERVAL,
+                x: xi, // - XAXISRANGE - TICKINTERVAL,
                 y: yi
               })
             }
@@ -128,7 +128,7 @@ export const ExampleChart2 = props => {
               var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
     
               dataAccz.push({
-              x: xi - XAXISRANGE - TICKINTERVAL,
+              x: xi, // - XAXISRANGE - TICKINTERVAL,
               y: yi
             })
           }
