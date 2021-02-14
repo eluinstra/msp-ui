@@ -1,0 +1,38 @@
+55 50 00 00 00 01 25 0C AC 03 86
+55 51 46 00 9A FA 80 0E E6 0F 03
+55 52 00 00 00 00 00 00 97 01 3F
+55 53 90 F1 67 FE F6 4A 2D 29 24
+55 54 35 FF 1C 00 1C FE E6 0F 08
+55 50 00 00 00 01 25 0C B6 03 90
+1027*0xFF
+
+55 51 3F 00 EF BF BD EF BF BD EF
+
+55 51 43 00 ef bf bd ef bf bd 7f
+( 81 ) 51( -17 ) ef( -65 ) bf( -67 ) bd( 20 ) 14( 0 ) 00( 51 ) 33( -17 ) ef( -65 ) bf( -67 ) bd
+( 81 ) 51( 66 ) 42( 0 ) 00( -17 ) ef( -65 ) bf( -67 ) bd( -17 ) ef( -65 ) bf( -67 ) bd( -17 ) ef
+( 81 ) 51( 64 ) 40( 0 ) 00( -17 ) ef( -65 ) bf( -67 ) bd( -17 ) ef( -65 ) bf( -67 ) bd( -17 ) ef
+
+55 51 25 00 93 FA 8B 0E F8 0C F5 
+
+((parseInt(0x00) << 8) | parseInt(0x25)) / 32768.0 *16.0
+0.018 --> 0.0190
+
+((parseInt(0xFA) << 8) | parseInt(0x93)) / 32768.0 *16.0
+31.32 --> -0.6767
+
+((parseInt(0x0E) << 8) | parseInt(0x8B)) / 32768.0 *16.0
+1.8179 -> 1.8135
+
+((parseInt(0x0C) << 8) | parseInt(0xF8)) / 100
+33.2 --> 33.2
+
+55 51 27 00 92 FA 82 0E F8 0C ED
+
+55 51 A2 FF 3E FA A4 0E B4 0F F4 
+55 51 A8 FF 3C FA A6 0E BA 0F 00 
+55 51 A1 FF 3E FA A9 0E B4 0F F8
+55 51 A0 FF 3F FA A7 0E BA 0F FC
+55 51 A4 FF 41 FA A6 0E BA 0F 01
+55 51 A5 FF 3E FA A8 0E C7 0F 0E
+55 51 A5 FF 41 FA AC 0E C1 0F 0F 

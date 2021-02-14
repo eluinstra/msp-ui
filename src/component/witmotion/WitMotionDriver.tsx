@@ -555,9 +555,17 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
           let yy = imuAccelero(iWitmotionAccelerometer.AyH, iWitmotionAccelerometer.AyL);
           let yz = imuAccelero(iWitmotionAccelerometer.AzH, iWitmotionAccelerometer.AzL);
 
-          lpushAsync(originName + '_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx)
-          lpushAsync(originName + '_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy)
-          lpushAsync(originName + '_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz)
+          let hVal = (iWitmotionAccelerometer.AxH >127) ? (iWitmotionAccelerometer.AxH-256) : iWitmotionAccelerometer.AxH; //0x7F en 0x100
+          let lVal = (iWitmotionAccelerometer.AxL & 0xFF);
+          let xAlg = (((hVal << 8) | lVal) / 32768) * 16;
+
+          let xAlgoud = ((iWitmotionAccelerometer.AxH << 8) | iWitmotionAccelerometer.AxL) / 32768 * 16;
+
+          let temp = ((iWitmotionAccelerometer.TH << 8) | iWitmotionAccelerometer.TL) / 100;
+
+          lpushAsync(originName + '_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx+"^AxH:"+iWitmotionAccelerometer.AxH+"^AxL:"+iWitmotionAccelerometer.AxL+"Temp:"+temp);
+          lpushAsync(originName + '_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy+"^AyH:"+iWitmotionAccelerometer.AyH+"^AyL:"+iWitmotionAccelerometer.AyL)
+          lpushAsync(originName + '_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz+"^AzH:"+iWitmotionAccelerometer.AzH+"^AzL:"+iWitmotionAccelerometer.AzL)
 
           let CHK = 85 + 81 + (iWitmotionAccelerometer.AxH + iWitmotionAccelerometer.AxL +
             iWitmotionAccelerometer.AyH + iWitmotionAccelerometer.AyL +

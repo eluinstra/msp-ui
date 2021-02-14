@@ -1,8 +1,24 @@
 export const imuTimeMs = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF)
-export const imuAccelero = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768.0 * 16.0;
-export const imuAngularVelocity = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768.0 * 2000.0;
-export const imuAngle = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768.0 * 180.0;
-export const imuMagnetic = (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 100;
+export const imuAccelero = (h: number, l: number) => {
+  var hVal = (h.valueOf() >127) ? (h.valueOf()-256) : h.valueOf();
+  var lVal = (l.valueOf() & 0xFF);
+  return ((hVal << 8) | lVal) / 32768.0 * 16.0;
+}
+export const imuAngularVelocity = (h: number, l: number) => {
+  var hVal = (h.valueOf() > 127) ? (h.valueOf()-256) : h.valueOf();
+  var lVal = (l.valueOf() & 0xFF);
+  return ((hVal << 8) | lVal) / 32768.0 * 2000.0;
+}
+export const imuAngle = (h: number, l: number) => {
+  var hVal = (h.valueOf() > 0x7F) ? (h.valueOf()-0x100) : h.valueOf();
+  var lVal = (l.valueOf() & 0xFF);
+  return ((hVal << 8) | lVal) / 32768.0 * 180.0;
+}
+export const imuMagnetic = (h: number, l: number) => {
+  var hVal = (h.valueOf() > 0x7F) ? (h.valueOf()-0x100) : h.valueOf();
+  var lVal = (l.valueOf() & 0xFF);
+  return ((hVal << 8) | lVal) / 100;
+}
 
 export enum ImuState {
     IMU_TIME = 80,
