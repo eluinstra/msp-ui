@@ -522,6 +522,14 @@ function flushRedisData(driver: SensorDriver, cmd: SensorState) {
 
 }
 
+const dataBuffer = new Subject()
+
+dataBuffer.subscribe((data : {x, y , z}) => {
+    lpushAsync(data.x.name, data.x.value);
+    lpushAsync(data.y.name, data.y.value);
+    lpushAsync(data.z.name, data.z.value);
+})
+
 {/****************************************************************************
  * Name: startAndStopCapturing
  *
@@ -554,7 +562,6 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
         let resolutie = 1;
 
         let timestamp = new Date().getTime();
-        //console.log(timestamp);
 
         /* Redis calls */
 
@@ -593,13 +600,24 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           if (chk == sum)
           {
-            lpushAsync(originName + '_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx+"^TIME:"+new Date(timestamp));
-            lpushAsync(originName + '_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy+"^TIME:"+new Date(timestamp));
-            lpushAsync(originName + '_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz+"^TIME:"+new Date(timestamp));
+            dataBuffer.next({
+              x: {
+                name: originName + '_Accelero_X', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx
+              },
+              y: {
+                name: originName + '_Accelero_Y', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx
+              },
+              z: {
+                name: originName + '_Accelero_Z', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx
+              }
+            })
           }
           else
           {
-            //lpushAsync(originName + '_Accelero_ERROR', "chk:" + chk + "^sum:" + sum+"^TIME:"+new Date(timestamp))
+            //lpushAsync(originName + '_Accelero_ERROR', "chk:" + chk + "^sum:" + sum)
           }
 
           
@@ -622,10 +640,20 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           if (chk == sum)
           {
-
-            lpushAsync(originName + '_AngularVelocity_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyx)
-            lpushAsync(originName + '_AngularVelocity_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyy)
-            lpushAsync(originName + '_AngularVelocity_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyz)
+            dataBuffer.next({
+              x: {
+                name: originName + '_AngularVelocity_X', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyx
+              },
+              y: {
+                name: originName + '_AngularVelocity_Y', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyy
+              },
+              z: {
+                name: originName + '_AngularVelocity_Z', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyz
+              }
+            })
           }
           else
           {
@@ -651,9 +679,20 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           if (chk == sum)
           {
-            lpushAsync(originName + '_Angle_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyx)
-            lpushAsync(originName + '_Angle_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyy)
-            lpushAsync(originName + '_Angle_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyz)
+            dataBuffer.next({
+              x: {
+                name: originName + '_Angle_X', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyx
+              },
+              y: {
+                name: originName + '_Angle_Y', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyy
+              },
+              z: {
+                name: originName + '_Angle_Z', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyz
+              }
+            })
           }
           else
           {
@@ -679,9 +718,20 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           if (chk == sum)
           {
-            lpushAsync(originName + '_Magnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
-            lpushAsync(originName + '_Magnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
-            lpushAsync(originName + '_Magnetic_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyz)
+            dataBuffer.next({
+              x: {
+                name: originName + '_Magnetic_X', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx
+              },
+              y: {
+                name: originName + '_Magnetic_Y', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy
+              },
+              z: {
+                name: originName + '_Magnetic_Z', 
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyz
+              }
+            })
           }
           else
           {
