@@ -554,6 +554,7 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
         let resolutie = 1;
 
         let timestamp = new Date().getTime();
+        console.log(timestamp);
 
         /* Redis calls */
 
@@ -592,13 +593,13 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           if (chk == sum)
           {
-            lpushAsync(originName + '_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx);
-            lpushAsync(originName + '_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy);
-            lpushAsync(originName + '_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz);
+            lpushAsync(originName + '_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx+"^TIME:"+new Date(timestamp));
+            lpushAsync(originName + '_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy+"^TIME:"+new Date(timestamp));
+            lpushAsync(originName + '_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz+"^TIME:"+new Date(timestamp));
           }
           else
           {
-            //lpushAsync(originName + '_Accelero_ERROR', "chk:" + chk + "^sum:" + sum)
+            lpushAsync(originName + '_Accelero_ERROR', "chk:" + chk + "^sum:" + sum+"^TIME:"+new Date(timestamp))
           }
 
           

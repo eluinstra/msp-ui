@@ -134,20 +134,22 @@ export const ExampleChart2 = props => {
           }
         }
 
-        ApexCharts.exec('accelerochart', 'updateSeries', [
-          {
-            data: dataAccx.slice(0,1000)
-          },
-          {
-            data: dataAccy.slice(0,1000)
-          }
-          ,
-          {
-            data: dataAccz.slice(0,1000)
-          }
-        ])
+        
       }
     });
+
+    ApexCharts.exec('accelerochart', 'updateSeries', [
+      {
+        data: dataAccx
+      },
+      {
+        data: dataAccy
+      }
+      ,
+      {
+        data: dataAccz
+      }
+    ])
   
   }, [])
   return (
