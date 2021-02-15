@@ -43,7 +43,7 @@ export const ExampleChart2 = props => {
       colors: ['#2E93fA', '#66DA26', '#546E7A'],
       yaxis: {
         labels: {
-          minWidth: 20
+          minWidth: 120
         }
       }
     }
@@ -74,7 +74,7 @@ export const ExampleChart2 = props => {
               var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
     
               dataAccx.push({
-              x: xi, // - XAXISRANGE - TICKINTERVAL,
+              x: xi,
               y: yi
             })
           }
@@ -87,7 +87,7 @@ export const ExampleChart2 = props => {
           if (result) {
 
             nResults = result.length; 
-          
+         
             for (let j = 0; j < (result.length); j++) {
               var vali = result[j].toString(); /* syntax ts:<value> ^ x:<value> ^ y:<value> */
               var valStr = vali.split("\^");
@@ -128,7 +128,7 @@ export const ExampleChart2 = props => {
               var yi = parseFloat(valStr[2].split("y:")[1].valueOf());
     
               dataAccz.push({
-              x: xi, // - XAXISRANGE - TICKINTERVAL,
+              x: xi,
               y: yi
             })
           }
@@ -136,14 +136,14 @@ export const ExampleChart2 = props => {
 
         ApexCharts.exec('accelerochart', 'updateSeries', [
           {
-            data: dataAccx
+            data: dataAccx.slice(0,1000)
           },
           {
-            data: dataAccy
+            data: dataAccy.slice(0,1000)
           }
           ,
           {
-            data: dataAccz
+            data: dataAccz.slice(0,1000)
           }
         ])
       }

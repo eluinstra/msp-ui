@@ -54,23 +54,23 @@ export default iWitmotionAccelerometer;
 
 export const imuResponseRTChart2$ = new Subject<IWitmotionAccelerometer>();
 export const registerPortRTChart2 = (id, serialPort) => {
-  console.log("serialPort: "+serialPort.value?.path);
-  console.log("ID: "+id);
-  serialPort?.on('data', function (data) {
-    let counter = 0
-    for (let i = 0; i < data.length; i++) {
-      //if 0x55 is found unpack messages till next 0x55
-      parseIMUAcc(data.readInt8(i))
-      if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
-        imuResponseRTChart2$.next(iWitmotionAccelerometer)
-        imuMsg.state = ImuState.IMU_IDLE
-      } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
-        imuResponseRTChart2$.error(new Error('MSP error received!'))
-        imuMsg.state = ImuState.IMU_IDLE
-      }
-      counter++;
-    }
-  })
+  // console.log("serialPort: "+serialPort.value?.path);
+  // console.log("ID: "+id);
+  // serialPort?.on('data', function (data) {
+  //   let counter = 0
+  //   for (let i = 0; i < data.length; i++) {
+  //     //if 0x55 is found unpack messages till next 0x55
+  //     parseIMUAcc(data.readInt8(i))
+  //     if (imuMsg.state == ImuState.IMU_COMMAND_RECEIVED) {
+  //       imuResponseRTChart2$.next(iWitmotionAccelerometer)
+  //       imuMsg.state = ImuState.IMU_IDLE
+  //     } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
+  //       imuResponseRTChart2$.error(new Error('MSP error received!'))
+  //       imuMsg.state = ImuState.IMU_IDLE
+  //     }
+  //     counter++;
+  //   }
+  // })
 }
 export const unregisterPortRTChart2 = (id, serialPort) => {
   serialPort?.value.on('data', function (data) {

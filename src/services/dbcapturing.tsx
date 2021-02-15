@@ -29,7 +29,7 @@ export const flushDBAsync = promisify(masterClientW.flushdb).bind(masterClientW)
 export const zaddAsync = promisify(masterClientW.zadd).bind(masterClientW);
 export const zrangeAsync = promisify(masterClientW.zrange).bind(masterClientW);
 export const sortAsync = promisify(masterClientW.sort).bind(masterClientW);
-export const llenAsync = promisify(masterClientW.llen).bind(masterClientW);
 export const delAsync = promisify(masterClientW.del).bind(masterClientW);
 
 export const lrangeAsync = promisify(replicationClientR.lrange).bind(replicationClientR);
+export const llenAsync = promisify(replicationClientR.llen).bind(replicationClientR);
