@@ -593,9 +593,11 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           if (chk == sum)
           {
-            lpushAsync(originName + '_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx+"^TIME:"+new Date(timestamp));
-            lpushAsync(originName + '_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy+"^TIME:"+new Date(timestamp));
-            lpushAsync(originName + '_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz+"^TIME:"+new Date(timestamp));
+            //lpushAsync(originName + '_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx+"^TIME:"+new Date(timestamp));
+            //lpushAsync(originName + '_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy+"^TIME:"+new Date(timestamp));
+            //lpushAsync(originName + '_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz+"^TIME:"+new Date(timestamp));
+            //console.log(originName + '_Accelero_X_'+"^TIME:"+new Date(timestamp));
+            lpushAsync('ACC',  "["+i+"]"+originName+"^TIME:"+new Date(timestamp))
           }
           else
           {
@@ -623,9 +625,11 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
           if (chk == sum)
           {
 
-            lpushAsync(originName + '_AngularVelocity_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyx)
-            lpushAsync(originName + '_AngularVelocity_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyy)
-            lpushAsync(originName + '_AngularVelocity_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyz)
+            //lpushAsync(originName + '_AngularVelocity_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyx)
+            //lpushAsync(originName + '_AngularVelocity_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyy)
+            //lpushAsync(originName + '_AngularVelocity_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyz)
+            lpushAsync('ANGU', originName+"^TIME:"+new Date(timestamp))
+            //console.log(originName + '_AngularVelocity_X_'+"^TIME:"+new Date(timestamp));
           }
           else
           {
@@ -651,9 +655,11 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           if (chk == sum)
           {
-            lpushAsync(originName + '_Angle_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyx)
-            lpushAsync(originName + '_Angle_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyy)
-            lpushAsync(originName + '_Angle_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyz)
+            //lpushAsync(originName + '_Angle_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyx)
+            //lpushAsync(originName + '_Angle_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyy)
+            //lpushAsync(originName + '_Angle_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyz)
+            lpushAsync('ANG', originName+"^TIME:"+new Date(timestamp))
+            //console.log(originName + '_Angle_Z_'+"^TIME:"+new Date(timestamp));
           }
           else
           {
@@ -679,9 +685,11 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           if (chk == sum)
           {
-            lpushAsync(originName + '_Magnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
-            lpushAsync(originName + '_Magnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
-            lpushAsync(originName + '_Magnetic_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyz)
+            //lpushAsync(originName + '_Magnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
+            //lpushAsync(originName + '_Magnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
+            //lpushAsync(originName + '_Magnetic_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyz)
+            lpushAsync('M', originName+"^TIME:"+new Date(timestamp))
+            //console.log(originName + '_Magnetic_X_'+"^TIME:"+new Date(timestamp));
           }
           else
           {
