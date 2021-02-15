@@ -565,7 +565,7 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           let T = ((iWitmotionAccelerometer.TH << 8) | iWitmotionAccelerometer.TL & 0xFF) / 100;
 
-          lpushAsync('dataTemp', "ts:" + new Date().getTime() + "^Tx:" + T);
+          //lpushAsync('dataTemp', "ts:" + new Date().getTime() + "^Tx:" + T);
 
           /* @TODO: Function toevoegen [Clean code] Function insert in Database{object) Function Accelero */
 
@@ -586,9 +586,9 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
             iWitmotionAccelerometer.TH + iWitmotionAccelerometer.TL);
 
           //let sum = (iWitmotionAccelerometer.SUM > 127) ? (iWitmotionAccelerometer.SUM-256) :iWitmotionAccelerometer.SUM;
-          chk = (chk > 127) ? (chk-256) : chk;
-          chk = (chk < -127) ? (chk+256) : chk;
-          let sum = (iWitmotionAccelerometer.SUM);
+          //chk = (chk > 127) ? (chk-256) : chk;
+          chk = chk & 0xFF;
+          let sum = (iWitmotionAccelerometer.SUM & 0xFF);
 
           if (chk == sum)
           {
@@ -598,7 +598,7 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
           }
           else
           {
-            lpushAsync(originName + '_Accelero_ERROR', "chk:" + chk + "^sum:" + sum)
+            //lpushAsync(originName + '_Accelero_ERROR', "chk:" + chk + "^sum:" + sum)
           }
 
           
@@ -616,9 +616,8 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
             iWitmotionAngularVelocity.wzH + iWitmotionAngularVelocity.wzL +
             iWitmotionAngularVelocity.TH + iWitmotionAngularVelocity.TL);
 
-          chk = (chk > 127) ? (chk-256) : chk;
-          chk = (chk < -127) ? (chk+256) : chk;
-          let sum = (iWitmotionAngularVelocity.SUM);
+          chk = chk & 0xFF;
+          let sum = (iWitmotionAngularVelocity.SUM & 0xFF);
 
           if (chk == sum)
           {
@@ -629,7 +628,7 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
           }
           else
           {
-            lpushAsync(originName + '_AngularVelocity_ERROR', "chk:" + chk + "^sum:" + sum)
+            //lpushAsync(originName + '_AngularVelocity_ERROR', "chk:" + chk + "^sum:" + sum)
           }
 
           imuMsg.state = ImuState.IMU_IDLE
@@ -646,9 +645,8 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
             iWitmotionAngle.TH + iWitmotionAngle.TL);
 
           //let sum = (iWitmotionAngle.SUM > 127) ? (iWitmotionAngle.SUM-256) :iWitmotionAngle.SUM;
-          chk = (chk > 127) ? (chk-256) : chk;
-          chk = (chk < -127) ? (chk+256) : chk;
-          let sum = (iWitmotionAngle.SUM);
+          chk = chk & 0xFF;
+          let sum = (iWitmotionAngle.SUM & 0xFF);
 
           if (chk == sum)
           {
@@ -658,7 +656,7 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
           }
           else
           {
-            lpushAsync(originName + '_Angle_ERROR', "chk:" + chk + "^sum:" + sum)
+            //lpushAsync(originName + '_Angle_ERROR', "chk:" + chk + "^sum:" + sum)
           }
 
           imuMsg.state = ImuState.IMU_IDLE
@@ -675,9 +673,8 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
             iWitmotionMagnetic.TH + iWitmotionMagnetic.TL);
 
           //let sum = (iWitmotionMagnetic.SUM > 127) ? (iWitmotionMagnetic.SUM-256) :iWitmotionMagnetic.SUM;
-          chk = (chk > 127) ? (chk-256) : chk;
-          chk = (chk < -127) ? (chk+256) : chk;
-          let sum = (iWitmotionMagnetic.SUM);
+          chk = chk & 0xFF;
+          let sum = (iWitmotionMagnetic.SUM & 0xFF);
 
           if (chk == sum)
           {
@@ -687,7 +684,7 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
           }
           else
           {
-            lpushAsync(originName + '_Magnetic_ERROR', "chk:" + chk + "^sum:" + sum)
+            //lpushAsync(originName + '_Magnetic_ERROR', "chk:" + chk + "^sum:" + sum)
           }
 
           imuMsg.state = ImuState.IMU_IDLE
