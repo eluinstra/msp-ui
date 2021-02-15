@@ -235,7 +235,7 @@ function parseIncommingString(num: number) {
           case 6: iWitmotionAccelerometer.AzH = num; break;
           case 7: iWitmotionAccelerometer.TL = num; break;
           case 8: iWitmotionAccelerometer.TH = num; break;
-          case 9: iWitmotionAccelerometer.SUM = num;
+          case 9: iWitmotionAccelerometer.SUM = num; break;
         }
         if (datasegmentcounter == 9) {
           imuMsg.state = ImuState.IMU_ACCELERO_RECEIVED;
@@ -244,8 +244,8 @@ function parseIncommingString(num: number) {
 
       if (cmd == ImuState.IMU_ANGULARVELOCITY) {
         iWitmotionAngularVelocity.dscnt = datasegmentcounter;
-        iWitmotionAccelerometer.SBYTE = 85;
-        iWitmotionAccelerometer.CMD = cmd;
+        iWitmotionAngularVelocity.SBYTE = 85;
+        iWitmotionAngularVelocity.CMD = cmd;
         switch (datasegmentcounter) {
           case 1: iWitmotionAngularVelocity.wxL = num; break;
           case 2: iWitmotionAngularVelocity.wxH = num; break;
@@ -255,7 +255,7 @@ function parseIncommingString(num: number) {
           case 6: iWitmotionAngularVelocity.wzH = num; break;
           case 7: iWitmotionAngularVelocity.TL = num; break;
           case 8: iWitmotionAngularVelocity.TH = num; break;
-          case 9: iWitmotionAngularVelocity.SUM = num;
+          case 9: iWitmotionAngularVelocity.SUM = num; break;
         }
         if (datasegmentcounter == 9) {
           imuMsg.state = ImuState.IMU_ANGULARVELOCITY_RECEIVED;
@@ -264,8 +264,8 @@ function parseIncommingString(num: number) {
 
       if (cmd == ImuState.IMU_ANGLE) {
         iWitmotionAngle.dscnt = datasegmentcounter;
-        iWitmotionAccelerometer.SBYTE = 85;
-        iWitmotionAccelerometer.CMD = cmd;
+        iWitmotionAngle.SBYTE = 85;
+        iWitmotionAngle.CMD = cmd;
         switch (datasegmentcounter) {
           case 1: iWitmotionAngle.RollL = num; break;
           case 2: iWitmotionAngle.RollH = num; break;
@@ -275,7 +275,7 @@ function parseIncommingString(num: number) {
           case 6: iWitmotionAngle.YawH = num; break;
           case 7: iWitmotionAngle.TL = num; break;
           case 8: iWitmotionAngle.TH = num; break;
-          case 9: iWitmotionAngle.SUM = num;
+          case 9: iWitmotionAngle.SUM = num; break;
         }
         if (datasegmentcounter == 9) {
           imuMsg.state = ImuState.IMU_ANGLE_RECEIVED;
@@ -284,8 +284,8 @@ function parseIncommingString(num: number) {
 
       if (cmd == ImuState.IMU_MAGNETIC) {
         iWitmotionMagnetic.dscnt = datasegmentcounter;
-        iWitmotionAccelerometer.SBYTE = 85;
-        iWitmotionAccelerometer.CMD = cmd;
+        iWitmotionMagnetic.SBYTE = 85;
+        iWitmotionMagnetic.CMD = cmd;
         switch (datasegmentcounter) {
           case 1: iWitmotionMagnetic.HxL = num; break;
           case 2: iWitmotionMagnetic.HxH = num; break;
@@ -295,7 +295,7 @@ function parseIncommingString(num: number) {
           case 6: iWitmotionMagnetic.HzH = num; break;
           case 7: iWitmotionMagnetic.TL = num; break;
           case 8: iWitmotionMagnetic.TH = num; break;
-          case 9: iWitmotionMagnetic.SUM = num;
+          case 9: iWitmotionMagnetic.SUM = num; break;
         }
         if (datasegmentcounter == 9) {
           imuMsg.state = ImuState.IMU_MAGNETIC_RECEIVED;
@@ -573,70 +573,117 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
           let yy = imuAccelero(iWitmotionAccelerometer.AyH, iWitmotionAccelerometer.AyL);
           let yz = imuAccelero(iWitmotionAccelerometer.AzH, iWitmotionAccelerometer.AzL);
 
-          let hVal = (iWitmotionAccelerometer.AxH >127) ? (iWitmotionAccelerometer.AxH-256) : iWitmotionAccelerometer.AxH; //0x7F en 0x100
-          let lVal = (iWitmotionAccelerometer.AxL & 0xFF);
-          let xAlg = (((hVal << 8) | lVal) / 32768) * 16;
+          //let hVal = (iWitmotionAccelerometer.AxH >127) ? (iWitmotionAccelerometer.AxH-256) : iWitmotionAccelerometer.AxH; //0x7F en 0x100
+          //let lVal = (iWitmotionAccelerometer.AxL & 0xFF);
+          //let xAlg = (((hVal << 8) | lVal) / 32768) * 16;
 
-          let xAlgoud = ((iWitmotionAccelerometer.AxH << 8) | iWitmotionAccelerometer.AxL) / 32768 * 16;
+          //let xAlgoud = ((iWitmotionAccelerometer.AxH << 8) | iWitmotionAccelerometer.AxL) / 32768 * 16;
 
-          let CHK = (iWitmotionAccelerometer.SBYTE + iWitmotionAccelerometer.CMD +
+          let chk = (iWitmotionAccelerometer.SBYTE + iWitmotionAccelerometer.CMD +
             iWitmotionAccelerometer.AxH + iWitmotionAccelerometer.AxL +
             iWitmotionAccelerometer.AyH + iWitmotionAccelerometer.AyL +
             iWitmotionAccelerometer.AzH + iWitmotionAccelerometer.AzL +
             iWitmotionAccelerometer.TH + iWitmotionAccelerometer.TL);
 
-          let check = CHK;
-          let cmd = iWitmotionAccelerometer.CMD;
+          //let sum = (iWitmotionAccelerometer.SUM > 127) ? (iWitmotionAccelerometer.SUM-256) :iWitmotionAccelerometer.SUM;
+          let sum = (iWitmotionAccelerometer.SUM & 0xFF);
 
-          let sum = iWitmotionAccelerometer.SUM & 0xFF;
-
-          if (check == sum)
+          if (chk == sum)
           {
-            lpushAsync(originName + '_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx+"^AxH:"+iWitmotionAccelerometer.AxH+"^AxL:"+iWitmotionAccelerometer.AxL+"^CMD:"+cmd+"^CHK:["+check+":"+sum+"]");
-            lpushAsync(originName + '_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy+"^AyH:"+iWitmotionAccelerometer.AyH+"^AyL:"+iWitmotionAccelerometer.AyL+"^CMD:"+cmd+"^CHK:["+check+":"+sum+"]");
-            lpushAsync(originName + '_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz+"^AzH:"+iWitmotionAccelerometer.AzH+"^AzL:"+iWitmotionAccelerometer.AzL+"^CMD:"+cmd+"^CHK:["+check+":"+sum+"]");
+            lpushAsync(originName + '_Accelero_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx);
+            lpushAsync(originName + '_Accelero_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy);
+            lpushAsync(originName + '_Accelero_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz);
+          }
+          else
+          {
+            lpushAsync(originName + '_Accelero_ERROR', "chk:" + chk + "^sum:" + sum)
           }
 
           
 
           imuMsg.state = ImuState.IMU_IDLE;
         }
-
         else if (imuMsg.state == ImuState.IMU_ANGULARVELOCITY_RECEIVED) {
           let avyx = imuAngularVelocity(iWitmotionAngularVelocity.wxH, iWitmotionAngularVelocity.wxL);
           let avyy = imuAngularVelocity(iWitmotionAngularVelocity.wyH, iWitmotionAngularVelocity.wyL);
           let avyz = imuAngularVelocity(iWitmotionAngularVelocity.wzH, iWitmotionAngularVelocity.wzL);
+          
+          let chk = (iWitmotionAngularVelocity.SBYTE + iWitmotionAngularVelocity.CMD +
+            iWitmotionAngularVelocity.wxH + iWitmotionAngularVelocity.wxL +
+            iWitmotionAngularVelocity.wyH + iWitmotionAngularVelocity.wyL +
+            iWitmotionAngularVelocity.wzH + iWitmotionAngularVelocity.wzL +
+            iWitmotionAngularVelocity.TH + iWitmotionAngularVelocity.TL);
 
-          lpushAsync(originName + '_AngularVelocity_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyx)
-          lpushAsync(originName + '_AngularVelocity_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyy)
-          lpushAsync(originName + '_AngularVelocity_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyz)
+          //let sum = (iWitmotionAngularVelocity.SUM > 127) ? (iWitmotionAngularVelocity.SUM-256) :iWitmotionAngularVelocity.SUM;
+          let sum = (iWitmotionAngularVelocity.SUM & 0xFF);
+
+          if (chk == sum)
+          {
+
+            lpushAsync(originName + '_AngularVelocity_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyx)
+            lpushAsync(originName + '_AngularVelocity_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyy)
+            lpushAsync(originName + '_AngularVelocity_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + avyz)
+          }
+          else
+          {
+            lpushAsync(originName + '_AngularVelocity_ERROR', "chk:" + chk + "^sum:" + sum)
+          }
 
           imuMsg.state = ImuState.IMU_IDLE
         }
-
         else if (imuMsg.state == ImuState.IMU_ANGLE_RECEIVED) {
           let anyx = imuAngle(iWitmotionAngle.RollH, iWitmotionAngle.RollL);
           let anyy = imuAngle(iWitmotionAngle.PitchH, iWitmotionAngle.PitchL);
           let anyz = imuAngle(iWitmotionAngle.YawH, iWitmotionAngle.YawL);
 
-          lpushAsync(originName + '_Angle_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyx)
-          lpushAsync(originName + '_Angle_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyy)
-          lpushAsync(originName + '_Angle_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyz)
+          let chk = (iWitmotionAngle.SBYTE + iWitmotionAngle.CMD +
+            iWitmotionAngle.RollH + iWitmotionAngle.RollL +
+            iWitmotionAngle.PitchH + iWitmotionAngle.PitchL +
+            iWitmotionAngle.YawH + iWitmotionAngle.YawL +
+            iWitmotionAngle.TH + iWitmotionAngle.TL);
+
+          //let sum = (iWitmotionAngle.SUM > 127) ? (iWitmotionAngle.SUM-256) :iWitmotionAngle.SUM;
+          let sum = (iWitmotionAngle.SUM & 0xFF);
+
+          if (chk == sum)
+          {
+            lpushAsync(originName + '_Angle_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyx)
+            lpushAsync(originName + '_Angle_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyy)
+            lpushAsync(originName + '_Angle_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + anyz)
+          }
+          else
+          {
+            lpushAsync(originName + '_Angle_ERROR', "chk:" + chk + "^sum:" + sum)
+          }
 
           imuMsg.state = ImuState.IMU_IDLE
         }
-
         else if (imuMsg.state == ImuState.IMU_MAGNETIC_RECEIVED) {
           let mgyx = imuMagnetic(iWitmotionMagnetic.HxH, iWitmotionMagnetic.HxL);
           let mgyy = imuMagnetic(iWitmotionMagnetic.HyH, iWitmotionMagnetic.HyL);
           let mgyz = imuMagnetic(iWitmotionMagnetic.HzH, iWitmotionMagnetic.HzL);
 
-          lpushAsync(originName + '_Magnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
-          lpushAsync(originName + '_Magnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
-          lpushAsync(originName + '_Magnetic_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyz)
+          let chk = (iWitmotionMagnetic.SBYTE + iWitmotionMagnetic.CMD +
+            iWitmotionMagnetic.HxH + iWitmotionMagnetic.HxL +
+            iWitmotionMagnetic.HyH + iWitmotionMagnetic.HyL +
+            iWitmotionMagnetic.HzH + iWitmotionMagnetic.HzL +
+            iWitmotionMagnetic.TH + iWitmotionMagnetic.TL);
+
+          //let sum = (iWitmotionMagnetic.SUM > 127) ? (iWitmotionMagnetic.SUM-256) :iWitmotionMagnetic.SUM;
+          let sum = (iWitmotionMagnetic.SUM & 0xFF);
+
+          if (chk == sum)
+          {
+            lpushAsync(originName + '_Magnetic_X', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyx)
+            lpushAsync(originName + '_Magnetic_Y', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyy)
+            lpushAsync(originName + '_Magnetic_Z', "ts:" + timestamp + "^x:" + timestamp + "^y:" + mgyz)
+          }
+          else
+          {
+            lpushAsync(originName + '_Magnetic_ERROR', "chk:" + chk + "^sum:" + sum)
+          }
 
           imuMsg.state = ImuState.IMU_IDLE
-
         } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
           //imuResponse$.error(new Error('MSP error received!'))
           imuMsg.state = ImuState.IMU_IDLE
