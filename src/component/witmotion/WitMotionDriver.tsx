@@ -586,7 +586,9 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
             iWitmotionAccelerometer.TH + iWitmotionAccelerometer.TL);
 
           //let sum = (iWitmotionAccelerometer.SUM > 127) ? (iWitmotionAccelerometer.SUM-256) :iWitmotionAccelerometer.SUM;
-          let sum = (iWitmotionAccelerometer.SUM & 0xFF);
+          chk = (chk > 127) ? (chk-256) : chk;
+          chk = (chk < -127) ? (chk+256) : chk;
+          let sum = (iWitmotionAccelerometer.SUM);
 
           if (chk == sum)
           {
@@ -614,8 +616,9 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
             iWitmotionAngularVelocity.wzH + iWitmotionAngularVelocity.wzL +
             iWitmotionAngularVelocity.TH + iWitmotionAngularVelocity.TL);
 
-          //let sum = (iWitmotionAngularVelocity.SUM > 127) ? (iWitmotionAngularVelocity.SUM-256) :iWitmotionAngularVelocity.SUM;
-          let sum = (iWitmotionAngularVelocity.SUM & 0xFF);
+          chk = (chk > 127) ? (chk-256) : chk;
+          chk = (chk < -127) ? (chk+256) : chk;
+          let sum = (iWitmotionAngularVelocity.SUM);
 
           if (chk == sum)
           {
@@ -643,7 +646,9 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
             iWitmotionAngle.TH + iWitmotionAngle.TL);
 
           //let sum = (iWitmotionAngle.SUM > 127) ? (iWitmotionAngle.SUM-256) :iWitmotionAngle.SUM;
-          let sum = (iWitmotionAngle.SUM & 0xFF);
+          chk = (chk > 127) ? (chk-256) : chk;
+          chk = (chk < -127) ? (chk+256) : chk;
+          let sum = (iWitmotionAngle.SUM);
 
           if (chk == sum)
           {
@@ -670,7 +675,9 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
             iWitmotionMagnetic.TH + iWitmotionMagnetic.TL);
 
           //let sum = (iWitmotionMagnetic.SUM > 127) ? (iWitmotionMagnetic.SUM-256) :iWitmotionMagnetic.SUM;
-          let sum = (iWitmotionMagnetic.SUM & 0xFF);
+          chk = (chk > 127) ? (chk-256) : chk;
+          chk = (chk < -127) ? (chk+256) : chk;
+          let sum = (iWitmotionMagnetic.SUM);
 
           if (chk == sum)
           {
