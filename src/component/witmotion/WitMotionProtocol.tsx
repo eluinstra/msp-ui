@@ -64,6 +64,8 @@ export interface IWitmotionTime {
 export interface IWitmotionAccelerometer {
     enable: boolean,
     dscnt: number,
+    SBYTE: number,
+    CMD: number,
     AxL: number,
     AxH: number,
     AyL: number,
@@ -78,6 +80,8 @@ export interface IWitmotionAccelerometer {
   export interface IWitmotionAngularVelocity {
     enable: boolean,
     dscnt: number,
+    SBYTE: number,
+    CMD: number,
     wxL: number,
     wxH: number,
     wyL: number,
@@ -92,6 +96,8 @@ export interface IWitmotionAccelerometer {
   export interface IWitmotionAngle {
     enable: boolean,
     dscnt: number,
+    SBYTE: number,
+    CMD: number,
     RollL: number,
     RollH: number,
     PitchL: number,
@@ -106,6 +112,8 @@ export interface IWitmotionAccelerometer {
   export interface IWitmotionMagnetic {
     enable: boolean,
     dscnt: number,
+    SBYTE: number,
+    CMD: number,
     HxL: number,
     HxH: number,
     HyL: number,

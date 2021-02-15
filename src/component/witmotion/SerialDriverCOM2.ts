@@ -12,6 +12,8 @@ let cmd = undefined
 const iWitmotionAngle: IWitmotionAngle = {
   enable: false,
   dscnt: 0,
+  SBYTE: 0,
+  CMD: 0,
   RollL: 0,
   RollH: 0,
   PitchL: 0,
@@ -26,6 +28,8 @@ const iWitmotionAngle: IWitmotionAngle = {
 const iWitmotionAccelerometer: IWitmotionAccelerometer = {
   enable: false,
   dscnt: 0,
+  SBYTE: 0,
+  CMD: 0,
   AxL: 0,
   AxH: 0,
   AyL: 0,
