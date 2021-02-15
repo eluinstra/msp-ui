@@ -554,7 +554,7 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
         let resolutie = 1;
 
         let timestamp = new Date().getTime();
-        console.log(timestamp);
+        //console.log(timestamp);
 
         /* Redis calls */
 
@@ -599,7 +599,7 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
           }
           else
           {
-            lpushAsync(originName + '_Accelero_ERROR', "chk:" + chk + "^sum:" + sum+"^TIME:"+new Date(timestamp))
+            //lpushAsync(originName + '_Accelero_ERROR', "chk:" + chk + "^sum:" + sum+"^TIME:"+new Date(timestamp))
           }
 
           
