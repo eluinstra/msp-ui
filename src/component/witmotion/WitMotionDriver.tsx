@@ -522,12 +522,27 @@ function flushRedisData(driver: SensorDriver, cmd: SensorState) {
 
 }
 
-const dataBuffer = new Subject()
+const dataBuffer = new BehaviorSubject({
+    x: {
+      name: '_Accelero_X', 
+      value: "ts:0^x:0^y:0"
+    },
+    y: {
+      name: '_Accelero_Y', 
+      value: "ts:0^x:0^y:0"
+    },
+    z: {
+      name: '_Accelero_Z', 
+      value: "ts:0^x:0^y:0"
+    }
+  }
+);
 
 dataBuffer.subscribe((data : {x, y , z}) => {
     lpushAsync(data.x.name, data.x.value);
     lpushAsync(data.y.name, data.y.value);
     lpushAsync(data.z.name, data.z.value);
+    //console.log(data.x.name);
 })
 
 {/****************************************************************************
@@ -559,9 +574,13 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
         parseIncommingString(data.readInt8(i))
 
+        //console.log( ">> "+data.length);
+
         let resolutie = 1;
 
-        let timestamp = new Date().getTime();
+        var datum = new Date()
+
+        let timestamp = datum.getTime()+(1*60*60*1000)
 
         /* Redis calls */
 
@@ -607,11 +626,11 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
               },
               y: {
                 name: originName + '_Accelero_Y', 
-                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + yy
               },
               z: {
                 name: originName + '_Accelero_Z', 
-                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + yx
+                value: "ts:" + timestamp + "^x:" + timestamp + "^y:" + yz
               }
             })
           }
@@ -624,7 +643,8 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           imuMsg.state = ImuState.IMU_IDLE;
         }
-        else if (imuMsg.state == ImuState.IMU_ANGULARVELOCITY_RECEIVED) {
+        
+        if (imuMsg.state == ImuState.IMU_ANGULARVELOCITY_RECEIVED) {
           let avyx = imuAngularVelocity(iWitmotionAngularVelocity.wxH, iWitmotionAngularVelocity.wxL);
           let avyy = imuAngularVelocity(iWitmotionAngularVelocity.wyH, iWitmotionAngularVelocity.wyL);
           let avyz = imuAngularVelocity(iWitmotionAngularVelocity.wzH, iWitmotionAngularVelocity.wzL);
@@ -662,7 +682,8 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           imuMsg.state = ImuState.IMU_IDLE
         }
-        else if (imuMsg.state == ImuState.IMU_ANGLE_RECEIVED) {
+        
+        if (imuMsg.state == ImuState.IMU_ANGLE_RECEIVED) {
           let anyx = imuAngle(iWitmotionAngle.RollH, iWitmotionAngle.RollL);
           let anyy = imuAngle(iWitmotionAngle.PitchH, iWitmotionAngle.PitchL);
           let anyz = imuAngle(iWitmotionAngle.YawH, iWitmotionAngle.YawL);
@@ -701,7 +722,8 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
 
           imuMsg.state = ImuState.IMU_IDLE
         }
-        else if (imuMsg.state == ImuState.IMU_MAGNETIC_RECEIVED) {
+        
+        if (imuMsg.state == ImuState.IMU_MAGNETIC_RECEIVED) {
           let mgyx = imuMagnetic(iWitmotionMagnetic.HxH, iWitmotionMagnetic.HxL);
           let mgyy = imuMagnetic(iWitmotionMagnetic.HyH, iWitmotionMagnetic.HyL);
           let mgyz = imuMagnetic(iWitmotionMagnetic.HzH, iWitmotionMagnetic.HzL);
@@ -739,7 +761,9 @@ function startAndStopCapturing(driver: SensorDriver, cmd: SensorState) {
           }
 
           imuMsg.state = ImuState.IMU_IDLE
-        } else if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
+        }
+        
+        if (imuMsg.state == ImuState.IMU_ERROR_RECEIVED) {
           //imuResponse$.error(new Error('MSP error received!'))
           imuMsg.state = ImuState.IMU_IDLE
         }

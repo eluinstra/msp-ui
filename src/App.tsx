@@ -19,7 +19,8 @@ import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { ExampleTable } from '@/component/witmotion/ExampleTable'
-import { ExampleChart2 } from '@/component/witmotion/ExampleChart2'
+import { ExampleChart2COM1 } from '@/component/witmotion/ExampleChart2COM1'
+import { ExampleChart2COM2 } from '@/component/witmotion/ExampleChart2COM2'
 import { ExampleChart5 } from '@/component/witmotion/ExampleChart5'
 import { ExampleChart6 } from '@/component/witmotion/ExampleChart6'
 import { SerialRTChartPage } from '@/page/SerialRTChartPage'
@@ -247,7 +248,8 @@ const MSPRouter = props => {
         <ExampleTable serialPort1={serialPort1} serialPort2={serialPort2} />
       </Route>
       <Route path="/example2">
-        <ExampleChart2 serialPort1={serialPort1} serialPort2={serialPort2} />
+        <ExampleChart2COM1 serialPort1={serialPort1} serialPort2={serialPort2} />
+        <ExampleChart2COM2 serialPort1={serialPort1} serialPort2={serialPort2} />
       </Route>
       <Route path="/example4">
         <SerialRTChartPage id={1} serialPort1={serialPort1} serialPort2={serialPort2}  />
