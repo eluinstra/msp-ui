@@ -20,7 +20,7 @@ const renderDefault = (msg: string) => {
   return (
     <Card>
       <CardContent>
-        Raw output: {msg}
+        [Raw] output: {msg}
       </CardContent>
     </Card>
   )
@@ -111,6 +111,36 @@ mspOutputFunctions[MspCmd.MSP_ECHO] = (msg: string) => {
 }
 
 mspOutputFunctions[MspCmd.MSP_SET_FB_STEER_LOW] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Waarde: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_SET_FB_STEER_HIGH] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Waarde: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_SET_FB_BRAKE_LOW] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Waarde: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_SET_FB_BRAKE_HIGH] = (msg: string) => {
   return (
     <Card>
       <CardContent>

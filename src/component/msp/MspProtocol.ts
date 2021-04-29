@@ -251,12 +251,12 @@ export const MspCmd = {
   MSP_SET_SIGNATURE:        249,    //in message          Sets the signature of the board and serial number
 
   // REMOTE SPECIFIC
-  MSP_SET_FB_BRAKE_LOW:      301,    //in message          Sets the low feedbackvalue for the brake (sensor is fluid)
-  MSP_SET_FB_BRAKE_HIGH:     302,    //in message          Sets the high feedbackvalue for the brake (sensor is fluid)
-  MSP_SET_FB_STEER_LOW:      303,    //in message          Sets the low feedbackvalue for the steer
-  MSP_SET_FB_STEER_HIGH:     304,    //in message          Sets the high feedbackvalue for the steer
-  MSP_SET_FB_STEERHOME_LOW:  305,    //in message          Sets the low home feedbackvalue for the steer
-  MSP_SET_FB_STEERHOME_HIGH: 306,    //in message          Sets the high home feedbackvalue for the steer
+  MSP_SET_FB_BRAKE_LOW:      141,    //in message          Sets the low feedbackvalue for the brake (sensor is fluid)
+  MSP_SET_FB_BRAKE_HIGH:     142,    //in message          Sets the high feedbackvalue for the brake (sensor is fluid)
+  MSP_SET_FB_STEER_LOW:      143,    //in message          Sets the low feedbackvalue for the steer
+  MSP_SET_FB_STEER_HIGH:     144,    //in message          Sets the high feedbackvalue for the steer
+  MSP_SET_FB_STEERHOME_LOW:  145,    //in message          Sets the low home feedbackvalue for the steer
+  MSP_SET_FB_STEERHOME_HIGH: 146,    //in message          Sets the high home feedbackvalue for the steer
 
 }
 

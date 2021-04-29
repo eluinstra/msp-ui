@@ -178,7 +178,6 @@ const MSPDrawer = props => {
                 <MenuListItem text="Configuration" to="/configuration" icon={<SettingsIcon />} setMode={setMode} />
                 <MenuListItem text="Power & Battery" to="/power" icon={<BatteryStdIcon />} setMode={setMode} />
                 <MenuListItem text="MSP" to="/msp" icon={<InputIcon />} mode={Mode.MSP} setMode={setMode} />
-                <MenuListItem text="IMU" to="/imu" icon={<OpenWithIcon />} mode={Mode.IMU} setMode={setMode} />
               </React.Fragment>
             )}
             <MenuListItem text="GPS" to="/gps" icon={<GpsFixedIcon />} setMode={setMode} />
@@ -190,12 +189,6 @@ const MSPDrawer = props => {
             <MenuListItem text="MSP" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
             <MenuListItem text="Input" to="/msp-input" icon={<InputIcon />} mode={Mode.MSP} setMode={setMode} />
             <MenuListItem text="Chart" to="/msp-chart" icon={<ShowChartIcon />} mode={Mode.MSP} setMode={setMode} />
-          </React.Fragment>
-        )}
-        {mode == Mode.IMU && (
-          <React.Fragment>
-            <MenuListItem text="IMU" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
-            <MenuListItem text="Wit Motion" to="/wit-motion" mode={Mode.IMU} setMode={setMode} />
           </React.Fragment>
         )}
       </div>
