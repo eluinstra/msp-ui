@@ -57,14 +57,28 @@ const crc8_dvb_s2 = (crc, num) => {
 }
 
 const command = (cmd: number, payload: string) => {
+  return rawCommand(cmd, payload.split('').map(ch => ch.charCodeAt(0)))
+}
+
+const rawCommand = (cmd: number, payload: number[]) => {
   const flag = 0
-  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.length),payload.split('').map(ch => ch.charCodeAt(0)))
+  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.length),payload)
   return [].concat(mspCmdHeader.split('').map(ch => ch.charCodeAt(0)),content,[checksum(content)])
+}
+
+const toInt16 = (s: string) => {
+  var buffer = [0, 0]
+  var n = parseInt(s)
+  buffer[0] = n % 256
+  buffer[1] = Math.floor(n / 256)
+  return buffer
 }
 
 export const getPortName = (driver: Driver) => getPath(driver.serialPort)
 
 export const mspRequest = (driver: Driver, cmd: number, payload: string) => write(driver.serialPort, Buffer.from(command(cmd, payload)))
+
+export const mspRequestNr = (driver: Driver, cmd: number, payload: string) => write(driver.serialPort, Buffer.from(rawCommand(cmd, toInt16(payload))))
 
 const createMspResponse$ = () => new Subject<MspMsg>()
 

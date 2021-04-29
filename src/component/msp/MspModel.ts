@@ -15,6 +15,8 @@ const parseDefault = (msg: MspMsg) => msg.buffer.map(v => hexInt8(v))
 
 const parseString = (msg: MspMsg) => string(msg.buffer)
 
+const parseInt16 = (msg: MspMsg) => int16(msg.buffer, 0)
+
 const mspOutputParser = []
 
 Object.values(MspCmd).forEach(v => mspOutputParser[v] = parseDefault)
@@ -48,6 +50,8 @@ mspOutputParser[MspCmd.MSP_BUILD_INFO] = (msg: MspMsg) => {
 }
 
 mspOutputParser[MspCmd.MSP_ECHO] = parseString
+
+mspOutputParser[MspCmd.MSP_ECHO_NR] = parseInt16
 
 mspOutputParser[MspCmd.MSP_REBOOT] = parseString
 
