@@ -4,7 +4,8 @@ export const MspCmd = {
   MSP_FC_VERSION:                  3,    //out message *
   MSP_BOARD_INFO:                  4,    //out message *
   MSP_BUILD_INFO:                  5,    //out message *
-  
+
+  MSP_SAVE:                        8,   //in/out message
   MSP_ECHO:                        9,   //in/out message
   
   MSP_NAME:                        10,   //out message          Returns user set board name - betaflight
@@ -248,6 +249,15 @@ export const MspCmd = {
   MSP_RTC:                  247,    //out message         Gets the RTC clock
   MSP_SET_BOARD_INFO:       248,    //in message          Sets the board information for this board
   MSP_SET_SIGNATURE:        249,    //in message          Sets the signature of the board and serial number
+
+  // REMOTE SPECIFIC
+  MSP_SET_FB_BRAKE_LOW:      301,    //in message          Sets the low feedbackvalue for the brake (sensor is fluid)
+  MSP_SET_FB_BRAKE_HIGH:     302,    //in message          Sets the high feedbackvalue for the brake (sensor is fluid)
+  MSP_SET_FB_STEER_LOW:      303,    //in message          Sets the low feedbackvalue for the steer
+  MSP_SET_FB_STEER_HIGH:     304,    //in message          Sets the high feedbackvalue for the steer
+  MSP_SET_FB_STEERHOME_LOW:  305,    //in message          Sets the low home feedbackvalue for the steer
+  MSP_SET_FB_STEERHOME_HIGH: 306,    //in message          Sets the high home feedbackvalue for the steer
+
 }
 
 export const mspCmdHeader: string = '$X<'

@@ -62,9 +62,27 @@ const command = (cmd: number, payload: string) => {
   return [].concat(mspCmdHeader.split('').map(ch => ch.charCodeAt(0)),content,[checksum(content)])
 }
 
+const commandNumber = (cmd: number, payload: number[]) => {
+  const flag = 0
+  const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.length),payload)
+  return [].concat(mspCmdHeader.split('').map(ch => ch.charCodeAt(0)),content,[checksum(content)])
+}
+
 export const getPortName = (driver: Driver) => getPath(driver.serialPort)
 
 export const mspRequest = (driver: Driver, cmd: number, payload: string) => write(driver.serialPort, Buffer.from(command(cmd, payload)))
+
+export const mspRequestNumber = (driver: Driver, cmd: number, payload: number[]) => write(driver.serialPort, Buffer.from(commandNumber(cmd, payload)))
+
+// const command = (cmd: number, payload: string) => {
+//   const flag = 0
+//   const content = [].concat([flag],hexInt16(cmd),hexInt16(payload.length),payload.split('').map(ch => ch.charCodeAt(0)))
+//   return [].concat(mspCmdHeader.split('').map(ch => ch.charCodeAt(0)),content,[checksum(content)])
+// }
+
+// export const getPortName = (driver: Driver) => getPath(driver.serialPort)
+
+// export const mspRequest = (driver: Driver, cmd: number, payload: string) => write(driver.serialPort, Buffer.from(command(cmd, payload)))
 
 const createMspResponse$ = () => new Subject<MspMsg>()
 

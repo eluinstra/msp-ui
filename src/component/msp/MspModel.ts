@@ -4,7 +4,7 @@ import { MspMsg } from '@/component/msp//MspDriver'
 
 const hexInt = (num: number, width: number) => num.toString(16).padStart(width,"0").toUpperCase()
 const hexInt8 = (num: number) => hexInt(num & 0xFF, 2)
-const int16 = (buffer: number[], index: number) => buffer[index] + (buffer[index + 1] << 8)
+const int16 = (buffer: number[], index: number) => buffer[index] + (buffer[index+1] << 8)
 const string = (buffer: number[]) => buffer.reduce((p, c) => p + String.fromCharCode(c),"")
 const substring = (buffer: number[], start: number, num: number) =>
   _.take(_.drop(buffer, start), num).reduce((s, n) => s + String.fromCharCode(n),"")
@@ -47,7 +47,21 @@ mspOutputParser[MspCmd.MSP_BUILD_INFO] = (msg: MspMsg) => {
   }
 }
 
-mspOutputParser[MspCmd.MSP_ECHO] = parseString
+mspOutputParser[MspCmd.MSP_SAVE] = parseString
+
+mspOutputParser[MspCmd.MSP_ECHO] = parseString //(msg: MspMsg) => Buffer.from(''+msg.buffer, 'hex')
+
+mspOutputParser[MspCmd.MSP_SET_FB_BRAKE_LOW] = parseString
+
+mspOutputParser[MspCmd.MSP_SET_FB_BRAKE_HIGH] = parseString
+
+mspOutputParser[MspCmd.MSP_SET_FB_STEER_LOW] = parseString
+
+mspOutputParser[MspCmd.MSP_SET_FB_STEER_HIGH] = parseString
+
+mspOutputParser[MspCmd.MSP_SET_FB_STEERHOME_LOW] = parseString
+
+mspOutputParser[MspCmd.MSP_SET_FB_STEERHOME_HIGH] = parseString
 
 mspOutputParser[MspCmd.MSP_REBOOT] = parseString
 

@@ -4,13 +4,13 @@ import { MspCmd } from '@/component/msp/MspProtocol'
 import { MspMsg, MspState } from '@/component/msp/MspDriver'
 import { parseMspMsg } from '@/component/msp/MspModel'
 
-export const viewMspMsg = (msg: MspMsg) => msg.state == MspState.MSP_COMMAND_RECEIVED ? mspOutputFunctions[msg.cmd](parseMspMsg(msg)) : renderError()
+export const viewMspMsg = (msg: MspMsg) => msg.state == MspState.MSP_COMMAND_RECEIVED ? mspOutputFunctions[msg.cmd](parseMspMsg(msg)) : console.log(msg)
 
-const renderError = () => {
+const renderError = (msg: MspMsg) => {
   return (
     <Card>
       <CardContent>
-        MSP error received!
+        MSP error received! {msg}
       </CardContent>
     </Card>
   )
@@ -62,6 +62,16 @@ mspOutputFunctions[MspCmd.MSP_FC_VERSION] = (msg: string) => {
   )
 }
 
+mspOutputFunctions[MspCmd.MSP_SAVE] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Respons: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
 mspOutputFunctions[MspCmd.MSP_BOARD_INFO] = (msg: { boardId: string, hardwareRevision: number, fcType: number }) => {
   return (
     <Card>
@@ -95,6 +105,16 @@ mspOutputFunctions[MspCmd.MSP_ECHO] = (msg: string) => {
     <Card>
       <CardContent>
         Echo: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_SET_FB_STEER_LOW] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Waarde: {msg}
       </CardContent>
     </Card>
   )

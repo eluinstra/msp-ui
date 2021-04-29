@@ -12,6 +12,8 @@ const notEmpty = v => !!v
 
 export const MspInput = props => {
   const { serialPort } = props
+  const [errorval, setErrorval] = useState(false)
+  const [helpertxt, setHelpertxt] = useState('')
   const [driver] = useState(createDriver(serialPort))
   const { enqueueSnackbar } = useSnackbar()
   const [cmd, setCmd] = useState(null)
@@ -30,7 +32,17 @@ export const MspInput = props => {
       )
       .subscribe(val => {
         try {
-          mspRequest(driver,val,payload)
+          if (Number(payload) >= 0 && Number(payload) <= 65535)
+          {
+            mspRequest(driver,val,payload)
+            setHelpertxt("Waarde verzonden: "+payload)
+            setErrorval(false)
+          }
+          else
+          {
+            setHelpertxt("Foutieve waarde: 0-65535")
+            setErrorval(true)
+          }
         } catch(e) {
           console.log(e)
           enqueueSnackbar(e.message, { variant: 'error' })
@@ -43,7 +55,7 @@ export const MspInput = props => {
       <FormControl>
         <Autocomplete
           value={cmd}
-          onChange={(_, v: string) => { setPayload(''); setCmd(v) }}
+          onChange={(_, v: string) => {setPayload(''); setCmd(v)}}
           options={Object.keys(MspCmd)}
           getOptionLabel={option => option}
           renderInput={params => <TextField label="cmd" {...params} variant="standard" />}
@@ -51,7 +63,7 @@ export const MspInput = props => {
         />
       </FormControl>
       <FormControl>
-          <TextField label="value" value={payload} onChange={e => setPayload(e.target.value)} variant="standard" />
+          <TextField label="value" helperText={helpertxt} error={errorval} value={payload} onChange={e => setPayload(e.target.value)} variant="standard" />
       </FormControl>
       <FormControl>
         <Button variant="contained" onClick={_ => mspClick()}>MSP Go</Button>
