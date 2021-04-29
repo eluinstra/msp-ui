@@ -218,7 +218,7 @@ const MSPRouter = props => {
         <PortsPage />
       </Route>
       <Route path="/configuration">
-        <ConfigurationPage />
+        <ConfigurationPage serialPort={serialPort} />
       </Route>
       <Route path="/power">
         <PowerAndBatteryPage />
@@ -231,12 +231,6 @@ const MSPRouter = props => {
       </Route>
       <Route path="/msp-chart">
         <MspChartPage serialPort={serialPort} />
-      </Route>
-      <Route path="/imu">
-        <Imu />
-      </Route>
-      <Route path="/wit-motion">
-        <WitMotion serialPort={serialPort} />
       </Route>
       <Route path="/gps">
         <GPSPage />
