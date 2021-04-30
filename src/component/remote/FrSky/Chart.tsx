@@ -4,7 +4,7 @@ import 'chartjs-plugin-streaming'
 import { interval } from "rxjs"
 import { filter, map, startWith, tap } from "rxjs/operators"
 import { sample } from "rxjs/operators"
-import { imuResponse$, registerPort, unregisterPort } from '@/component/imu/WitMotion/Driver'
+import { imuResponse$, registerPort, unregisterPort } from '@/component/remote/FrSky/Driver'
 import { isOpen } from "@/component/serialport/SerialPortDriver"
 
 const imuAcc= (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 180

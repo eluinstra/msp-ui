@@ -11,14 +11,12 @@ import { AboutPage } from '@/page/About'
 import { ConfigurationPage } from '@/page/Configuration'
 import { GPSPage } from './page/GPS'
 import { HomePage } from '@/page/Home'
-import { Imu } from '@/page/Imu'
 import { Msp } from '@/page/Msp'
 import { MspInputPage } from '@/page/MspInput'
 import { MspChartPage } from '@/page/MspChart'
 import { PortsPage } from '@/page/Ports'
 import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
-import { WitMotion } from '@/page/WitMotion'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
 import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
 import { useStatefulObservable } from '@/common/RxTools'
@@ -145,7 +143,7 @@ const MSPAppBar = props => {
     <AppBar position="fixed" className={appBar}>
       <Toolbar className={toolbar}>
         <Typography variant="h6" className={title}>
-          Alpha|BOT
+          MSP|UI
         </Typography>
         <SerialPortConnect serialPort={serialPort} />
       </Toolbar>
