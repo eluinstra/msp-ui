@@ -32,17 +32,17 @@ export const MspInput = props => {
       )
       .subscribe(val => {
         try {
-          if (Number(payload) >= 0 && Number(payload) <= 65535)
-          {
-            mspRequest(driver,val,payload)
-            setHelpertxt("Waarde verzonden: "+payload)
-            setErrorval(false)
-          }
-          else
-          {
-            setHelpertxt("Foutieve waarde: 0-65535")
-            setErrorval(true)
-          }
+            if (Number(payload) >= 0 && Number(payload) <= 65535)
+            {
+              mspRequest(driver,val,payload)
+              setHelpertxt("Waarde verzonden: "+payload)
+              setErrorval(false)
+            }
+            else
+            {
+              setHelpertxt("Foutieve waarde: 0-65535")
+              setErrorval(true)
+            }
         } catch(e) {
           console.log(e)
           enqueueSnackbar(e.message, { variant: 'error' })

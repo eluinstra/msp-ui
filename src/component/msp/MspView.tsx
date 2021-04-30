@@ -110,6 +110,26 @@ mspOutputFunctions[MspCmd.MSP_ECHO] = (msg: string) => {
   )
 }
 
+mspOutputFunctions[MspCmd.MSP_READPARAMS] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Respons: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_READPVVALUES] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
 mspOutputFunctions[MspCmd.MSP_SET_FB_STEER_LOW] = (msg: string) => {
   return (
     <Card>
