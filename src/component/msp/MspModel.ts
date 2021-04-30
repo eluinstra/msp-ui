@@ -49,6 +49,8 @@ mspOutputParser[MspCmd.MSP_BUILD_INFO] = (msg: MspMsg) => {
 
 mspOutputParser[MspCmd.MSP_SAVE] = parseString
 
+mspOutputParser[MspCmd.MSP_READPARAMS] = parseString
+
 mspOutputParser[MspCmd.MSP_ECHO] = parseString //(msg: MspMsg) => Buffer.from(''+msg.buffer, 'hex')
 
 mspOutputParser[MspCmd.MSP_SET_FB_BRAKE_LOW] = parseString

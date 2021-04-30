@@ -257,6 +257,7 @@ export const MspCmd = {
   MSP_SET_FB_STEER_HIGH:     144,    //in message          Sets the high feedbackvalue for the steer
   MSP_SET_FB_STEERHOME_LOW:  145,    //in message          Sets the low home feedbackvalue for the steer
   MSP_SET_FB_STEERHOME_HIGH: 146,    //in message          Sets the high home feedbackvalue for the steer
+  MSP_READPARAMS:            147,    //in message          Gets the parameters based on the value given
 
 }
 
