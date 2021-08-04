@@ -5,12 +5,13 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc && copyfiles -f node_modules/leaflet/dist/leaflet.css node_modules/leaflet/dist/leaflet.js src/index.html dist",
-    "watch": "tsc -w",
+    "test": "jest",
     "start": "npm run build && electron dist/main.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^26.0.24",
     "@types/leaflet": "^1.7.3",
     "@types/material-ui": "^0.21.8",
     "@types/react": "^17.0.11",
@@ -19,6 +20,8 @@
     "electron": "^13.1.3",
     "electron-rebuild": "^2.3.5",
     "html-webpack-plugin": "^4.5.0",
+    "jest": "^27.0.6",
+    "ts-jest": "^27.0.4",
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.4",
