@@ -5,6 +5,7 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc && copyfiles -f node_modules/leaflet/dist/leaflet.css node_modules/leaflet/dist/leaflet.js src/index.html dist",
+    "clean": "rm -rf dist/*",
     "test": "jest",
     "start": "npm run build && electron dist/main.js"
   },

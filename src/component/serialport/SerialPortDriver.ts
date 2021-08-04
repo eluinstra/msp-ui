@@ -1,4 +1,5 @@
 import { remote } from 'electron'
+import { identity } from 'rxjs'
 import { BehaviorSubject, from, Subject } from 'rxjs'
 import { startWith } from 'rxjs/operators'
 import { PortInfo } from 'serialport'
@@ -6,7 +7,7 @@ const SerialPort = remote.require('serialport')
 
 export const createSerialPort = () => new BehaviorSubject(null)
 
-export const getPort$ = serialPort => serialPort
+export const getPort$ = identity
 
 export const getPath = serialPort => serialPort.value?.path
 

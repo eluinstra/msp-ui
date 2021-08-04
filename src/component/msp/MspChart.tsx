@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { interval, merge, NEVER } from 'rxjs'
 import { map, filter, tap, mapTo, startWith, switchMap, delayWhen } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviourOf } from '@/common/RxTools'
-import { createDriver, getMspResponse$, mspRequest, useDriverEffect } from '@/component/msp/MspDriver'
+import { createDriver, getMspResponse$, mspRequest, useMspDriver } from '@/component/msp/MspDriver'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/core'
 import { viewMspChart } from '@/component/msp/MspChartView'
@@ -51,7 +51,7 @@ export const MspChart = props => {
   //     })
   //   return () => sub.unsubscribe()
   // }, [state$])
-  useEffect(useDriverEffect(driver), [])
+  useEffect(useMspDriver(driver), [])
   useEffect(() => {
     const mspResponse$ = getMspResponse$(driver)
     const sub = merge(state$, mspResponse$)
