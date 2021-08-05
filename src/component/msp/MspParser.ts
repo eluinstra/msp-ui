@@ -44,12 +44,18 @@ const parseCmd = (b: number[]) => {
   }
 }
 
-export const toInt16 = (s: string) => {
-  const buffer = [0, 0]
+export const toInt16LE = (s: string) => {
+  // const buffer = [0, 0]
+  // const n = parseInt(s)
+  // buffer[0] = n % 256
+  // buffer[1] = Math.floor(n / 256)
+  // return buffer
+  // const buffer = Buffer.alloc(2)
+  // const n = parseInt(s)
+  // buffer.writeInt16LE(n)
+  // return [...buffer]
   const n = parseInt(s)
-  buffer[0] = n % 256
-  buffer[1] = Math.floor(n / 256)
-  return buffer
+  return [n & 0x00FF, (n & 0xFF00) >> 8]
 }
 
 export const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0)

@@ -1,12 +1,12 @@
 import { Subject } from 'rxjs';
-import { checksum, createMspInternalMsg, MspMsg, MspState, parseDataBuffer, toInt16 } from './MspParser'
+import { checksum, createMspInternalMsg, MspMsg, MspState, parseDataBuffer, toInt16LE } from './MspParser'
 import { MspCmd } from './MspProtocol'
 
 test.each([
-  ['10', [10, 0]],
-  ['266', [10, 1]]
+  ['0', [0, 0]],
+  ['256', [0, 1]]
 ])('toInt16(%i)', (value, expected) => {
-  const actual = toInt16(value);
+  const actual = toInt16LE(value);
   expect(actual).toMatchObject(expected);
 })
 
