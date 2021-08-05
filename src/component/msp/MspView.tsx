@@ -1,10 +1,10 @@
 import React from 'react'
 import { Card, CardContent } from '@material-ui/core'
 import { MspCmd } from '@/component/msp/MspProtocol'
-import { MspMsg, MspState } from '@/component/msp/MspDriver'
+import { MspMsg } from '@/component/msp/MspDriver'
 import { parseMspMsg } from '@/component/msp/MspModel'
 
-export const viewMspMsg = (msg: MspMsg) => msg.state == MspState.MSP_COMMAND_RECEIVED ? mspOutputFunctions[msg.cmd](parseMspMsg(msg)) : renderError()
+export const viewMspMsg = (msg: MspMsg) => mspOutputFunctions[msg.cmd](parseMspMsg(msg))
 
 const renderError = () => {
   return (
