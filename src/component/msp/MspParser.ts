@@ -1,6 +1,6 @@
 import { Subject } from "rxjs"
 
-enum MspState {
+export enum MspState {
   MSP_IDLE,
   MSP_HEADER_START,
   MSP_HEADER_X,
