@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { MspCmd } from '@/component/msp/MspProtocol'
-import { MspMsg } from '@/component/msp//MspDriver'
+import { MspMsg } from './MspDriver'
 
 const hexInt = (num: number, width: number) => num.toString(16).padStart(width,"0").toUpperCase()
 const hexInt8 = (num: number) => hexInt(num & 0xFF, 2)

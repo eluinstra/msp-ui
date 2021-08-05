@@ -1,4 +1,6 @@
-export enum MspState {
+import { Subject } from "rxjs"
+
+enum MspState {
   MSP_IDLE,
   MSP_HEADER_START,
   MSP_HEADER_X,
@@ -9,7 +11,7 @@ export enum MspState {
   MSP_ERROR_RECEIVED
 }
 
-export interface MspMsg {
+export interface MspInternalMsg {
   state: MspState,
   flag: number,
   cmd: number,
@@ -18,9 +20,21 @@ export interface MspMsg {
   checksum: number
 }
 
-const getFlag = v => v[0]
-const getCmd = v => v[1] + (v[2] << 8)
-const getLength = v => v[3] + (v[4] << 8)
+export const createMspInternalMsg = () : MspInternalMsg => {
+  return {
+    state: MspState.MSP_IDLE,
+    flag: 0,
+    cmd: 0,
+    length: 0,
+    buffer: [],
+    checksum: 0
+  }
+}
+
+export interface MspMsg {
+  cmd: number,
+  buffer: number[]
+}
 
 const parseCmd = (b: number[]) => {
   return {
@@ -47,7 +61,14 @@ const crc8_dvb_s2 = (crc, num) => {
   return crc
 }
 
-export const parseNextCharCode = (mspMsg: MspMsg, ch: number) => {
+export const parseDataBuffer = (mspMsg: MspInternalMsg, mspResponse$: Subject<MspMsg>, mspError$: Subject<MspMsg>, data: Buffer) => {
+  for (let i = 0; i < data.length; i++) {
+    parseNextCharCode(mspMsg, data.readInt8(i))
+    applyMsgState(mspMsg, mspResponse$, mspError$)
+  }
+}
+
+export const parseNextCharCode = (mspMsg: MspInternalMsg, ch: number) => {
   //console.log(num & 0xFF)
   //console.log(hexInt8(num & 0xFF))
   switch (mspMsg.state) {
@@ -103,3 +124,22 @@ export const parseNextCharCode = (mspMsg: MspMsg, ch: number) => {
   }
   //console.log("state " + mspMsg.state)
 }
+
+const getFlag = v => v[0]
+const getCmd = v => v[1] + (v[2] << 8)
+const getLength = v => v[3] + (v[4] << 8)
+
+const toMspMsg = (mspMsg: MspInternalMsg): MspMsg  => {
+  return { cmd: mspMsg.cmd, buffer: mspMsg.buffer }
+}
+
+const applyMsgState = (mspMsg: MspInternalMsg, mspResponse$: Subject<MspMsg>, mspError$: Subject<MspMsg>) => {
+  if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
+    mspResponse$.next(toMspMsg(mspMsg))
+    mspMsg.state = MspState.MSP_IDLE
+  } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
+    mspError$.next(toMspMsg(mspMsg))
+    mspMsg.state = MspState.MSP_IDLE
+  }
+}
+

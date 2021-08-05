@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { map, filter, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { createDriver, getMspResponse$, MspMsg, mspRequestNr, useMspDriver } from '@/component/msp/MspDriver'
+import { createMspDriver, getMspResponse$, MspMsg, mspRequestNr, useMspDriver } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, FormControl, TextField } from '@material-ui/core'
@@ -12,7 +12,7 @@ const notEmpty = (v: any) => !!v
 
 export const MspInput = (props: { serialPort: any }) => {
   const { serialPort } = props
-  const [driver] = useState(createDriver(serialPort))
+  const [driver] = useState(createMspDriver(serialPort))
   const { enqueueSnackbar } = useSnackbar()
   const [cmd, setCmd] = useState(null)
   const [payload, setPayload] = useState('')
