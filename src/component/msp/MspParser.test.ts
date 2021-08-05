@@ -1,7 +1,15 @@
+// import rewire from 'rewire';
 import { Subject } from 'rxjs';
 import { checksum, createMspInternalMsg, MspMsg, MspState, parseDataBuffer, toInt16LE } from './MspParser'
 import { MspCmd } from './MspProtocol'
+/*
+const MspParser = rewire("./MspParser");
+const getFlag = MspParser.__get__("getFlag");
 
+test("", () => {
+  expect(getFlag([1])).toBe(1)
+})
+*/
 test.each([
   ['0', [0, 0]],
   ['256', [0, 1]]

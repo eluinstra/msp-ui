@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc && copyfiles -f node_modules/leaflet/dist/leaflet.css node_modules/leaflet/dist/leaflet.js src/index.html dist",
     "clean": "del-cli --force dist/*",
-    "test": "jest",
+    "test": "ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
     "start": "npm run build && electron dist/main.js"
   },
   "author": "",
@@ -34,6 +34,7 @@
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@react-rxjs/core": "^0.6.7",
     "@types/node": "^14.17.1",
+    "@types/rewire": "^2.5.28",
     "chart.js": "^2.8.0",
     "chartjs-plugin-streaming": "^1.9.0",
     "leaflet": "^1.7.1",
@@ -47,6 +48,7 @@
     "react-dom": "^17.0.2",
     "react-leaflet": "^3.2.0",
     "react-router-dom": "^5.2.0",
+    "rewire": "^5.0.0",
     "rxjs": "^6.6.7",
     "rxjs-compat": "^6.6.7",
     "serialport": "^9.2.0"
