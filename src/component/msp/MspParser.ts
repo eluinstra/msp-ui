@@ -67,7 +67,7 @@ const crc8_dvb_s2 = (crc, num) => {
   return crc
 }
 
-export const parseDataBuffer = (mspMsg: MspInternalMsg, mspResponse$: Subject<MspMsg>, mspError$: Subject<MspMsg>, data: Buffer) => {
+export const parseDataBuffer = (mspMsg: MspInternalMsg, mspResponse$: Subject<MspMsg>, mspError$: Subject<Error>, data: Buffer) => {
   for (let i = 0; i < data.length; i++) {
     parseNextCharCode(mspMsg, data.readInt8(i))
     applyMsgState(mspMsg, mspResponse$, mspError$)
@@ -81,18 +81,24 @@ export const parseNextCharCode = (mspMsg: MspInternalMsg, ch: number) => {
     case MspState.MSP_IDLE:
       if (String.fromCharCode(ch) == '$')
         mspMsg.state = MspState.MSP_HEADER_START
+      else
+        mspMsg.state = MspState.MSP_IDLE
       break
     case MspState.MSP_HEADER_START:
       mspMsg.buffer = []
       mspMsg.checksum = 0
       if (String.fromCharCode(ch) == 'X')
         mspMsg.state = MspState.MSP_HEADER_X
+      else
+        mspMsg.state = MspState.MSP_IDLE
       break
     case MspState.MSP_HEADER_X:
       if (String.fromCharCode(ch) == '>')
         mspMsg.state = MspState.MSP_HEADER_V2_NATIVE
       else if (String.fromCharCode(ch) == '!')
         mspMsg.state = MspState.MSP_ERROR_RECEIVED
+      else
+        mspMsg.state = MspState.MSP_IDLE
       break
     case MspState.MSP_HEADER_V2_NATIVE:
       mspMsg.buffer.push(ch & 0xFF)
@@ -139,12 +145,12 @@ const toMspMsg = (mspMsg: MspInternalMsg): MspMsg  => {
   return { cmd: mspMsg.cmd, buffer: mspMsg.buffer }
 }
 
-const applyMsgState = (mspMsg: MspInternalMsg, mspResponse$: Subject<MspMsg>, mspError$: Subject<MspMsg>) => {
+const applyMsgState = (mspMsg: MspInternalMsg, mspResponse$: Subject<MspMsg>, mspError$: Subject<Error>) => {
   if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
     mspResponse$.next(toMspMsg(mspMsg))
     mspMsg.state = MspState.MSP_IDLE
   } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
-    mspError$.next(toMspMsg(mspMsg))
+    mspError$.next(new Error())
     mspMsg.state = MspState.MSP_IDLE
   }
 }

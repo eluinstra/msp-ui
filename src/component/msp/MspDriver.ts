@@ -10,7 +10,7 @@ export interface MspDriver {
   serialPort: BehaviorSubject<any>,
   mspMsg: MspInternalMsg,
   mspResponse$: Subject<MspMsg>,
-  mspError$: Subject<MspMsg>
+  mspError$: Subject<Error>
 }
 
 export const getMspResponse$ = (driver: MspDriver) => driver.mspResponse$
@@ -36,7 +36,7 @@ export const mspRequestNr = (driver: MspDriver, cmd: number, payload: string) =>
 
 const createMspResponse$ = () => new Subject<MspMsg>()
 
-const createMspError$ = () => new Subject<MspMsg>()
+const createMspError$ = () => new Subject<Error>()
 
 export const createMspDriver = (serialPort: BehaviorSubject<any>): MspDriver => {
   return {
