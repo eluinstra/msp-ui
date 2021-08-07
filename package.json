@@ -4,7 +4,7 @@
   "description": "msp ui",
   "main": "dist/main.js",
   "scripts": {
-    "build": "tsc && copyfiles -f node_modules/leaflet/dist/leaflet.css node_modules/leaflet/dist/leaflet.js src/index.html dist",
+    "build": "tsc && copyfiles -u 1 -e \"**/*.ts\" -e \"**/*.tsx\" \"src/**/*\" dist && copyfiles -f node_modules/leaflet/dist/leaflet.css node_modules/leaflet/dist/leaflet.js dist ",
     "clean": "del-cli --force dist/*",
     "test": "ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
     "start": "npm run build && electron dist/main.js"
@@ -37,6 +37,8 @@
     "@types/rewire": "^2.5.28",
     "chart.js": "^2.8.0",
     "chartjs-plugin-streaming": "^1.9.0",
+    "i18next": "^20.3.5",
+    "i18next-electron-language-detector": "0.0.10",
     "leaflet": "^1.7.1",
     "lodash": "^4.17.21",
     "module-alias": "^2.2.2",
@@ -46,6 +48,7 @@
     "react": "^17.0.2",
     "react-chartjs-2": "^2.11.1",
     "react-dom": "^17.0.2",
+    "react-i18next": "^11.11.4",
     "react-leaflet": "^3.2.0",
     "react-router-dom": "^5.2.0",
     "rewire": "^5.0.0",

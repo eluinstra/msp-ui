@@ -7,6 +7,7 @@ import { blueGrey, orange } from "@material-ui/core/colors"
 import { useLocation } from 'react-router'
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack'
+import { useTranslation } from 'react-i18next';
 import { AboutPage } from '@/page/About'
 import { ConfigurationPage } from '@/page/Configuration'
 import { GPSPage } from '@/page/GPS'
@@ -115,36 +116,38 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-export const App = () => {
+export const App = ({ }) => {
   const classes = useStyles()
   const { content, toolbar, root } = classes
   const [ serialPort ] = useState(createSerialPort())
+  
   return (
-  <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
-    <CssBaseline />
-    <ThemeProvider theme={theme}>
-      <div className={root}>
-        <MSPAppBar classes={classes} serialPort={serialPort} />
-        <Router>
-          <MSPDrawer classes={classes} serialPort={serialPort} />
-          <main className={content}>
-            <Toolbar className={toolbar} />
-            <MSPRouter serialPort={serialPort} />
-          </main>
-        </Router>
-      </div>
-    </ThemeProvider>
-  </SnackbarProvider>
+    <SnackbarProvider anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} maxSnack={3} preventDuplicate>
+      <CssBaseline />
+      <ThemeProvider theme={theme}>
+        <div className={root}>
+          <MSPAppBar classes={classes} serialPort={serialPort} />
+          <Router>
+            <MSPDrawer classes={classes} serialPort={serialPort} />
+            <main className={content}>
+              <Toolbar className={toolbar} />
+              <MSPRouter serialPort={serialPort} />
+            </main>
+          </Router>
+        </div>
+      </ThemeProvider>
+    </SnackbarProvider>
   )
 }
 
 const MSPAppBar = ({ classes, serialPort }) => {
   const { appBar, toolbar, title } = classes
+  const { t } = useTranslation()
   return (
     <AppBar position="fixed" className={appBar}>
       <Toolbar className={toolbar}>
         <Typography variant="h6" className={title}>
-          Alpha|BOT
+        {t('app.title')}
         </Typography>
         <SerialPortConnect serialPort={serialPort} />
       </Toolbar>
