@@ -5,8 +5,7 @@ import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
 import { parseMspMsg } from './msp/MspModel'
 
-export const Chart = props => {
-  const { driver, datasets } = props
+export const Chart = ({ driver, datasets }) => {
   const data = {
     datasets: datasets
   }

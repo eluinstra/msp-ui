@@ -3,13 +3,13 @@ import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/sty
 import { AppBar, CssBaseline, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
 import { ArrowBackIos as ArrowBackIosIcon, BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon,
           Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons'
-import { blueGrey, orange } from "@material-ui/core/colors";
+import { blueGrey, orange } from "@material-ui/core/colors"
 import { useLocation } from 'react-router'
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack'
 import { AboutPage } from '@/page/About'
 import { ConfigurationPage } from '@/page/Configuration'
-import { GPSPage } from './page/GPS'
+import { GPSPage } from '@/page/GPS'
 import { HomePage } from '@/page/Home'
 import { Imu } from '@/page/Imu'
 import { Msp } from '@/page/Msp'
@@ -20,9 +20,9 @@ import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { WitMotion } from '@/page/WitMotion'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
-import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
+import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver'
 import { useStatefulObservable } from '@/common/RxTools'
-import { map } from 'rxjs/operators';
+import { map } from 'rxjs/operators'
 
 enum Mode { DEFAULT, MSP, IMU } 
 
@@ -138,8 +138,7 @@ export const App = () => {
   )
 }
 
-const MSPAppBar = props => {
-  const { classes, serialPort } = props
+const MSPAppBar = ({ classes, serialPort }) => {
   const { appBar, toolbar, title } = classes
   return (
     <AppBar position="fixed" className={appBar}>
@@ -153,8 +152,7 @@ const MSPAppBar = props => {
   )
 }
 
-const MSPDrawer = props => {
-  const { classes, serialPort } = props
+const MSPDrawer = ({ classes, serialPort }) => {
   const { drawer, drawerPaper, toolbar, drawerContainer } = classes
   const [ mode, setMode ] = useState(Mode.DEFAULT)
   const connected = useStatefulObservable<boolean>(serialPort.pipe(map(p => isOpen(p))),false)
@@ -195,7 +193,7 @@ const MSPDrawer = props => {
         {mode == Mode.IMU && (
           <React.Fragment>
             <MenuListItem text="IMU" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
-            <MenuListItem text="Wit Motion" to="/wit-motion" mode={Mode.IMU} setMode={setMode} />
+            <MenuListItem text="Wit Motion" icon={<ArrowBackIosIcon />} to="/wit-motion" mode={Mode.IMU} setMode={setMode} />
           </React.Fragment>
         )}
       </div>
@@ -203,9 +201,8 @@ const MSPDrawer = props => {
   )
 }
 
-const MenuListItem = props => {
+const MenuListItem = ({ text, to, icon, mode = Mode.DEFAULT, setMode }) => {
   const location = useLocation('/')
-  const { text, to, icon, mode = Mode.DEFAULT, setMode } = props
   return (
     <ListItem button key={text} component={Link} to={to} onClick={_ => setMode(mode)} selected={location.pathname == to}>
       <ListItemIcon>{icon}</ListItemIcon>
@@ -214,8 +211,7 @@ const MenuListItem = props => {
   )
 }
 
-const MSPRouter = props => {
-  const { serialPort } = props
+const MSPRouter = ({ serialPort }) => {
   return (
     <Switch>
       <Route path="/settings">

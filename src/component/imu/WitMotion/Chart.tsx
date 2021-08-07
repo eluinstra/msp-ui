@@ -9,8 +9,7 @@ import { isOpen } from "@/component/serialport/SerialPortDriver"
 
 const imuAcc= (h: number, l: number) => ((h.valueOf() << 8) | l.valueOf() & 0xFF) / 32768 * 180
 
-export const Chart = props => {
-  const { serialPort } = props
+export const Chart = ({ serialPort }) => {
   const [state] = useState({
     labels: [],
     datasets: [

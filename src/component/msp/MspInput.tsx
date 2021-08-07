@@ -10,8 +10,7 @@ import { Autocomplete } from '@material-ui/lab'
 
 const notEmpty = (v: any) => !!v
 
-export const MspInput = (props: { serialPort: any }) => {
-  const { serialPort } = props
+export const MspInput = ({ serialPort }) => {
   const [driver] = useState(createMspDriver(serialPort))
   const { enqueueSnackbar } = useSnackbar()
   const [cmd, setCmd] = useState(null)

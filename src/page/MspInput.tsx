@@ -1,8 +1,7 @@
 import React from 'react'
 import { MspInput } from '@/component/msp/MspInput'
 
-export const MspInputPage = props => {
-  const { serialPort } = props
+export const MspInputPage = ({ serialPort }) => {
   return (
     <React.Fragment>
       <h2>MSP</h2>

@@ -8,8 +8,7 @@ import { PortInfo } from 'serialport'
 const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
 
-export const SerialPortConnect = props => {
-  const { serialPort } = props
+export const SerialPortConnect = ({ serialPort }) => {
   const connected = useStatefulObservable<boolean>(serialPort.pipe(map(p => isOpen(p))),false)
   const [state, changeState] = useBehaviour({
     port: "",

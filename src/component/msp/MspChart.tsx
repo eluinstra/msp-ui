@@ -10,8 +10,7 @@ import { Autocomplete } from '@material-ui/lab'
 
 const isTrue = v => !!v
 
-export const MspChart = props => {
-  const { serialPort } = props
+export const MspChart = ({ serialPort }) => {
   const [driver] = useState(createMspDriver(serialPort))
   const [state, changeState, state$] = useObservableBehaviourOf({
     checked: false,

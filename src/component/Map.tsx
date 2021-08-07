@@ -20,8 +20,8 @@ const lineToPoint = (s: string) => lineToPointParser(/^(\d*\.\d*)\^(\d*.\d*)|/, 
 const comparePoints = (p, n) => p.lat === n.lat && p.lng === n.lng
 const pointToLatLng = v => [v.lat, v.lng]
 
-const MyPolyline = props => {
-  const { filename, polyline } = props.line
+const MyPolyline = ({ line }) => {
+  const { filename, polyline } = line
   const rl = readline.createInterface({
     input: fs.createReadStream(filename)
   })
@@ -34,15 +34,15 @@ const MyPolyline = props => {
       map(pointToLatLng))
   )
   const gMap = useMap()
-  const line: Polyline = polyline.addTo(gMap)
+  const l: Polyline = polyline.addTo(gMap)
   point$.subscribe(
     p => {
-      line.addLatLng(p)
-      gMap.fitBounds(line.getBounds())
+      l.addLatLng(p)
+      gMap.fitBounds(l.getBounds())
     },
     err => console.log("Error: %s", err),
     () => {
-      gMap.fitBounds(line.getBounds())
+      gMap.fitBounds(l.getBounds())
       console.log("Complete")
     }
   )

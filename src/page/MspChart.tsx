@@ -1,8 +1,7 @@
 import React from 'react'
 import { MspChart } from '@/component/msp/MspChart'
 
-export const MspChartPage = props => {
-  const { serialPort } = props
+export const MspChartPage = ({ serialPort }) => {
   return (
     <React.Fragment>
       <h2>MSP</h2>
