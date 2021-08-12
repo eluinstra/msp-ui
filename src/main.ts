@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path';
+import './component/serialport/SerialPortMain'
 
 const createWindow = () => {
   const win = new BrowserWindow({
