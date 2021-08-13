@@ -1,13 +1,12 @@
 import { ipcRenderer, IpcRenderer } from "electron";
-import { IpcRendererEvent } from "electron/main";
+import { IpcRendererEvent } from "electron/renderer";
 import { identity } from 'rxjs'
 import { BehaviorSubject, from, Subject } from 'rxjs'
 import { startWith } from 'rxjs/operators'
 import { PortInfo } from 'serialport'
-import { Command as SerialPortCommand} from './SerialPortDriverMain'
+import { SerialPortService, Command as SerialPortCommand } from "./SerialPortService";
 
-
-export const registerSerialPortWorkerEvents = (ipcRenderer: IpcRenderer) => {
+export const createSerialPortDriver = (ipcRenderer: IpcRenderer) => {
   console.log(ipcRenderer.sendSync('synchronous-message', 'ping')); // prints "pong"
 
   ipcRenderer.on('asynchronous-reply', (event, arg) => {
@@ -24,43 +23,52 @@ export const getPort$ = identity
 
 export const getPath = (serialPort: SerialPort) => serialPort.value
 
-export const openPort = (serialPort: SerialPort, path: string, baudrate: number) => serialPort.next(openPort_(ipcRenderer, path, baudrate))
+export const openPort = (serialPort: SerialPort, path: string, baudrate: number) => serialPort.next(serialPortDriver.openPort(path, baudrate))
 
 export const registerFunction = (serialPort: SerialPort, eventHandler: (buffer: Buffer) => void) => {
-  onDataReceived_(ipcRenderer,SerialPortCommand.onDataReceived, eventHandler)
-  registerDataEventHandler_(ipcRenderer, serialPort.value, SerialPortCommand.onDataReceived)
+  serialPortDriver.onDataReceived(eventHandler)
+  serialPortDriver.registerDataEventHandler(serialPort.value)
 }
 
 export const isOpen = (serialPort: SerialPort) => Boolean(serialPort)
 
-export const write = (serialPort: SerialPort, buffer: Buffer) => write_(ipcRenderer, serialPort.value, buffer)
+export const write = (serialPort: SerialPort, buffer: Buffer) => serialPortDriver.write(serialPort.value, buffer)
 
 export const closePort = (serialPort: SerialPort) => {
-  closePort_(ipcRenderer, serialPort.value)
+  serialPortDriver.closePort(serialPort.value)
   serialPort.next(null)
 }
 
 export const availableBaudrates = [9600, 19200, 38400, 57600, 115200]
 export const defaultBaudrate = 115200
-export const portInfo$ = () => from(list_(ipcRenderer))
+export const portInfo$ = () => from(serialPortDriver.list())
 
+class SerialPortDriver implements SerialPortService {
+  private ipcRenderer: IpcRenderer
 
-const list_ = async (ipcRenderer: IpcRenderer) => await ipcRenderer.invoke(SerialPortCommand.list)
+  constructor(ipcRenderer: IpcRenderer) {
+    this.ipcRenderer = ipcRenderer
+  }
 
-const openPort_ = (ipcRenderer: IpcRenderer, path: string, baudrate: number) => ipcRenderer.sendSync(SerialPortCommand.openPort, path, baudrate)
+  list = async () => await this.ipcRenderer.invoke(SerialPortCommand.list) as Promise<PortInfo[]>
 
-const closePort_ = (ipcRenderer: IpcRenderer, path: string) => ipcRenderer.send(SerialPortCommand.closePort, path)
+  openPort = (path: string, baudrate: number) => this.ipcRenderer.sendSync(SerialPortCommand.openPort, path, baudrate)
 
-const registerDataEventHandler_ = (ipcRenderer: IpcRenderer, path: string, eventHandler: string) => ipcRenderer.send(SerialPortCommand.registerDataEventHandler, path, eventHandler)
+  closePort = (path: string) => this.ipcRenderer.send(SerialPortCommand.closePort, path)
 
-const unregisterDataEventHandler_ = (ipcRenderer: IpcRenderer, path: string) => ipcRenderer.send(SerialPortCommand.unregisterDataEventHandler, path)
+  onDataReceived = (fn: (buffer: Buffer) => void) => this.ipcRenderer.on(SerialPortCommand.onDataReceived, (event: IpcRendererEvent, buffer: Buffer) => fn(buffer))
 
-const onDataReceived_ = (ipcRenderer: IpcRenderer, name: string, fn: (buffer: Buffer) => void) => ipcRenderer.on(name, (event: IpcRendererEvent, buffer: Buffer) => fn(buffer))
+  registerDataEventHandler = (path: string) => this.ipcRenderer.send(SerialPortCommand.registerDataEventHandler, path, SerialPortCommand.onDataReceived)
 
-const registerErrorEventHandler_ = (ipcRenderer: IpcRenderer, path: string, eventHandler: string) => ipcRenderer.send(SerialPortCommand.registerErrorEventHandler, path, eventHandler)
+  unregisterDataEventHandler = (path: string) => this.ipcRenderer.send(SerialPortCommand.unregisterDataEventHandler, path)
 
-const unregisterErrorEventHandler_ = (ipcRenderer: IpcRenderer, path: string) => ipcRenderer.send(SerialPortCommand.unregisterErrorEventHandler, path)
+  onErrorReceived = (fn: (buffer: Buffer) => void) => this.ipcRenderer.on(SerialPortCommand.onErrorReceived, (event: IpcRendererEvent, buffer: Buffer) => fn(buffer))
 
-const onErrorReceived_ = (ipcRenderer: IpcRenderer, name: string, fn: (buffer: Buffer) => void) => ipcRenderer.on(name, (event: IpcRendererEvent, buffer: Buffer) => fn(buffer))
+  registerErrorEventHandler = (path: string) => this.ipcRenderer.send(SerialPortCommand.registerErrorEventHandler, path, SerialPortCommand.onErrorReceived)
 
-const write_ = (ipcRenderer: IpcRenderer, path: string, buffer: Buffer) => ipcRenderer.send(SerialPortCommand.write, path, buffer)
+  unregisterErrorEventHandler = (path: string) => this.ipcRenderer.send(SerialPortCommand.unregisterErrorEventHandler, path)
+
+  write = (path: string, buffer: Buffer) => this.ipcRenderer.send(SerialPortCommand.write, path, buffer)
+}
+
+const serialPortDriver = new SerialPortDriver(ipcRenderer)

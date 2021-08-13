@@ -1,19 +1,7 @@
 import { IpcMain } from "electron"
 import { IpcMainEvent } from "electron/main"
 import SerialPort, { PortInfo } from "serialport"
-
-export enum Command {
-  list = 'SerialPort.list',
-  openPort = 'SerialPort.openPort',
-  closePort = 'SerialPort.closePort',
-  registerDataEventHandler = 'SerialPort.registerDataEventHandler',
-  unregisterDataEventHandler = 'SerialPort.unregisterDataEventHandler',
-  onDataReceived = 'SerialPort.onDataReceived',
-  registerErrorEventHandler = 'SerialPort.registerErrorEventHandler',
-  unregisterErrorEventHandler = 'SerialPort.unregisterErrorEventHandler',
-  onErrorReceived = 'SerialPort.onErrorReceived',
-  write = 'SerialPort.registerErrorEventHandler'
-}
+import { Command, SerialPortService } from "./SerialPortService"
 
 const enum EventType {
   data = 'data',
@@ -21,8 +9,10 @@ const enum EventType {
 }
 
 const serialPorts = new Array<SerialPort>()
+let serialPortHandler: SerialPortHandler = null
 
-export const registerSerialPortDriverMainEvents = (ipcMain: IpcMain) => {
+export const createSerialPortHandler = (ipcMain: IpcMain) => {
+  serialPortHandler = new SerialPortHandler(ipcMain)
 
   ipcMain.on('asynchronous-message', (event: IpcMainEvent, arg: string) => {
     console.log(arg) // prints "ping"
@@ -34,50 +24,58 @@ export const registerSerialPortDriverMainEvents = (ipcMain: IpcMain) => {
     event.returnValue = 'pong'
   })
 
-  ipcMain.handle(Command.list, async (event: IpcMainEvent) => event.returnValue = list())
+  ipcMain.handle(Command.list, async (event: IpcMainEvent) => event.returnValue = serialPortHandler.list())
 
-  ipcMain.on(Command.openPort, (event: IpcMainEvent, path: string, baudrate: number) : string => event.returnValue = openPort(path, baudrate))
+  ipcMain.on(Command.openPort, (event: IpcMainEvent, path: string, baudrate: number) : string => event.returnValue = serialPortHandler.openPort(path, baudrate))
 
-  ipcMain.on(Command.closePort, (_: IpcMainEvent, path: string) => closePort(path))
+  ipcMain.on(Command.closePort, (_: IpcMainEvent, path: string) => serialPortHandler.closePort(path))
 
-  ipcMain.on(Command.registerDataEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => registerDataEventHandler(path, (data: Buffer) => ipcMain.emit(eventHandler, data)))
+  ipcMain.on(Command.registerDataEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => serialPortHandler.registerDataEventHandler(path, eventHandler))
 
-  ipcMain.on(Command.unregisterDataEventHandler, (_: IpcMainEvent, path: string) => unregisterDataEventHandler(path))
+  ipcMain.on(Command.unregisterDataEventHandler, (_: IpcMainEvent, path: string) => serialPortHandler.unregisterDataEventHandler(path))
 
-  ipcMain.on(Command.registerErrorEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => registerErrorEventHandler(path, (data: string) => ipcMain.emit(eventHandler, data)))
+  ipcMain.on(Command.registerErrorEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => serialPortHandler.registerErrorEventHandler(path, eventHandler))
 
-  ipcMain.on(Command.unregisterErrorEventHandler, (_: IpcMainEvent, path: string) => unregisterErrorEventHandler(path))
+  ipcMain.on(Command.unregisterErrorEventHandler, (_: IpcMainEvent, path: string) => serialPortHandler.unregisterErrorEventHandler(path))
 
-  ipcMain.on(Command.write, (_: IpcMainEvent, path: string, buffer: Buffer) => write(path, buffer))
+  ipcMain.on(Command.write, (_: IpcMainEvent, path: string, buffer: Buffer) => serialPortHandler.write(path, buffer))
 }
 
-const list = async (): Promise<PortInfo[]> => await SerialPort.list()
+class SerialPortHandler implements SerialPortService {
+  private ipcMain: IpcMain
 
-const openPort = (path: string, baudrate: number) => {
-  unregisterSerialPort(path)
-  registerSerialPort(createSerialPort(path, baudrate))
-  return path
+  constructor(ipcMain: IpcMain) {
+    this.ipcMain = ipcMain
+  }
+
+  list = async (): Promise<PortInfo[]> => await SerialPort.list()
+
+  openPort = (path: string, baudrate: number) => {
+    this.unregisterSerialPort(path)
+    this.registerSerialPort(this.createSerialPort(path, baudrate))
+    return path
+  }
+  
+  closePort = (path: string) => {
+    this.unregisterSerialPort(path)
+    this.destroySerialPort(path)
+  }
+  
+  createSerialPort = (path: string, baudrate: number) => new SerialPort(path, { baudRate: baudrate })
+
+  destroySerialPort = (path: string) => serialPorts[path] = null
+
+  registerSerialPort = (serialPort: SerialPort) => serialPorts[serialPort.path] = serialPort
+
+  unregisterSerialPort = (path: string) => serialPorts[path]?.close()
+
+  registerDataEventHandler = (path: string, eventHandler: string) => serialPorts[path]?.on(EventType.data, (data: Buffer) => this.ipcMain.emit(eventHandler, data))
+
+  unregisterDataEventHandler = (path: string) => serialPorts[path]?.on(EventType.data, {})
+
+  registerErrorEventHandler = (path: string, eventHandler: string) => serialPorts[path]?.on(EventType.error, (data: string) => this.ipcMain.emit(eventHandler, data))
+
+  unregisterErrorEventHandler = (path: string) => serialPorts[path]?.on(EventType.error, {})
+
+  write = (path: string, buffer: Buffer) => serialPorts[path]?.write(buffer)
 }
-
-const closePort = (path: string) => {
-  unregisterSerialPort(path)
-  destroySerialPort(path)
-}
-
-const createSerialPort = (path: string, baudrate: number) => new SerialPort(path, { baudRate: baudrate })
-
-const destroySerialPort = (path: string) => serialPorts[path] = null
-
-const registerSerialPort = (serialPort: SerialPort) => serialPorts[serialPort.path] = serialPort
-
-const unregisterSerialPort = (path: string) => serialPorts[path]?.close()
-
-const registerDataEventHandler = (path: string, eventHandler: (buffer: Buffer) => boolean) => serialPorts[path]?.on(EventType.data, eventHandler)
-
-const unregisterDataEventHandler = (path: string) => serialPorts[path]?.on(EventType.data, {})
-
-const registerErrorEventHandler = (path: string, eventHandler: (message: string) => boolean) => serialPorts[path]?.on(EventType.error, eventHandler)
-
-const unregisterErrorEventHandler = (path: string) => serialPorts[path]?.on(EventType.error, {})
-
-const write = (path: string, buffer: Buffer) => serialPorts[path]?.write(buffer)
