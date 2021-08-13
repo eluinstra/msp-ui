@@ -18,7 +18,7 @@ const createWindow = () => {
   // win.webContents.openDevTools()
 }
 
-// app.allowRendererProcessReuse = false
+app.allowRendererProcessReuse = false
 
 app.whenReady().then(createWindow)
 

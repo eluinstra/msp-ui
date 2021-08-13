@@ -1,19 +1,7 @@
 import { IpcMain } from "electron"
 import { IpcMainEvent } from "electron/main"
 import SerialPort, { PortInfo } from "serialport"
-
-export enum Command {
-  list = 'SerialPort.list',
-  openPort = 'SerialPort.openPort',
-  closePort = 'SerialPort.closePort',
-  registerDataEventHandler = 'SerialPort.registerDataEventHandler',
-  unregisterDataEventHandler = 'SerialPort.unregisterDataEventHandler',
-  onDataReceived = 'SerialPort.onDataReceived',
-  registerErrorEventHandler = 'SerialPort.registerErrorEventHandler',
-  unregisterErrorEventHandler = 'SerialPort.unregisterErrorEventHandler',
-  onErrorReceived = 'SerialPort.onErrorReceived',
-  write = 'SerialPort.registerErrorEventHandler'
-}
+import { Command } from "./SerialPortService"
 
 const enum EventType {
   data = 'data',
@@ -23,7 +11,6 @@ const enum EventType {
 const serialPorts = new Array<SerialPort>()
 
 export const registerSerialPortDriverMainEvents = (ipcMain: IpcMain) => {
-
   ipcMain.on('asynchronous-message', (event: IpcMainEvent, arg: string) => {
     console.log(arg) // prints "ping"
     event.reply('asynchronous-reply', 'pong')
