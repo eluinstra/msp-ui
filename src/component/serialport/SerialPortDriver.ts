@@ -1,29 +1,35 @@
-import { remote } from 'electron'
+import { ipcRenderer, IpcRenderer } from "electron";
 import { identity } from 'rxjs'
 import { BehaviorSubject, from, Subject } from 'rxjs'
 import { startWith } from 'rxjs/operators'
-import { PortInfo } from 'serialport'
-const SerialPort = remote.require('serialport')
+import { PortInfo as SerialPortInfo, serialPortService as driver } from '@/component/serialport/SerialPortService'
 
-export const createSerialPort = () => new BehaviorSubject(null)
+export type PortInfo = SerialPortInfo
+
+export type SerialPort = BehaviorSubject<string>
+
+export const createSerialPort = (): SerialPort => new BehaviorSubject<string>(null)
 
 export const getPort$ = identity
 
-export const getPath = serialPort => serialPort.value?.path
+export const getPath = (serialPort: SerialPort) => serialPort.value
 
-export const openPort = (serialPort, port, baudrate) => serialPort.next(new SerialPort(port, { baudRate: baudrate }))
+export const openPort = (serialPort: SerialPort, path: string, baudrate: number) => serialPort.next(driver.openPort(ipcRenderer, path, baudrate))
 
-export const registerFunction = (serialPort, f) => serialPort.value?.on('data', f)
+export const registerFunction = (serialPort: SerialPort, eventHandler: (buffer: Buffer) => void) => {
+  driver.onDataReceived(ipcRenderer, eventHandler)
+  driver.registerDataEventHandler(ipcRenderer, serialPort.value)
+}
 
-export const isOpen = (serialPort) => Boolean(serialPort)
+export const isOpen = (serialPort: string) => Boolean(serialPort)
 
-export const write = (serialPort, value) => serialPort.value.write(value)
+export const write = (serialPort: SerialPort, buffer: Buffer) => driver.write(ipcRenderer, serialPort.value, buffer)
 
-export const closePort = (serialPort) => {
-  serialPort.value?.close()
+export const closePort = (serialPort: SerialPort) => {
+  driver.closePort(ipcRenderer, serialPort.value)
   serialPort.next(null)
 }
 
 export const availableBaudrates = [9600, 19200, 38400, 57600, 115200]
 export const defaultBaudrate = 115200
-export const portInfo$ = () => from(SerialPort.list() as Promise<PortInfo[]>)
+export const portInfo$ = () => from(driver.list(ipcRenderer))

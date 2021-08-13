@@ -2,7 +2,7 @@ import { IpcRenderer } from "electron";
 import { IpcRendererEvent } from "electron/renderer";
 import { PortInfo as SerialPortInfo } from 'serialport'
 
-type PortInfo = SerialPortInfo
+export type PortInfo = SerialPortInfo
 
 export enum Command {
   list = 'SerialPort.list',
