@@ -1,6 +1,7 @@
 import { IpcMain } from "electron"
 import { IpcMainEvent } from "electron/main"
 import SerialPort, { PortInfo } from "serialport"
+import { MspParser } from "./MspParser"
 import { Command } from "./SerialPortService"
 
 const enum EventType {
@@ -9,6 +10,7 @@ const enum EventType {
 }
 
 const serialPorts = new Array<SerialPort>()
+const mspParsers = new Array<MspParser>()
 
 export const registerSerialPortDriverMainEvents = (ipcMain: IpcMain) => {
   ipcMain.on('asynchronous-message', (event: IpcMainEvent, arg: string) => {
@@ -27,9 +29,9 @@ export const registerSerialPortDriverMainEvents = (ipcMain: IpcMain) => {
 
   ipcMain.on(Command.closePort, (_: IpcMainEvent, path: string) => closePort(path))
 
-  ipcMain.on(Command.registerDataEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => registerDataEventHandler(path, (data: Buffer) => ipcMain.emit(eventHandler, data)))
+  ipcMain.on(Command.registerDataEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => registerMspEventHandler(path, (data: Buffer) => ipcMain.emit(eventHandler, data)))
 
-  ipcMain.on(Command.unregisterDataEventHandler, (_: IpcMainEvent, path: string) => unregisterDataEventHandler(path))
+  ipcMain.on(Command.unregisterDataEventHandler, (_: IpcMainEvent, path: string) => unregisterMspEventHandler(path))
 
   ipcMain.on(Command.registerErrorEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => registerErrorEventHandler(path, (data: string) => ipcMain.emit(eventHandler, data)))
 
@@ -47,21 +49,29 @@ const openPort = (path: string, baudrate: number) => {
 }
 
 const closePort = (path: string) => {
+  closeSerialPort(path)
   unregisterSerialPort(path)
-  destroySerialPort(path)
 }
 
 const createSerialPort = (path: string, baudrate: number) => new SerialPort(path, { baudRate: baudrate })
 
-const destroySerialPort = (path: string) => serialPorts[path] = null
+const closeSerialPort = (path: string) => serialPorts[path]?.close()
 
 const registerSerialPort = (serialPort: SerialPort) => serialPorts[serialPort.path] = serialPort
 
-const unregisterSerialPort = (path: string) => serialPorts[path]?.close()
+const unregisterSerialPort = (path: string) => serialPorts[path] = null
 
 const registerDataEventHandler = (path: string, eventHandler: (buffer: Buffer) => boolean) => serialPorts[path]?.on(EventType.data, eventHandler)
 
 const unregisterDataEventHandler = (path: string) => serialPorts[path]?.on(EventType.data, {})
+
+const registerMspEventHandler = (path: string, eventHandler: (buffer: Buffer) => boolean) => {
+  const parser = serialPorts[path]?.pipe(new MspParser())
+  mspParsers[path] = parser
+  parser?.on(EventType.data, eventHandler)
+}
+
+const unregisterMspEventHandler = (path: string) => mspParsers[path]?.on(EventType.data, {})
 
 const registerErrorEventHandler = (path: string, eventHandler: (message: string) => boolean) => serialPorts[path]?.on(EventType.error, eventHandler)
 

@@ -2,7 +2,7 @@ import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs'
 import { mspCmdHeader } from '@/component/msp/Msp'
 import { filter, share, tap } from 'rxjs/operators'
 import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver'
-import { checksum, createMspMsgState, MspMsg as MspMsg_, MspMsgState, parseDataBuffer, toInt16LE } from '@/component/msp/MspParser'
+import { checksum, createMspMsgState, MspMsg as MspMsg_, MspMsgState, toInt16LE } from '@/component/msp/MspParser'
 
 export type MspMsg = MspMsg_
 
@@ -67,6 +67,14 @@ const startMspDriver = (driver: MspDriver) => {
     const { mspMsg, mspResponse$, mspError$ } = driver
     parseDataBuffer(mspMsg, mspResponse$, mspError$, data)
   })
+}
+
+const parseDataBuffer = (mspMsg: MspMsgState, mspResponse$: Subject<MspMsg_>, mspError$: Subject<Error>, data: Buffer) => {
+  const o = JSON.parse(data.toString())
+  if (o instanceof Error)
+    mspError$.next(o)
+  else
+    mspResponse$.next(o)
 }
 
 const stopMspDriver = (driver: MspDriver) => registerFunction(driver.serialPort, function (data: Buffer) { })

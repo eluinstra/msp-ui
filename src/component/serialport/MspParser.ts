@@ -9,8 +9,8 @@ export interface MspMsg {
 export class MspParser extends Transform {
   msgState: MspMsgState
 
-  constructor() {
-    super()
+  constructor(options = {}) {
+    super({ ...options, objectMode: true })
     this.msgState = createMspMsgState()
   }
 
