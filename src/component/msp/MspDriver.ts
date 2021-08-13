@@ -1,14 +1,14 @@
 import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs'
-import { mspCmdHeader } from '@/component/msp/MspProtocol'
+import { mspCmdHeader } from '@/component/msp/Msp'
 import { filter, share, tap } from 'rxjs/operators'
 import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver'
-import { checksum, createMspInternalMsg, MspMsg as MspMsg_, MspInternalMsg, parseDataBuffer, toInt16LE } from '@/component/msp/MspParser'
+import { checksum, createMspMsgState, MspMsg as MspMsg_, MspMsgState, parseDataBuffer, toInt16LE } from '@/component/msp/MspParser'
 
 export type MspMsg = MspMsg_
 
 export interface MspDriver {
   serialPort: BehaviorSubject<any>,
-  mspMsg: MspInternalMsg,
+  mspMsg: MspMsgState,
   mspResponse$: Subject<MspMsg>,
   mspError$: Subject<Error>
 }
@@ -41,7 +41,7 @@ const createMspError$ = () => new Subject<Error>()
 export const createMspDriver = (serialPort: BehaviorSubject<any>): MspDriver => {
   return {
     serialPort: serialPort,
-    mspMsg: createMspInternalMsg(),
+    mspMsg: createMspMsgState(),
     mspResponse$: createMspResponse$(),
     mspError$: createMspError$()
   }

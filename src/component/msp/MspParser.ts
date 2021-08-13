@@ -11,7 +11,7 @@ export enum MspState {
   MSP_ERROR_RECEIVED
 }
 
-export interface MspInternalMsg {
+export interface MspMsgState {
   state: MspState,
   flag: number,
   cmd: number,
@@ -20,7 +20,7 @@ export interface MspInternalMsg {
   checksum: number
 }
 
-export const createMspInternalMsg = () : MspInternalMsg => {
+export const createMspMsgState = () : MspMsgState => {
   return {
     state: MspState.MSP_IDLE,
     flag: 0,
@@ -67,71 +67,71 @@ const crc8_dvb_s2 = (crc, num) => {
   return crc
 }
 
-export const parseDataBuffer = (mspMsg: MspInternalMsg, mspResponse$: Subject<MspMsg>, mspError$: Subject<Error>, data: Buffer) => {
+export const parseDataBuffer = (state: MspMsgState, mspResponse$: Subject<MspMsg>, mspError$: Subject<Error>, data: Buffer) => {
   for (let i = 0; i < data.length; i++) {
-    parseNextCharCode(mspMsg, data.readInt8(i))
-    applyMsgState(mspMsg, mspResponse$, mspError$)
+    parseNextCharCode(state, data.readInt8(i))
+    applyMsgState(state, mspResponse$, mspError$)
   }
 }
 
-export const parseNextCharCode = (mspMsg: MspInternalMsg, ch: number) => {
+export const parseNextCharCode = (mspMsgState: MspMsgState, ch: number) => {
   //console.log(num & 0xFF)
   //console.log(hexInt8(num & 0xFF))
-  switch (mspMsg.state) {
+  switch (mspMsgState.state) {
     case MspState.MSP_IDLE:
       if (String.fromCharCode(ch) == '$')
-        mspMsg.state = MspState.MSP_HEADER_START
+        mspMsgState.state = MspState.MSP_HEADER_START
       else
-        mspMsg.state = MspState.MSP_IDLE
+        mspMsgState.state = MspState.MSP_IDLE
       break
     case MspState.MSP_HEADER_START:
-      mspMsg.buffer = []
-      mspMsg.checksum = 0
+      mspMsgState.buffer = []
+      mspMsgState.checksum = 0
       if (String.fromCharCode(ch) == 'X')
-        mspMsg.state = MspState.MSP_HEADER_X
+        mspMsgState.state = MspState.MSP_HEADER_X
       else
-        mspMsg.state = MspState.MSP_IDLE
+        mspMsgState.state = MspState.MSP_IDLE
       break
     case MspState.MSP_HEADER_X:
       if (String.fromCharCode(ch) == '>')
-        mspMsg.state = MspState.MSP_HEADER_V2_NATIVE
+        mspMsgState.state = MspState.MSP_HEADER_V2_NATIVE
       else if (String.fromCharCode(ch) == '!')
-        mspMsg.state = MspState.MSP_ERROR_RECEIVED
+        mspMsgState.state = MspState.MSP_ERROR_RECEIVED
       else
-        mspMsg.state = MspState.MSP_IDLE
+        mspMsgState.state = MspState.MSP_IDLE
       break
     case MspState.MSP_HEADER_V2_NATIVE:
-      mspMsg.buffer.push(ch & 0xFF)
-      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, ch)
-      if (mspMsg.buffer.length == 5) {
-        mspMsg.flag = getFlag(mspMsg.buffer)
-        mspMsg.cmd = getCmd(mspMsg.buffer)
-        mspMsg.length = getLength(mspMsg.buffer)
-        mspMsg.buffer = []
-        if (mspMsg.length > 0)
-          mspMsg.state = MspState.MSP_PAYLOAD_V2_NATIVE
+      mspMsgState.buffer.push(ch & 0xFF)
+      mspMsgState.checksum = crc8_dvb_s2(mspMsgState.checksum, ch)
+      if (mspMsgState.buffer.length == 5) {
+        mspMsgState.flag = getFlag(mspMsgState.buffer)
+        mspMsgState.cmd = getCmd(mspMsgState.buffer)
+        mspMsgState.length = getLength(mspMsgState.buffer)
+        mspMsgState.buffer = []
+        if (mspMsgState.length > 0)
+          mspMsgState.state = MspState.MSP_PAYLOAD_V2_NATIVE
         else
-          mspMsg.state = MspState.MSP_CHECKSUM_V2_NATIVE
+          mspMsgState.state = MspState.MSP_CHECKSUM_V2_NATIVE
       }
       break
     case MspState.MSP_PAYLOAD_V2_NATIVE:
-      mspMsg.buffer.push(ch & 0xFF)
-      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, ch)
-      mspMsg.length--
-      if (mspMsg.length == 0)
-        mspMsg.state = MspState.MSP_CHECKSUM_V2_NATIVE
+      mspMsgState.buffer.push(ch & 0xFF)
+      mspMsgState.checksum = crc8_dvb_s2(mspMsgState.checksum, ch)
+      mspMsgState.length--
+      if (mspMsgState.length == 0)
+        mspMsgState.state = MspState.MSP_CHECKSUM_V2_NATIVE
       break
     case MspState.MSP_CHECKSUM_V2_NATIVE:
-      if (mspMsg.checksum == (ch & 0xFF))
-        mspMsg.state = MspState.MSP_COMMAND_RECEIVED
+      if (mspMsgState.checksum == (ch & 0xFF))
+        mspMsgState.state = MspState.MSP_COMMAND_RECEIVED
       else
-        mspMsg.state = MspState.MSP_IDLE
+        mspMsgState.state = MspState.MSP_IDLE
       break
     case MspState.MSP_ERROR_RECEIVED:
-      mspMsg.state = MspState.MSP_IDLE
+      mspMsgState.state = MspState.MSP_IDLE
       break
     default:
-      mspMsg.state = MspState.MSP_IDLE
+      mspMsgState.state = MspState.MSP_IDLE
       break
   }
   //console.log("state " + mspMsg.state)
@@ -141,11 +141,11 @@ const getFlag = v => v[0]
 const getCmd = v => v[1] + (v[2] << 8)
 const getLength = v => v[3] + (v[4] << 8)
 
-const toMspMsg = (mspMsg: MspInternalMsg): MspMsg  => {
+const toMspMsg = (mspMsg: MspMsgState): MspMsg  => {
   return { cmd: mspMsg.cmd, buffer: mspMsg.buffer }
 }
 
-const applyMsgState = (mspMsg: MspInternalMsg, mspResponse$: Subject<MspMsg>, mspError$: Subject<Error>) => {
+const applyMsgState = (mspMsg: MspMsgState, mspResponse$: Subject<MspMsg>, mspError$: Subject<Error>) => {
   if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
     mspResponse$.next(toMspMsg(mspMsg))
     mspMsg.state = MspState.MSP_IDLE

@@ -1,7 +1,7 @@
 // import rewire from 'rewire';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { checksum, createMspInternalMsg, MspMsg, MspState, parseDataBuffer, toInt16LE } from './MspParser';
-import { MspCmd } from './MspProtocol';
+import { checksum, createMspMsgState, MspMsg, MspState, parseDataBuffer, toInt16LE } from './MspParser';
+import { MspCmd } from './Msp';
 /*
 const MspParser = rewire("./MspParser");
 const getFlag = MspParser.__get__("getFlag");
@@ -27,7 +27,7 @@ test.each([
 })
 
 test('parseDataBuffer ""', () => {
-  const mspMsg = createMspInternalMsg()
+  const mspMsg = createMspMsgState()
   const data = Buffer.from([0x24, 0x58, 0x3e, 0x00, 0x64, 0x00, 0x00, 0x00, 0x8f])
   const response$ = new BehaviorSubject<MspMsg>(null);
   const error$ = new BehaviorSubject<Error>(null);
@@ -45,7 +45,7 @@ test('parseDataBuffer ""', () => {
 })
 
 test('parseDataBuffer "Hello flying world"', () => {
-  const mspMsg = createMspInternalMsg()
+  const mspMsg = createMspMsgState()
   const data = Buffer.from([0x24, 0x58, 0x3e, 0xa5, 0x42, 0x42, 0x12, 0x00, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x66, 0x6c, 0x79, 0x69, 0x6e, 0x67, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x82])
   const response$ = new BehaviorSubject<MspMsg>(null);
   const error$ = new BehaviorSubject<Error>(null);
@@ -64,7 +64,7 @@ test('parseDataBuffer "Hello flying world"', () => {
 })
 
 test('parseDataBuffer MSP Error', () => {
-  const mspMsg = createMspInternalMsg()
+  const mspMsg = createMspMsgState()
   const data = Buffer.from([0x24, 0x58, 0x21])
   const response$ = new BehaviorSubject<MspMsg>(null);
   const error$ = new BehaviorSubject<Error>(null);
@@ -83,7 +83,7 @@ test.each([
   [[0x24, 0x58, 0x3c, 0x00, 0x64, 0x00, 0x00, 0x00, 0x8f], 0],
   [[0x24, 0x58, 0x3e, 0x00, 0x64, 0x00, 0x00, 0x00, 0x80], MspCmd.MSP_IDENT]
 ])('parseDataBuffer Invalid message %j', (array, expectedCmd) => {
-  const mspMsg = createMspInternalMsg()
+  const mspMsg = createMspMsgState()
   const data = Buffer.from(array)
   const response$ = new BehaviorSubject<MspMsg>(null);
   const error$ = new BehaviorSubject<Error>(null);

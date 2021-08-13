@@ -1,6 +1,6 @@
 import React from 'react'
 import { Card, CardContent } from '@material-ui/core'
-import { MspCmd } from '@/component/msp/MspProtocol'
+import { MspCmd } from '@/component/msp/Msp'
 import { MspMsg } from '@/component/msp/MspDriver'
 import { parseMspMsg } from '@/component/msp/MspModel'
 
