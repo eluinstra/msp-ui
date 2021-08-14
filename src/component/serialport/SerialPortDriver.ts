@@ -16,7 +16,7 @@ export const getPath = (serialPort: SerialPort) => serialPort.value
 
 export const openPort = (serialPort: SerialPort, path: string, baudrate: number) => serialPort.next(driver.openPort(ipcRenderer, path, baudrate))
 
-export const registerFunction = (serialPort: SerialPort, eventHandler: (buffer: Buffer) => void) => {
+export const registerFunction = (serialPort: SerialPort, eventHandler: (object: any) => void) => {
   driver.onDataReceived(ipcRenderer, eventHandler)
   driver.registerDataEventHandler(ipcRenderer, serialPort.value)
 }

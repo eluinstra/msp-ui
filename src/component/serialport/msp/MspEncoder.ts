@@ -1,5 +1,5 @@
 import { Transform } from "stream";
-import { checksum, mspCmdHeader, MspMsg } from "./Msp";
+import { crc8_dvb_s2, mspCmdHeader, MspMsg } from "./Msp";
 
 export class MspEncoder extends Transform {
   constructor(options = {}) {
@@ -11,14 +11,15 @@ export class MspEncoder extends Transform {
   }
 }
 
-const encode = ({ cmd, buffer, flag = 0 }: MspMsg) => {
-  const content = [].concat([flag], numberToInt16LE(cmd), numberToInt16LE(buffer.length), buffer)
-  return [].concat(mspCmdHeader.split('').map(ch => ch.charCodeAt(0)), content, [checksum(content)])
-}
-
 export const numberToInt16LE = (n: number) => [n & 0x00FF, (n & 0xFF00) >> 8]
 
-export const stringToCharArray = (buffer: string): number[] => {
-  return buffer.split('').map(ch => ch.charCodeAt(0));
+export const stringToCharArray = (buffer: string): number[] => Array.from(buffer, c => c.charCodeAt(0))
+
+const _mspCmdHeader = stringToCharArray(mspCmdHeader);
+
+const encode = ({ cmd, buffer, flag = 0 }: MspMsg): number[] => {
+  const content: number[] = [].concat([flag], numberToInt16LE(cmd), numberToInt16LE(buffer.length), buffer)
+  return [].concat(_mspCmdHeader, content, [checksum(content)])
 }
 
+export const checksum = (buffer: number[]): number => buffer.reduce((crc, n) => crc8_dvb_s2(crc, n), 0)

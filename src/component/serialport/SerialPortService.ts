@@ -24,7 +24,7 @@ export const serialPortService = {
 
   closePort: (ipcRenderer: IpcRenderer, path: string): void => ipcRenderer.send(Command.closePort, path),
 
-  onDataReceived: (ipcRenderer: IpcRenderer, fn: (buffer: any) => void): IpcRenderer => ipcRenderer.on(Command.onDataReceived, (event: IpcRendererEvent, buffer: Buffer) => fn(buffer)),
+  onDataReceived: (ipcRenderer: IpcRenderer, fn: (object: any) => void): IpcRenderer => ipcRenderer.on(Command.onDataReceived, (event: IpcRendererEvent, object: any) => fn(object)),
 
   registerDataEventHandler: (ipcRenderer: IpcRenderer, path: string): void => ipcRenderer.send(Command.registerDataEventHandler, path, Command.onDataReceived),
 
@@ -36,5 +36,5 @@ export const serialPortService = {
 
   unregisterErrorEventHandler: (ipcRenderer: IpcRenderer, path: string): void => ipcRenderer.send(Command.unregisterErrorEventHandler, path),
 
-  write: (ipcRenderer: IpcRenderer, path: string, buffer: any): void => ipcRenderer.send(Command.write, path, buffer)
+  write: (ipcRenderer: IpcRenderer, path: string, object: any): void => ipcRenderer.send(Command.write, path, object)
 }

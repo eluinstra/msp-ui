@@ -11,11 +11,10 @@ export class MspDecoder extends Transform {
   }
 
   _transform(buffer, _, cb) {
-    const data = Buffer.from(buffer)
-    for (let i = 0; i < data.length; i++) {
-      parseNextCharCode(this.msgState, data.readInt8(i))
+    buffer.forEach((c) => {
+      parseNextCharCode(this.msgState, c)
       this.applyMsgState()
-    }
+    });
     cb()
   }
 

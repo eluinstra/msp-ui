@@ -265,9 +265,7 @@ export interface MspMsg {
   buffer: number[]
 }
 
-export const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0)
-
-export const crc8_dvb_s2 = (crc, num) => {
+export const crc8_dvb_s2 = (crc: number, num: number) => {
   crc = (crc ^ num) & 0xFF
   for (let i = 0; i < 8; i++)
     crc = ((crc & 0x80 & 0xFF) != 0) ? ((crc << 1) ^ 0xD5) & 0xFF : (crc << 1) & 0xFF

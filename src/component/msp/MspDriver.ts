@@ -45,7 +45,7 @@ export const useMspDriver = (driver: MspDriver) => {
     .pipe(
       filter(isOpen),
     )
-    .subscribe(p => {
+    .subscribe(_ => {
       startMspDriver(driver)
     })
   return () => {
@@ -55,9 +55,8 @@ export const useMspDriver = (driver: MspDriver) => {
 }
 
 const startMspDriver = (driver: MspDriver) => {
-  const { serialPort } = driver
+  const { serialPort, mspResponse$, mspError$ } = driver
   registerFunction(serialPort, function (object: any) {
-    const { mspResponse$, mspError$ } = driver
     parseDataBuffer(mspResponse$, mspError$, object)
   })
 }
@@ -69,4 +68,4 @@ const parseDataBuffer = (mspResponse$: Subject<MspMsg>, mspError$: Subject<Error
     mspResponse$.next(object)
 }
 
-const stopMspDriver = (driver: MspDriver) => registerFunction(driver.serialPort, function (data: Buffer) { })
+const stopMspDriver = (driver: MspDriver) => registerFunction(driver.serialPort, function (object: any) { })

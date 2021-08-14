@@ -19,9 +19,9 @@ export const registerSerialPortDriverMainEvents = (ipcMain: IpcMain) => {
 
   ipcMain.on(Command.closePort, (_: IpcMainEvent, path: string) => closePort(path))
 
-  ipcMain.on(Command.registerDataEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => registerMspEventHandler(path, (buffer: Buffer) => ipcMain.emit(eventHandler, buffer)))
+  ipcMain.on(Command.registerDataEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => registerDataEventHandler(path, (buffer: Buffer) => ipcMain.emit(eventHandler, buffer)))
 
-  ipcMain.on(Command.unregisterDataEventHandler, (_: IpcMainEvent, path: string) => unregisterMspEventHandler(path))
+  ipcMain.on(Command.unregisterDataEventHandler, (_: IpcMainEvent, path: string) => unregisterDataEventHandler(path))
 
   ipcMain.on(Command.registerErrorEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => registerErrorEventHandler(path, (data: string) => ipcMain.emit(eventHandler, data)))
 
@@ -55,12 +55,8 @@ const registerDataEventHandler = (path: string, eventHandler: (buffer: Buffer) =
 
 const unregisterDataEventHandler = (path: string) => serialPorts[path]?.on(EventType.data, {})
 
-const registerMspEventHandler = (path: string, eventHandler: (buffer: Buffer) => boolean) => serialPorts[path]?.on(EventType.data, eventHandler)
-
-const unregisterMspEventHandler = (path: string) => serialPorts[path]?.on(EventType.data, {})
-
 const registerErrorEventHandler = (path: string, eventHandler: (message: string) => boolean) => serialPorts[path]?.on(EventType.error, eventHandler)
 
 const unregisterErrorEventHandler = (path: string) => serialPorts[path]?.on(EventType.error, {})
 
-const write = (path: string, object: any) => serialPorts[path]?.write(object)
+const write = (path: string, buffer: Buffer) => serialPorts[path]?.write(buffer)

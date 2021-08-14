@@ -1,5 +1,5 @@
 import { MspCmd } from './Msp'
-import { MspEncoder, numberToInt16LE, stringToCharArray } from './MspEncoder'
+import { checksum, MspEncoder, numberToInt16LE, stringToCharArray } from './MspEncoder'
 import { identity } from 'rxjs'
 
 test.each([
@@ -8,6 +8,14 @@ test.each([
 ])('toInt16(%i)', (value, expected) => {
   const actual = numberToInt16LE(value);
   expect(actual).toMatchObject(expected);
+})
+
+test.each([
+  [[0x00, 0x64, 0x00, 0x00, 0x00], 0x8f],
+  [[0xa5, 0x42, 0x42, 0x12, 0x00, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x66, 0x6c, 0x79, 0x69, 0x6e, 0x67, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64], 0x82]
+])('checksum(%j)', (array, expected) => {
+  const actual = checksum(array)
+  expect(actual).toBe(expected)
 })
 
 test('parseDataBuffer ""', () => {
