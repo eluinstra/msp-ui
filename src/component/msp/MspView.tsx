@@ -1,7 +1,6 @@
 import React from 'react'
 import { Card, CardContent } from '@material-ui/core'
-import { MspCmd } from '@/component/msp/Msp'
-import { MspMsg } from '@/component/msp/MspDriver'
+import { MspCmd, MspMsg } from '@/component/msp/MspDriver'
 import { parseMspMsg } from '@/component/msp/MspModel'
 
 export const viewMspMsg = (msg: MspMsg) => mspOutputFunctions[msg.cmd](parseMspMsg(msg))

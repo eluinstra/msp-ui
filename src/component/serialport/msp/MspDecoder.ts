@@ -1,6 +1,6 @@
 import { Transform } from "stream";
-import { MspMsg } from "../msp/Msp";
-import { createMspMsgState, MspMsgState, MspState, parseNextCharCode } from "../msp/MspParser";
+import { MspMsg } from "./Msp";
+import { createMspMsgState, MspMsgState, MspState, parseNextCharCode } from "./MspParser";
 
 export class MspDecoder extends Transform {
   msgState: MspMsgState

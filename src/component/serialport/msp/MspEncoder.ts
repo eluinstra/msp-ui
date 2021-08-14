@@ -1,5 +1,5 @@
 import { Transform } from "stream";
-import { checksum, mspCmdHeader, MspMsg } from "../msp/Msp";
+import { checksum, mspCmdHeader, MspMsg } from "./Msp";
 
 export class MspEncoder extends Transform {
   constructor(options = {}) {

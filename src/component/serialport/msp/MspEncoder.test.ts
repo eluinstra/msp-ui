@@ -1,4 +1,4 @@
-import { MspCmd } from '../msp/Msp'
+import { MspCmd } from './Msp'
 import { MspEncoder, numberToInt16LE, stringToCharArray } from './MspEncoder'
 import { identity } from 'rxjs'
 

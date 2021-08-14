@@ -1,4 +1,4 @@
-import { crc8_dvb_s2 } from "../msp/Msp"
+import { crc8_dvb_s2 } from "./Msp"
 
 export enum MspState {
   MSP_IDLE,

@@ -1,4 +1,4 @@
-import { MspCmd } from '../msp/Msp'
+import { MspCmd } from './Msp'
 import { MspDecoder } from './MspDecoder'
 import { identity } from 'rxjs'
 

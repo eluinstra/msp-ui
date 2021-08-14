@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path';
-import { registerSerialPortDriverMainEvents } from './component/serialport/SerialPortDriverMain';
+import { registerSerialPortDriverMainEvents } from './component/serialport/msp/SerialPortDriverMain';
 
 const createWindow = () => {
   registerSerialPortDriverMainEvents(ipcMain)
