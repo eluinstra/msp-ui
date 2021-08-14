@@ -1,6 +1,14 @@
 import { MspCmd } from '../msp/Msp'
-import { MspEncoder, stringToCharArray } from './MspEncoder'
+import { MspEncoder, numberToInt16LE, stringToCharArray } from './MspEncoder'
 import { identity } from 'rxjs'
+
+test.each([
+  [0, [0, 0]],
+  [256, [0, 1]]
+])('toInt16(%i)', (value, expected) => {
+  const actual = numberToInt16LE(value);
+  expect(actual).toMatchObject(expected);
+})
 
 test('parseDataBuffer ""', () => {
   const callback = jest.fn(identity)

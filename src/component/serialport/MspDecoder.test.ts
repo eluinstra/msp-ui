@@ -39,3 +39,14 @@ test('parseDataBuffer MSP Error', () => {
   expect(callback.mock.calls.length).toBe(1)
   expect(callback.mock.calls[0][0]).toMatchObject(new Error())
 })
+
+test.each([
+  [[0x24, 0x58, 0x3c, 0x00, 0x64, 0x00, 0x00, 0x00, 0x8f]],
+  [[0x24, 0x58, 0x3e, 0x00, 0x64, 0x00, 0x00, 0x00, 0x80]]
+])('parseDataBuffer Invalid message %j', (array) => {
+  const callback = jest.fn(identity)
+  const parser = new MspDecoder()
+  parser.on('data', callback)
+  parser.write(Buffer.from(array))
+  expect(callback).toHaveBeenCalledTimes(0)
+})

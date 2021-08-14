@@ -1,14 +1,13 @@
 import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs'
 import { filter, share, tap } from 'rxjs/operators'
 import { getPort$, getPath, isOpen, registerFunction, write, SerialPort } from '@/component/serialport/SerialPortDriver'
-import { createMspMsgState, MspMsg as MspMsg_, MspMsgState, toInt16LE } from '@/component/msp/MspParser'
-import { stringToCharArray } from '../serialport/MspEncoder'
+import { numberToInt16LE, stringToCharArray } from '@/component/serialport/MspEncoder'
+import { MspMsg as _MspMsg} from '@/component/msp/Msp'
 
-export type MspMsg = MspMsg_
+export type MspMsg = _MspMsg
 
 export interface MspDriver {
   serialPort: SerialPort,
-  mspMsg: MspMsgState,
   mspResponse$: Subject<MspMsg>,
   mspError$: Subject<Error>
 }
@@ -23,6 +22,11 @@ export const mspRequest = (driver: MspDriver, cmd: number, payload: string) => w
 
 export const mspRequestNr = (driver: MspDriver, cmd: number, payload: string) => write(driver.serialPort, {cmd: cmd, buffer: toInt16LE(payload)})
 
+const toInt16LE = (s: string) => {
+  const n = parseInt(s)
+  return numberToInt16LE(n)
+}
+
 const createMspResponse$ = () => new Subject<MspMsg>()
 
 const createMspError$ = () => new Subject<Error>()
@@ -30,7 +34,6 @@ const createMspError$ = () => new Subject<Error>()
 export const createMspDriver = (serialPort: BehaviorSubject<any>): MspDriver => {
   return {
     serialPort: serialPort,
-    mspMsg: createMspMsgState(),
     mspResponse$: createMspResponse$(),
     mspError$: createMspError$()
   }
@@ -53,12 +56,12 @@ export const useMspDriver = (driver: MspDriver) => {
 const startMspDriver = (driver: MspDriver) => {
   const { serialPort } = driver
   registerFunction(serialPort, function (object: any) {
-    const { mspMsg, mspResponse$, mspError$ } = driver
-    parseDataBuffer(mspMsg, mspResponse$, mspError$, object)
+    const { mspResponse$, mspError$ } = driver
+    parseDataBuffer(mspResponse$, mspError$, object)
   })
 }
 
-const parseDataBuffer = (mspMsg: MspMsgState, mspResponse$: Subject<MspMsg_>, mspError$: Subject<Error>, object: any) => {
+const parseDataBuffer = (mspResponse$: Subject<MspMsg>, mspError$: Subject<Error>, object: any) => {
   if (object instanceof Error)
     mspError$.next(object)
   else

@@ -1,11 +1,6 @@
 import { Transform } from "stream";
+import { MspMsg } from "../msp/Msp";
 import { createMspMsgState, MspMsgState, MspState, parseNextCharCode } from "../msp/MspParser";
-
-export interface MspMsg {
-  cmd: number,
-  flag: number,
-  buffer: number[]
-}
 
 export class MspDecoder extends Transform {
   msgState: MspMsgState
@@ -27,7 +22,7 @@ export class MspDecoder extends Transform {
   private applyMsgState = () => {
     const msgState = this.msgState
     if (msgState.state == MspState.MSP_COMMAND_RECEIVED) {
-      this.push(this.toMspMsg())
+      this.push(toMspMsg(msgState))
       msgState.state = MspState.MSP_IDLE
     } else if (msgState.state == MspState.MSP_ERROR_RECEIVED) {
       this.push(new Error())
@@ -35,9 +30,8 @@ export class MspDecoder extends Transform {
     }
   }
 
-  private toMspMsg = (): MspMsg  => {
-    const { cmd, flag = 0, buffer } = this.msgState
-    return { cmd: cmd, flag: flag, buffer: buffer }
-  }
-  
+}
+
+const toMspMsg = ({ cmd, flag = 0, buffer }): MspMsg  => {
+  return { cmd: cmd, flag: flag, buffer: buffer }
 }

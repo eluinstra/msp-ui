@@ -1,12 +1,5 @@
 import { Transform } from "stream";
-import { mspCmdHeader } from "../msp/Msp";
-import { checksum } from "../msp/MspParser";
-
-export interface MspMsg {
-  cmd: number,
-  flag: number,
-  buffer: number[]
-}
+import { checksum, mspCmdHeader, MspMsg } from "../msp/Msp";
 
 export class MspEncoder extends Transform {
   constructor(options = {}) {

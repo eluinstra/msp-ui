@@ -258,3 +258,18 @@ export const mspMessageType = {
   IN: ">",
   ERROR: "!"
 }
+
+export interface MspMsg {
+  cmd: number,
+  flag: number,
+  buffer: number[]
+}
+
+export const checksum = bytes => bytes.reduce((crc, b) => crc8_dvb_s2(crc, b), 0)
+
+export const crc8_dvb_s2 = (crc, num) => {
+  crc = (crc ^ num) & 0xFF
+  for (let i = 0; i < 8; i++)
+    crc = ((crc & 0x80 & 0xFF) != 0) ? ((crc << 1) ^ 0xD5) & 0xFF : (crc << 1) & 0xFF
+  return crc
+}
