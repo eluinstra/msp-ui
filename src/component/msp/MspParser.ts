@@ -75,8 +75,6 @@ export const parseDataBuffer = (state: MspMsgState, mspResponse$: Subject<MspMsg
 }
 
 export const parseNextCharCode = (mspMsgState: MspMsgState, ch: number) => {
-  //console.log(num & 0xFF)
-  //console.log(hexInt8(num & 0xFF))
   switch (mspMsgState.state) {
     case MspState.MSP_IDLE:
       if (String.fromCharCode(ch) == '$')
@@ -134,7 +132,6 @@ export const parseNextCharCode = (mspMsgState: MspMsgState, ch: number) => {
       mspMsgState.state = MspState.MSP_IDLE
       break
   }
-  //console.log("state " + mspMsg.state)
 }
 
 const getFlag = v => v[0]

@@ -1,12 +1,13 @@
 import { Transform } from "stream";
-import { createMspMsgState, MspMsgState, MspState, parseNextCharCode } from "@/component/msp/MspParser";
+import { createMspMsgState, MspMsgState, MspState, parseNextCharCode } from "../msp/MspParser";
 
 export interface MspMsg {
   cmd: number,
+  flag: number,
   buffer: number[]
 }
 
-export class MspParser extends Transform {
+export class MspDecoder extends Transform {
   msgState: MspMsgState
 
   constructor(options = {}) {
@@ -35,8 +36,8 @@ export class MspParser extends Transform {
   }
 
   private toMspMsg = (): MspMsg  => {
-    const msgState = this.msgState
-    return { cmd: msgState.cmd, buffer: msgState.buffer }
+    const { cmd, flag = 0, buffer } = this.msgState
+    return { cmd: cmd, flag: flag, buffer: buffer }
   }
   
 }

@@ -23,7 +23,7 @@ export const registerFunction = (serialPort: SerialPort, eventHandler: (buffer: 
 
 export const isOpen = (serialPort: string) => Boolean(serialPort)
 
-export const write = (serialPort: SerialPort, buffer: Buffer) => driver.write(ipcRenderer, serialPort.value, buffer)
+export const write = (serialPort: SerialPort, object: any) => driver.write(ipcRenderer, serialPort.value, object)
 
 export const closePort = (serialPort: SerialPort) => {
   driver.closePort(ipcRenderer, serialPort.value)
