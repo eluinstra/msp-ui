@@ -53,7 +53,8 @@
     "rewire": "^5.0.0",
     "rxjs": "^6.6.7",
     "rxjs-compat": "^6.6.7",
-    "serialport": "^9.2.0"
+    "serialport": "^9.2.0",
+    "serialport-parser-msp-v2": "file:../serialport-parser-msp-v2"
   },
   "_moduleAliases": {
     "@": "dist"

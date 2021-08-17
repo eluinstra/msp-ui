@@ -1,8 +1,8 @@
 import { Subject } from 'rxjs'
 import { filter, share, tap } from 'rxjs/operators'
 import { getPort$, getPath, isOpen, registerFunction, write, SerialPort } from '@/component/serialport/SerialPortDriver'
-import { numberToInt16LE, stringToCharArray } from '@/component/serialport/msp/MspEncoder'
-import { MspCmd as _MspCmd, MspMsg as _MspMsg} from '@/component/serialport/msp/Msp'
+import { numberToInt16LE, stringToCharArray } from 'serialport-parser-msp-v2/lib/MspEncoder'
+import { MspCmd as _MspCmd, MspMsg as _MspMsg} from 'serialport-parser-msp-v2'
 
 export const MspCmd = _MspCmd
 export type MspMsg = _MspMsg
