@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { interval, merge, NEVER } from 'rxjs'
 import { map, filter, tap, mapTo, startWith, switchMap, delayWhen } from 'rxjs/operators'
 import { useStatefulObservable, useObservableBehaviourOf } from '@/common/RxTools'
-import { createDriver, getMspResponse$, mspRequest, useDriverEffect } from '@/component/msp/MspDriver'
+import { createDriver, MspDriver } from '@/component/msp/MspDriver'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { FormControl, FormControlLabel, Switch, TextField } from '@material-ui/core'
 import { viewMspChart } from '@/component/msp/MspChartView'
 import { Autocomplete } from '@material-ui/lab'
 
-const isTrue = v => !!v
+const isTrue = (v : any) => !!v
 
 export const MspChart = props => {
   const { serialPort } = props
@@ -19,7 +19,7 @@ export const MspChart = props => {
   })
   const [cmd, setCmd] = useState(null)
   const [inputValue, setInputValue] = useState('')
-  const mspMsg = useStatefulObservable<number>(getMspResponse$(driver)
+  const mspMsg = useStatefulObservable<number>(driver.getMspResponse$()
     .pipe(
       map(msg  => viewMspChart(driver, msg))
       // mapTo(Math.random())
@@ -51,23 +51,23 @@ export const MspChart = props => {
   //     })
   //   return () => sub.unsubscribe()
   // }, [state$])
-  useEffect(useDriverEffect(driver), [])
+  useEffect(driver.useDriverEffect(), [])
   useEffect(() => {
-    const mspResponse$ = getMspResponse$(driver)
+    const mspResponse$ = driver.getMspResponse$()
     const sub = merge(state$, mspResponse$)
       .pipe(
         startWith(state.checked),
         filter(isTrue),
         delayWhen(_ => interval(state.interval)),
         mapTo(MspCmd[cmd]),
-        tap(v => mspRequest(driver,v,'')),
+        tap(v => driver.mspRequest(v,'')),
         switchMap(_ => mspResponse$),
       )
       .subscribe(v => {
         console.log(v.cmd)
       })
     return () => sub.unsubscribe()
-  }, [state$, getMspResponse$(driver)])
+  }, [state$, driver.getMspResponse$()])
   return (
     <React.Fragment>
       <FormControl>

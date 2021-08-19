@@ -20,7 +20,7 @@ import { SettingsPage } from '@/page/Settings'
 import { PowerAndBatteryPage } from '@/page/Power'
 import { WitMotion } from '@/page/WitMotion'
 import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
-import { createSerialPort, isOpen } from '@/component/serialport/SerialPortDriver';
+import { createSerialPort, SerialPortDriver } from '@/component/serialport/SerialPortDriver';
 import { useStatefulObservable } from '@/common/RxTools'
 import { map } from 'rxjs/operators';
 
@@ -138,7 +138,7 @@ export const App = () => {
   )
 }
 
-const MSPAppBar = props => {
+const MSPAppBar = (props : {classes : any, serialPort : SerialPortDriver}) => {
   const { classes, serialPort } = props
   const { appBar, toolbar, title } = classes
   return (
@@ -153,11 +153,11 @@ const MSPAppBar = props => {
   )
 }
 
-const MSPDrawer = props => {
+const MSPDrawer = (props : {classes : any, serialPort : SerialPortDriver}) => {
   const { classes, serialPort } = props
   const { drawer, drawerPaper, toolbar, drawerContainer } = classes
   const [ mode, setMode ] = useState(Mode.DEFAULT)
-  const connected = useStatefulObservable<boolean>(serialPort.pipe(map(p => isOpen(p))),false)
+  const connected = useStatefulObservable<boolean>(serialPort.getPort$(),false)
   return (
     <Drawer
       className={drawer}

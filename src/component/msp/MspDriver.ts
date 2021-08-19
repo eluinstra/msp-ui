@@ -1,7 +1,7 @@
 import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs'
 import { mspCmdHeader } from '@/component/msp/MspProtocol'
 import { filter, share, tap } from 'rxjs/operators'
-import { getPort$, getPath, isOpen, registerFunction, write } from '@/component/serialport/SerialPortDriver'
+import { SerialPortDriver } from '@/component/serialport/SerialPortDriver'
 
 export enum MspState {
   MSP_IDLE,
@@ -23,13 +23,120 @@ export interface MspMsg {
   checksum: number
 }
 
-export interface Driver {
-  serialPort: BehaviorSubject<any>,
-  mspMsg: MspMsg,
-  mspResponse$: Subject<MspMsg>
-}
+export const createDriver = (serialPort: SerialPortDriver) : MspDriver => new MspDriver(serialPort)
 
-export const getMspResponse$ = (driver: Driver) => driver.mspResponse$
+export class MspDriver {
+  private serialPort: SerialPortDriver
+  private mspMsg: MspMsg
+  private mspResponse$: Subject<MspMsg>
+
+  constructor(serialPort: SerialPortDriver) {
+    this.serialPort = serialPort
+    this.mspMsg = {
+      state: MspState.MSP_IDLE,
+      flag: 0,
+      cmd: 0,
+      length: 0,
+      buffer: [],
+      checksum: 0
+    }
+    this.mspResponse$ = createMspResponse$()
+  }
+
+  getMspResponse$ = () => this.mspResponse$
+  getPortName = () => this.serialPort.getPath()
+  mspRequest = (cmd: number, payload: string) => this.serialPort.write(Buffer.from(command(cmd, payload)))
+  mspRequestNr = (cmd: number, payload: string) => this.serialPort.write(Buffer.from(rawCommand(cmd, toInt16(payload))))
+  useDriverEffect = (enqueueSnackbar?) => {
+    const sub = this.serialPort.getPort$()
+      .pipe(
+        filter(p => this.serialPort.isOpen()),
+      )
+      .subscribe(p => {
+        this.startDriver(enqueueSnackbar)
+      })
+    return () => {
+      sub.unsubscribe()
+      this.stopDriver()
+    }
+  }
+  startDriver = (enqueueSnackbar?) => {
+    const driver = this
+    const { serialPort, mspMsg, mspResponse$ } = driver
+    serialPort.registerFunction(function (data) {
+      for (let i = 0; i < data.length; i++) {
+        driver.parseMSPCommand(data.readInt8(i))
+        if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
+          mspResponse$.next({...mspMsg})
+          mspMsg.state = MspState.MSP_IDLE
+        } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
+          //mspResponse$.error(new Error('MSP error received!'))
+          mspResponse$.next({...mspMsg})
+          if (enqueueSnackbar) enqueueSnackbar('MSP error received!', { variant: 'error' })
+          mspMsg.state = MspState.MSP_IDLE
+        }
+      }
+    })
+  }
+  stopDriver = () => this.serialPort.registerFunction(function (data) {})  
+  parseMSPCommand = (num) => {
+    const { mspMsg } = this
+    //console.log(num & 0xFF)
+    //console.log(hexInt8(num & 0xFF))
+    switch (mspMsg.state) {
+      case MspState.MSP_IDLE:
+        if (String.fromCharCode(num) == '$')
+          mspMsg.state = MspState.MSP_HEADER_START
+        break
+      case MspState.MSP_HEADER_START:
+        mspMsg.buffer = []
+        mspMsg.checksum = 0
+        if (String.fromCharCode(num) == 'X')
+          mspMsg.state = MspState.MSP_HEADER_X
+        break
+      case MspState.MSP_HEADER_X:
+        if (String.fromCharCode(num) == '>')
+          mspMsg.state = MspState.MSP_HEADER_V2_NATIVE
+        else if (String.fromCharCode(num) == '!')
+          mspMsg.state = MspState.MSP_ERROR_RECEIVED
+        break
+      case MspState.MSP_HEADER_V2_NATIVE:
+        mspMsg.buffer.push(num & 0xFF)
+        mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num)
+        if (mspMsg.buffer.length == 5) {
+          mspMsg.flag = getFlag(mspMsg.buffer)
+          mspMsg.cmd = getCmd(mspMsg.buffer)
+          mspMsg.length = getLength(mspMsg.buffer)
+          mspMsg.buffer = []
+          if (mspMsg.length > 0)
+            mspMsg.state = MspState.MSP_PAYLOAD_V2_NATIVE
+          else
+            mspMsg.state = MspState.MSP_CHECKSUM_V2_NATIVE
+        }
+        break
+      case MspState.MSP_PAYLOAD_V2_NATIVE:
+        mspMsg.buffer.push(num & 0xFF)
+        mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num)
+        mspMsg.length--
+        if (mspMsg.length == 0)
+          mspMsg.state = MspState.MSP_CHECKSUM_V2_NATIVE
+        break
+      case MspState.MSP_CHECKSUM_V2_NATIVE:
+        if (mspMsg.checksum == (num & 0xFF))
+          mspMsg.state = MspState.MSP_COMMAND_RECEIVED
+        else
+          mspMsg.state = MspState.MSP_IDLE
+        break
+      case MspState.MSP_ERROR_RECEIVED:
+        mspMsg.state = MspState.MSP_IDLE
+        break
+      default:
+        mspMsg.state = MspState.MSP_IDLE
+        break
+    }
+    //console.log("state " + mspMsg.state)
+  }
+}
 
 const hexInt16 = (v: number) => [v & 0x00FF, v & 0xFF00]
 
@@ -74,117 +181,4 @@ const toInt16 = (s: string) => {
   return buffer
 }
 
-export const getPortName = (driver: Driver) => getPath(driver.serialPort)
-
-export const mspRequest = (driver: Driver, cmd: number, payload: string) => write(driver.serialPort, Buffer.from(command(cmd, payload)))
-
-export const mspRequestNr = (driver: Driver, cmd: number, payload: string) => write(driver.serialPort, Buffer.from(rawCommand(cmd, toInt16(payload))))
-
 const createMspResponse$ = () => new Subject<MspMsg>()
-
-export const createDriver = (serialPort: BehaviorSubject<any>) : Driver => {
-  return {
-    serialPort: serialPort,
-    mspMsg: {
-      state: MspState.MSP_IDLE,
-      flag: 0,
-      cmd: 0,
-      length: 0,
-      buffer: [],
-      checksum: 0
-    },
-    mspResponse$: createMspResponse$()
-  }
-}
-
-export const useDriverEffect = (driver: Driver, enqueueSnackbar?) => {
-  const sub = getPort$(driver.serialPort)
-    .pipe(
-      filter(isOpen),
-    )
-    .subscribe(p => {
-      startDriver(driver, enqueueSnackbar)
-    })
-  return () => {
-    sub.unsubscribe()
-    stopDriver(driver)
-  }
-}
-
-const startDriver = (driver: Driver, enqueueSnackbar?) => {
-  const { serialPort, mspMsg, mspResponse$ } = driver
-  registerFunction(serialPort, function (data) {
-    for (let i = 0; i < data.length; i++) {
-      parseMSPCommand(driver,data.readInt8(i))
-      if (mspMsg.state == MspState.MSP_COMMAND_RECEIVED) {
-        mspResponse$.next({...mspMsg})
-        mspMsg.state = MspState.MSP_IDLE
-      } else if (mspMsg.state == MspState.MSP_ERROR_RECEIVED) {
-        //mspResponse$.error(new Error('MSP error received!'))
-        mspResponse$.next({...mspMsg})
-        if (enqueueSnackbar) enqueueSnackbar('MSP error received!', { variant: 'error' })
-        mspMsg.state = MspState.MSP_IDLE
-      }
-    }
-  })
-}
-
-const stopDriver = (driver: Driver) => registerFunction(driver.serialPort, function (data) {})
-
-const parseMSPCommand = (driver, num) => {
-  const { mspMsg } = driver
-  //console.log(num & 0xFF)
-  //console.log(hexInt8(num & 0xFF))
-  switch (mspMsg.state) {
-    case MspState.MSP_IDLE:
-      if (String.fromCharCode(num) == '$')
-        mspMsg.state = MspState.MSP_HEADER_START
-      break
-    case MspState.MSP_HEADER_START:
-      mspMsg.buffer = []
-      mspMsg.checksum = 0
-      if (String.fromCharCode(num) == 'X')
-        mspMsg.state = MspState.MSP_HEADER_X
-      break
-    case MspState.MSP_HEADER_X:
-      if (String.fromCharCode(num) == '>')
-        mspMsg.state = MspState.MSP_HEADER_V2_NATIVE
-      else if (String.fromCharCode(num) == '!')
-        mspMsg.state = MspState.MSP_ERROR_RECEIVED
-      break
-    case MspState.MSP_HEADER_V2_NATIVE:
-      mspMsg.buffer.push(num & 0xFF)
-      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num)
-      if (mspMsg.buffer.length == 5) {
-        mspMsg.flag = getFlag(mspMsg.buffer)
-        mspMsg.cmd = getCmd(mspMsg.buffer)
-        mspMsg.length = getLength(mspMsg.buffer)
-        mspMsg.buffer = []
-        if (mspMsg.length > 0)
-          mspMsg.state = MspState.MSP_PAYLOAD_V2_NATIVE
-        else
-          mspMsg.state = MspState.MSP_CHECKSUM_V2_NATIVE
-      }
-      break
-    case MspState.MSP_PAYLOAD_V2_NATIVE:
-      mspMsg.buffer.push(num & 0xFF)
-      mspMsg.checksum = crc8_dvb_s2(mspMsg.checksum, num)
-      mspMsg.length--
-      if (mspMsg.length == 0)
-        mspMsg.state = MspState.MSP_CHECKSUM_V2_NATIVE
-      break
-    case MspState.MSP_CHECKSUM_V2_NATIVE:
-      if (mspMsg.checksum == (num & 0xFF))
-        mspMsg.state = MspState.MSP_COMMAND_RECEIVED
-      else
-        mspMsg.state = MspState.MSP_IDLE
-      break
-    case MspState.MSP_ERROR_RECEIVED:
-      mspMsg.state = MspState.MSP_IDLE
-      break
-    default:
-      mspMsg.state = MspState.MSP_IDLE
-      break
-  }
-  //console.log("state " + mspMsg.state)
-}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { map, filter, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { createDriver, getMspResponse$, MspMsg, mspRequestNr, useDriverEffect } from '@/component/msp/MspDriver'
+import { createDriver, MspMsg } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { MspCmd } from '@/component/msp/MspProtocol'
 import { Button, FormControl, TextField } from '@material-ui/core'
@@ -17,11 +17,11 @@ export const MspInput = (props: { serialPort: any }) => {
   const [cmd, setCmd] = useState(null)
   const [payload, setPayload] = useState('')
   const [mspClick, mspClick$] = useObservableEvent()
-  const mspMsg = useStatefulObservable<MspMsg>(getMspResponse$(driver)
+  const mspMsg = useStatefulObservable<MspMsg>(driver.getMspResponse$()
     .pipe(
       map(viewMspMsg)
   ))
-  useEffect(useDriverEffect(driver, enqueueSnackbar), [])
+  useEffect(driver.useDriverEffect(enqueueSnackbar), [])
   useEffect(() => {
     const sub = mspClick$
       .pipe(
@@ -30,7 +30,7 @@ export const MspInput = (props: { serialPort: any }) => {
       )
       .subscribe(val => {
         try {
-          mspRequestNr(driver,val,payload)
+          driver.mspRequestNr(val,payload)
         } catch(e) {
           console.log(e)
           enqueueSnackbar(e.message, { variant: 'error' })

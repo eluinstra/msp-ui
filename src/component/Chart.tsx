@@ -3,7 +3,7 @@ import { Line } from 'react-chartjs-2'
 import 'chartjs-plugin-streaming'
 import { interval } from 'rxjs'
 import { map, sample } from 'rxjs/operators'
-import { Driver, MspMsg } from '@/component/msp/MspDriver'
+import { MspDriver, MspMsg } from '@/component/msp/MspDriver'
 import { parseMspMsg } from './msp/MspModel'
 
 export const Chart = props => {
