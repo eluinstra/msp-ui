@@ -1,7 +1,7 @@
-import { IpcMain } from "electron"
+import { IpcMain, WebContents } from "electron"
 import { IpcMainEvent } from "electron/main"
 import SerialPort, { PortInfo } from "serialport"
-import { MspMsg, MspEncoder, MspDecoder } from "serialport-parser-msp-v2"
+import { encode, MspMsg, MspEncoder, MspDecoder } from "serialport-parser-msp-v2"
 import { Command } from "../SerialPortService"
 
 const enum EventType {
@@ -10,17 +10,17 @@ const enum EventType {
 }
 
 const serialPorts = new Array<SerialPort>()
-const mspEncoders = new Array<MspEncoder>()
+// const mspEncoders = new Array<MspEncoder>()
 const mspDecoders = new Array<MspDecoder>()
 
-export const registerSerialPortDriverMainEvents = (ipcMain: IpcMain) => {
+export const registerSerialPortDriverMainEvents = (ipcMain: IpcMain, webContents: WebContents) => {
   ipcMain.handle(Command.list, async (event: IpcMainEvent) => event.returnValue = list())
 
   ipcMain.on(Command.openPort, (event: IpcMainEvent, path: string, baudrate: number) : string => event.returnValue = openPort(path, baudrate))
 
   ipcMain.on(Command.closePort, (_: IpcMainEvent, path: string) => closePort(path))
 
-  ipcMain.on(Command.registerDataEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => registerDataEventHandler(path, (object: MspMsg | Error) => ipcMain.emit(eventHandler, object)))
+  ipcMain.on(Command.registerDataEventHandler, (_: IpcMainEvent, path: string, eventHandler: string) => registerDataEventHandler(path, (data: Buffer) => webContents.send(eventHandler, data)))
 
   ipcMain.on(Command.unregisterDataEventHandler, (_: IpcMainEvent, path: string) => unregisterDataEventHandler(path))
 
@@ -37,7 +37,7 @@ const openPort = (path: string, baudrate: number) => {
   closePort(path)
   const serialPort = createSerialPort(path, baudrate)
   registerSerialPort(serialPort)
-  registerEncoder(serialPort)
+  // registerEncoder(serialPort)
   return path
 }
 
@@ -54,12 +54,12 @@ const registerSerialPort = (serialPort: SerialPort) => serialPorts[serialPort.pa
 
 const unregisterSerialPort = (path: string) => serialPorts[path] = null
 
-const registerEncoder = (serialPort: SerialPort) => mspEncoders[serialPort.path] = new MspEncoder().pipe(serialPort as any)
+// const registerEncoder = (serialPort: SerialPort) => mspEncoders[serialPort.path] = new MspEncoder().pipe(serialPort as any)
 
-const registerDataEventHandler = (path: string, eventHandler: (object: MspMsg | Error) => boolean) => {
-  const parser = serialPorts[path]?.pipe(new MspDecoder())
-  mspDecoders[path] = parser
-  parser?.on(EventType.data, eventHandler)
+const registerDataEventHandler = (path: string, eventHandler: (buffer: Buffer) => void) => {
+  const decoder = serialPorts[path]?.pipe(new MspDecoder())
+  mspDecoders[path] = decoder
+  decoder?.on(EventType.data, eventHandler)
 }
 
 const unregisterDataEventHandler = (path: string) => mspDecoders[path]?.on(EventType.data, {})
@@ -68,4 +68,4 @@ const registerErrorEventHandler = (path: string, eventHandler: (message: string)
 
 const unregisterErrorEventHandler = (path: string) => serialPorts[path]?.on(EventType.error, {})
 
-const write = (path: string, object: MspMsg | Error) => mspEncoders[path]?.write(object)
+const write = (path: string, object: MspMsg) => serialPorts[path]?.write(encode(object))//mspEncoders[path]?.write(object)

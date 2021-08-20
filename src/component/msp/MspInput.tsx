@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { map, filter, mapTo } from 'rxjs/operators'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { createMspDriver, getMspResponse$, MspCmd, MspMsg, mspRequestNr, useMspDriver } from '@/component/msp/MspDriver'
+import { createMspDriver, getMspError$, getMspResponse$, MspCmd, MspMsg, mspRequestNr, useMspDriver } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { Button, FormControl, TextField } from '@material-ui/core'
 import { useSnackbar } from 'notistack'
@@ -19,7 +19,8 @@ export const MspInput = ({ serialPort }) => {
     .pipe(
       map(viewMspMsg)
   ))
-  useEffect(useMspDriver(driver), [])
+  const mspError$ = getMspError$(driver)
+  useEffect(() => useMspDriver(driver), [])
   useEffect(() => {
     const sub = mspClick$
       .pipe(
@@ -36,6 +37,15 @@ export const MspInput = ({ serialPort }) => {
       })
     return () => sub.unsubscribe()
   }, [mspClick$])
+  useEffect(() => {
+    const sub = mspError$
+      .subscribe(e => {
+          console.log(e.message)
+          enqueueSnackbar(e.message, { variant: 'error' })
+        }
+      )
+    return () => sub.unsubscribe()
+  }, [mspError$])
   return (
     <React.Fragment>
       <FormControl>

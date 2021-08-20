@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
+import { createTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import { AppBar, CssBaseline, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core'
 import { ArrowBackIos as ArrowBackIosIcon, BatteryStd as BatteryStdIcon, Build as BuildIcon, GpsFixed as GpsFixedIcon, Home as HomeIcon, Info as InfoIcon,
           Input as InputIcon, OpenWith as OpenWithIcon, Power as PowerIcon, Repeat as RepeatIcon, Settings as SettingsIcon, ShowChart as ShowChartIcon } from '@material-ui/icons'
@@ -29,7 +29,7 @@ enum Mode { DEFAULT, MSP, IMU }
 
 const drawerWidth = 240
 
-const theme = createMuiTheme({
+const theme = createTheme({
   palette: {
     primary: {
       light: blueGrey[600],

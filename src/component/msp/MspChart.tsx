@@ -49,7 +49,7 @@ export const MspChart = ({ serialPort }) => {
   //     })
   //   return () => sub.unsubscribe()
   // }, [state$])
-  useEffect(useMspDriver(driver), [])
+  useEffect(() => useMspDriver(driver), [])
   useEffect(() => {
     const mspResponse$ = getMspResponse$(driver)
     const sub = merge(state$, mspResponse$)

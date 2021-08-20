@@ -3,7 +3,6 @@ import path from 'path';
 import { registerSerialPortDriverMainEvents } from './component/serialport/msp/SerialPortDriverMain';
 
 const createWindow = () => {
-  registerSerialPortDriverMainEvents(ipcMain)
   const win = new BrowserWindow({
     width: 1400,
     height: 900,
@@ -16,6 +15,7 @@ const createWindow = () => {
   const indexHTML = path.join('index.html')
   win.loadFile(indexHTML)
   // win.webContents.openDevTools()
+  registerSerialPortDriverMainEvents(ipcMain, win.webContents)
 }
 
 app.allowRendererProcessReuse = false

@@ -20,7 +20,7 @@ const renderDefault = (msg: string) => {
 
 const mspOutputFunctions = []
 
-Object.values(MspCmd).forEach(v => mspOutputFunctions[v] = renderDefault)
+Object.values(MspCmd).forEach((v: number) => mspOutputFunctions[v] = renderDefault)
 
 mspOutputFunctions[MspCmd.MSP_RAW_IMU] = (driver: MspDriver, msg: { acc_x: number, acc_y: number, acc_z: number,
                                                  gyro_x: number, gyro_y: number, gyro_z: number,
