@@ -228,7 +228,7 @@ const MSPRouter = ({ serialPort }) => {
         <PortsPage />
       </Route>
       <Route path="/configuration">
-        <ConfigurationPage />
+        <ConfigurationPage serialPort={serialPort} />
       </Route>
       <Route path="/power">
         <PowerAndBatteryPage />
