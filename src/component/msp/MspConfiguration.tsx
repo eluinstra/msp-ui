@@ -1,9 +1,9 @@
-import { useObservableBehaviourOf, useStatefulObservable } from '@/common/RxTools'
-import { createMspDriver, getMspResponse$, MspCmd, MspMsg, mspRequestNr, useMspDriver } from '@/component/msp/MspDriver'
+import { useObservableBehaviourOf, useObservableEvent, useStatefulObservable } from '@/common/RxTools'
+import { createMspDriver, getMspResponse$, MspCmd, MspDriver, MspMsg, mspRequestNr, useMspDriver } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
-import { FormControl, FormControlLabel, Switch } from '@material-ui/core'
+import { Button, FormControl, FormControlLabel, Switch } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import { interval, merge, of } from 'rxjs'
+import { BehaviorSubject, interval, merge, Observable, of, timer } from 'rxjs'
 import { flatMap, mergeMap } from 'rxjs/operators'
 import { delayWhen, filter, map, mapTo, startWith, tap } from 'rxjs/operators'
 
@@ -12,9 +12,10 @@ const isMspCmd = (mspCmd: number) => (msg: MspMsg) => mspCmd == msg.cmd
 
 export const MspConfiguration = ({ serialPort }) => {
   const [driver] = useState(createMspDriver(serialPort))
+  const [mspClick, mspClick$] = useObservableEvent()
   const [state, changeState, state$] = useObservableBehaviourOf({
     checked: true,
-    interval: 2000,
+    interval: 100,
   })
   const [command$] = useState(of('MSP_API_VERSION', 'MSP_FC_VARIANT', 'MSP_FC_VERSION'))
   // const [cmd] = useState('MSP_API_VERSION')
@@ -35,26 +36,28 @@ export const MspConfiguration = ({ serialPort }) => {
       map(viewMspMsg)
   ))
   useEffect(() => useMspDriver(driver), [])
-  useEffect(() => {
-    const sub = merge(state$)
-      .pipe(
-        startWith(state.checked),
-        delayWhen(_ => interval(state.interval)),
-        mergeMap(_ => command$),
-        tap(console.log),
-        map(cmd => MspCmd[cmd])
-      )
-      .subscribe(v => {
-        console.log(v)
-        mspRequestNr(driver, v, '')
-      })
-    return () => sub.unsubscribe()
-  }, [state$])
+  useEffect(() => handleMspRequests(mspClick$, command$, driver), [mspClick$])
+  useEffect(() => handleMspRequests(of(1), command$, driver), [])
   return (
     <React.Fragment>
       {apiVersion}
       {mspFcVariant}
       {mspFcVersion}
+      <FormControl>
+        <Button variant="contained" onClick={_ => mspClick()}>Refresh</Button>
+      </FormControl>
     </React.Fragment>
   )
+}
+
+function handleMspRequests(observable: Observable<any>, command$: Observable<string>, driver: MspDriver) {
+  const sub = observable
+    .pipe(
+      mergeMap(_ => command$),
+      map((cmd: string) => MspCmd[cmd])
+    )
+    .subscribe(v => {
+      mspRequestNr(driver, v, '')
+    })
+  return () => sub.unsubscribe()
 }
