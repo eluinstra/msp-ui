@@ -109,6 +109,16 @@ mspOutputFunctions[MspCmd.MSP_ECHO_NR] = (msg: string) => {
   )
 }
 
+mspOutputFunctions[MspCmd.MSP_NAME] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Name: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
 mspOutputFunctions[MspCmd.MSP_RAW_IMU] = (msg: { acc_x: number, acc_y: number, acc_z: number,
                                                  gyro_x: number, gyro_y: number, gyro_z: number,
                                                  mag_x: number, mag_y: number, mag_z: number }) => {

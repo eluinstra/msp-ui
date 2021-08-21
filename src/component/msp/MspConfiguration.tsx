@@ -17,7 +17,7 @@ export const MspConfiguration = ({ serialPort }) => {
     checked: true,
     interval: 100,
   })
-  const [command$] = useState(of('MSP_API_VERSION', 'MSP_FC_VARIANT', 'MSP_FC_VERSION'))
+  const [command$] = useState(of('MSP_API_VERSION', 'MSP_FC_VARIANT', 'MSP_FC_VERSION', 'MSP_BOARD_INFO', 'MSP_BUILD_INFO', 'MSP_NAME', 'MSP_IDENT'))
   // const [cmd] = useState('MSP_API_VERSION')
   const mspResponse$ = getMspResponse$(driver)
   const apiVersion = useStatefulObservable<number>(mspResponse$
@@ -35,6 +35,26 @@ export const MspConfiguration = ({ serialPort }) => {
       filter(isMspCmd(MspCmd.MSP_FC_VERSION)),
       map(viewMspMsg)
   ))
+  const mspBoardInfo = useStatefulObservable<number>(mspResponse$
+    .pipe(
+      filter(isMspCmd(MspCmd.MSP_BOARD_INFO)),
+      map(viewMspMsg)
+  ))
+  const mspBuildInfo = useStatefulObservable<number>(mspResponse$
+    .pipe(
+      filter(isMspCmd(MspCmd.MSP_BUILD_INFO)),
+      map(viewMspMsg)
+  ))
+  const mspName = useStatefulObservable<number>(mspResponse$
+    .pipe(
+      filter(isMspCmd(MspCmd.MSP_NAME)),
+      map(viewMspMsg)
+  ))
+  const mspIdent = useStatefulObservable<number>(mspResponse$
+    .pipe(
+      filter(isMspCmd(MspCmd.MSP_IDENT)),
+      map(viewMspMsg)
+  ))
   useEffect(() => useMspDriver(driver), [])
   useEffect(() => handleMspRequests(mspClick$, command$, driver), [mspClick$])
   useEffect(() => handleMspRequests(of(1), command$, driver), [])
@@ -43,6 +63,10 @@ export const MspConfiguration = ({ serialPort }) => {
       {apiVersion}
       {mspFcVariant}
       {mspFcVersion}
+      {mspBoardInfo}
+      {mspBuildInfo}
+      {mspName}
+      {mspIdent}
       <FormControl>
         <Button variant="contained" onClick={_ => mspClick()}>Refresh</Button>
       </FormControl>
