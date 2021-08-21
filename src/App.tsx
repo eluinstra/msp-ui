@@ -24,6 +24,8 @@ import { SerialPortConnect } from '@/component/serialport/SerialPortConnect'
 import { createSerialPort, isOpen, SerialPort } from '@/component/serialport/SerialPortDriver'
 import { useStatefulObservable } from '@/common/RxTools'
 import { map } from 'rxjs/operators'
+import { MspTemperaturePage } from '@/page/MspTemperature'
+import { MspPressurePage } from '@/page/MspPressure'
 
 enum Mode { DEFAULT, MSP, IMU } 
 
@@ -190,6 +192,8 @@ const MSPDrawer = ({ classes, serialPort }) => {
           <React.Fragment>
             <MenuListItem text="MSP" to="/" icon={<ArrowBackIosIcon />} setMode={setMode} />
             <MenuListItem text="Input" to="/msp-input" icon={<InputIcon />} mode={Mode.MSP} setMode={setMode} />
+            <MenuListItem text="Temperature" to="/msp-temperature" icon={<ShowChartIcon />} mode={Mode.MSP} setMode={setMode} />
+            <MenuListItem text="Pressure" to="/msp-pressure" icon={<ShowChartIcon />} mode={Mode.MSP} setMode={setMode} />
             <MenuListItem text="Chart" to="/msp-chart" icon={<ShowChartIcon />} mode={Mode.MSP} setMode={setMode} />
           </React.Fragment>
         )}
@@ -234,6 +238,12 @@ const MSPRouter = ({ serialPort }) => {
       </Route>
       <Route path="/msp-input">
         <MspInputPage serialPort={serialPort} />
+      </Route>
+      <Route path="/msp-temperature">
+        <MspTemperaturePage serialPort={serialPort} />
+      </Route>
+      <Route path="/msp-pressure">
+        <MspPressurePage serialPort={serialPort} />
       </Route>
       <Route path="/msp-chart">
         <MspChartPage serialPort={serialPort} />

@@ -17,7 +17,8 @@ export const MspChart = ({ serialPort }) => {
   })
   const [cmd, setCmd] = useState(null)
   const [inputValue, setInputValue] = useState('')
-  const mspMsg = useStatefulObservable<number>(getMspResponse$(driver)
+  const mspResponse$ = getMspResponse$(driver)
+  const mspMsg = useStatefulObservable<number>(mspResponse$
     .pipe(
       map(msg  => viewMspChart(driver, msg))
       // mapTo(Math.random())
@@ -51,7 +52,6 @@ export const MspChart = ({ serialPort }) => {
   // }, [state$])
   useEffect(() => useMspDriver(driver), [])
   useEffect(() => {
-    const mspResponse$ = getMspResponse$(driver)
     const sub = merge(state$, mspResponse$)
       .pipe(
         startWith(state.checked),
@@ -65,7 +65,7 @@ export const MspChart = ({ serialPort }) => {
         console.log(v.cmd)
       })
     return () => sub.unsubscribe()
-  }, [state$, getMspResponse$(driver)])
+  }, [state$, mspResponse$])
   return (
     <React.Fragment>
       <FormControl>
