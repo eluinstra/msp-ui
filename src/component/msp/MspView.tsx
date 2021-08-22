@@ -109,6 +109,16 @@ mspOutputFunctions[MspCmd.MSP_ECHO_NR] = (msg: string) => {
   )
 }
 
+mspOutputFunctions[MspCmd.MSP_SET_TEMP_LOW] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Echo Nr: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
 mspOutputFunctions[MspCmd.MSP_NAME] = (msg: string) => {
   return (
     <Card>

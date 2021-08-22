@@ -50,6 +50,12 @@ mspOutputParser[MspCmd.MSP_BUILD_INFO] = (msg: MspMsg) => {
 
 mspOutputParser[MspCmd.MSP_ECHO] = parseString
 
+mspOutputParser[MspCmd.MSP_READ_TEMP] = parseString
+
+mspOutputParser[MspCmd.MSP_SET_TEMP_LOW] = parseInt16
+
+mspOutputParser[MspCmd.MSP_READ_PRESS] = parseString
+
 mspOutputParser[MspCmd.MSP_ECHO_NR] = parseInt16
 
 mspOutputParser[MspCmd.MSP_REBOOT] = parseString

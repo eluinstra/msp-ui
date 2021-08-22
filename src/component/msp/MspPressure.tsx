@@ -14,12 +14,12 @@ export const MspPressure = ({ serialPort }) => {
     checked: false,
     interval: 200,
   })
-  const [cmd] = useState('MSP_ECHO_NR')
+  const [cmd] = useState('MSP_READ_PRESS')
   const mspResponse$ = getMspResponse$(driver)
   const mspMsg = useStatefulObservable<number>(mspResponse$
     .pipe(
       map(msg => msg.buffer[0]),
-      mapTo(Math.random())
+      //mapTo(Math.random())
     ))
   useEffect(() => useMspDriver(driver), [])
   useEffect(() => {
