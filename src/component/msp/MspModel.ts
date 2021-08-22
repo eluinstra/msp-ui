@@ -14,7 +14,7 @@ const parseDefault = (msg: MspMsg) => msg.buffer.map(v => hexInt8(v))
 
 const parseString = (msg: MspMsg) => string(msg.buffer)
 
-const parseInt16 = (msg: MspMsg) => int16(msg.buffer, 0)
+export const parseInt16 = (msg: MspMsg) => int16(msg.buffer, 0)
 
 const mspOutputParser = []
 
