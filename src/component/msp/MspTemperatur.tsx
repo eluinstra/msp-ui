@@ -70,7 +70,7 @@ export const MspTemperature = ({ serialPort }) => {
         width={20}
         height={300}
         backgroundColor='#BDC0BA'
-        fillColor={temperature > treshold ? '#D0104C' : '#D0104C'}
+        fillColor={temperature > treshold ? '#D0104C' : '#007F00'}
         current={temperature}
       />
     </React.Fragment>
