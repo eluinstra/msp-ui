@@ -99,7 +99,37 @@ mspOutputFunctions[MspCmd.MSP_ECHO] = (msg: string) => {
   )
 }
 
+mspOutputFunctions[MspCmd.MSP_SAVE] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Echo: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
 mspOutputFunctions[MspCmd.MSP_ECHO_NR] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Echo Nr: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_GET_TEMP_LOW] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Echo Nr: {msg}
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_GET_TEMP_HIGH] = (msg: string) => {
   return (
     <Card>
       <CardContent>

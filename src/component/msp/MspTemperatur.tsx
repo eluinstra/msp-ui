@@ -4,7 +4,7 @@ import { FormControl, FormControlLabel, Switch } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
 import Thermometer from "react-thermometer"
 import { interval, merge, of } from 'rxjs'
-import { delayWhen, filter, map, mapTo, startWith } from 'rxjs/operators'
+import { delayWhen, filter, map, mapTo, startWith, tap } from 'rxjs/operators'
 import { parseInt16 } from './MspModel'
 
 const isTrue = (v: any) => v
@@ -27,7 +27,7 @@ export const MspTemperature = ({ serialPort }) => {
     ))
   const treshold = useStatefulObservable<number>(mspResponse$
       .pipe(
-        filter(isMspCmd(MspCmd.MSP_READPVVALUES)),
+        filter(isMspCmd(MspCmd.MSP_GET_TEMP_HIGH)),
         // map(msg => msg.buffer[0]),
         map(parseInt16)
         //mapTo(Math.random() * 10)
@@ -49,7 +49,7 @@ export const MspTemperature = ({ serialPort }) => {
   useEffect(() => {
     const sub = of(1)
     .pipe(
-      mapTo(MspCmd['MSP_READPVVALUES'])
+      mapTo(MspCmd['MSP_GET_TEMP_HIGH'])
     )
     .subscribe(v => {
       mspRequestNr(driver, v, '')
@@ -66,7 +66,7 @@ export const MspTemperature = ({ serialPort }) => {
       </FormControl>
       <Thermometer
         min={0}
-        max={30}
+        max={300}
         width={20}
         height={300}
         backgroundColor='#BDC0BA'
