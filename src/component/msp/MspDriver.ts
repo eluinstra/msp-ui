@@ -15,6 +15,8 @@ export interface MspDriver {
 
 export const getMspResponse$ = (driver: MspDriver) => driver.mspResponse$
 
+export const clearMspResponse$ = (driver: MspDriver) => driver.mspResponse$.next(null)
+
 export const getMspError$ = (driver: MspDriver) => driver.mspError$
 
 export const getPortName = (driver: MspDriver) => getPath(driver.serialPort)

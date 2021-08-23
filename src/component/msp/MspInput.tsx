@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { map, filter, mapTo } from 'rxjs/operators'
+import { map, filter, mapTo, tap } from 'rxjs/operators'
 import { useStatefulObservable, useObservableEvent, useBehaviour } from '@/common/RxTools'
-import { createMspDriver, getMspError$, getMspResponse$, MspCmd, MspMsg, mspRequestNr, useMspDriver } from '@/component/msp/MspDriver'
+import { clearMspResponse$, createMspDriver, getMspError$, getMspResponse$, MspCmd, MspMsg, mspRequestNr, useMspDriver } from '@/component/msp/MspDriver'
 import { viewMspMsg } from '@/component/msp/MspView'
 import { Button, FormControl, TextField } from '@material-ui/core'
 import { useSnackbar } from 'notistack'
@@ -17,6 +17,7 @@ export const MspInput = ({ serialPort }) => {
   const [mspClick, mspClick$] = useObservableEvent()
   const mspMsg = useStatefulObservable<MspMsg>(getMspResponse$(driver)
     .pipe(
+      tap(console.log),
       map(viewMspMsg)
   ))
   const mspError$ = getMspError$(driver)
@@ -62,7 +63,7 @@ export const MspInput = ({ serialPort }) => {
         <TextField label="value" value={payload} onChange={e => setPayload(e.target.value)} variant="standard" />
       </FormControl>
       <FormControl>
-        <Button variant="contained" onClick={_ => mspClick()}>MSP Go</Button>
+        <Button variant="contained" onClick={_ => { mspClick(); clearMspResponse$(driver) }}>MSP Go</Button>
       </FormControl>
       {mspMsg}
     </React.Fragment>

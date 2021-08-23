@@ -3,7 +3,15 @@ import { Card, CardContent } from '@material-ui/core'
 import { MspCmd, MspMsg } from '@/component/msp/MspDriver'
 import { parseMspMsg } from '@/component/msp/MspModel'
 
-export const viewMspMsg = (msg: MspMsg) => mspOutputFunctions[msg.cmd](parseMspMsg(msg))
+export const viewMspMsg = (msg: MspMsg) => msg ? mspOutputFunctions[msg.cmd](parseMspMsg(msg)) : renderEmpty()
+
+const renderEmpty = () => {
+  return (
+    <Card>
+      <CardContent/>
+    </Card>
+  )
+}
 
 const renderError = () => {
   return (
@@ -103,7 +111,17 @@ mspOutputFunctions[MspCmd.MSP_SAVE] = (msg: string) => {
   return (
     <Card>
       <CardContent>
-        Echo: {msg}
+        Saved!
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_REBOOT] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+        Rebooting!
       </CardContent>
     </Card>
   )
@@ -123,7 +141,7 @@ mspOutputFunctions[MspCmd.MSP_GET_TEMP_LOW] = (msg: string) => {
   return (
     <Card>
       <CardContent>
-        Echo Nr: {msg}
+        Temperature Range Low: {msg}
       </CardContent>
     </Card>
   )
@@ -133,7 +151,7 @@ mspOutputFunctions[MspCmd.MSP_GET_TEMP_HIGH] = (msg: string) => {
   return (
     <Card>
       <CardContent>
-        Echo Nr: {msg}
+      Temperature Range High: {msg}
       </CardContent>
     </Card>
   )
@@ -143,7 +161,17 @@ mspOutputFunctions[MspCmd.MSP_SET_TEMP_LOW] = (msg: string) => {
   return (
     <Card>
       <CardContent>
-        Echo Nr: {msg}
+      Temperature Range Low Set!
+      </CardContent>
+    </Card>
+  )
+}
+
+mspOutputFunctions[MspCmd.MSP_SET_TEMP_HIGH] = (msg: string) => {
+  return (
+    <Card>
+      <CardContent>
+      Temperature Range High Set!
       </CardContent>
     </Card>
   )

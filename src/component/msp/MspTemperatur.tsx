@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 import Thermometer from "react-thermometer"
 import { interval, merge, of } from 'rxjs'
 import { delayWhen, filter, map, mapTo, startWith, tap } from 'rxjs/operators'
-import { parseInt16 } from './MspModel'
+import { parseInt16LE } from './MspModel'
 
 const isTrue = (v: any) => v
 const isMspCmd = (mspCmd: number) => (msg: MspMsg) => mspCmd == msg.cmd
@@ -22,14 +22,14 @@ export const MspTemperature = ({ serialPort }) => {
     .pipe(
       filter(isMspCmd(MspCmd.MSP_READ_TEMP)),
       // map(msg => msg.buffer[0]),
-      map(parseInt16)
+      map(parseInt16LE)
       //mapTo(Math.random() * 10)
     ))
   const treshold = useStatefulObservable<number>(mspResponse$
       .pipe(
         filter(isMspCmd(MspCmd.MSP_GET_TEMP_HIGH)),
         // map(msg => msg.buffer[0]),
-        map(parseInt16)
+        map(parseInt16LE)
         //mapTo(Math.random() * 10)
       ))
   useEffect(() => useMspDriver(driver), [])
@@ -42,7 +42,7 @@ export const MspTemperature = ({ serialPort }) => {
         mapTo(MspCmd[cmd])
       )
       .subscribe(v => {
-        mspRequestNr(driver, v, '1')
+        mspRequestNr(driver, v, '')
       })
     return () => sub.unsubscribe()
   }, [state$, mspResponse$])
