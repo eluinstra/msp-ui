@@ -1,5 +1,5 @@
 {
-  "name": "dev.luin.msp",
+  "name": "msp-ui",
   "version": "1.0.0",
   "description": "msp ui",
   "main": "dist/main.js",
@@ -9,8 +9,19 @@
     "test": "ts-node -O '{\"module\":\"commonjs\"}' node_modules/jest/bin/jest.js",
     "start": "npm run build && electron dist/main.js"
   },
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "DisruptiveNL"
+    },
+    {
+      "name": "e.luinstra"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eluinstra/msp-ui.git"
+  },
   "devDependencies": {
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
