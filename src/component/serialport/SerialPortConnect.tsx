@@ -1,13 +1,15 @@
 import { useBehaviour, useObservableEvent, useStatefulObservable } from '@/common/RxTools';
 import { availableBaudrates, closePort, defaultBaudrate, isOpen, openPort, PortInfo, portInfo$, SerialPort } from '@/component/serialport/SerialPortDriver';
 import { FormControl, FormControlLabel, FormGroup, NativeSelect, Switch } from '@material-ui/core';
-import React, { useEffect } from 'react';
+import React, { Fragment, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { filter, map, mergeMap } from 'rxjs/operators';
 
 const portInUse = (v: PortInfo) => v.manufacturer != undefined
 const notEmpty = (s: String) => s.length > 0
 
 export const SerialPortConnect = ({ serialPort }) => {
+  const { t } = useTranslation()
   const connected = useStatefulObservable<boolean>((serialPort as SerialPort).pipe(map(p => isOpen(p))),false)
   const [state, changeState] = useBehaviour({
     port: "",
@@ -35,11 +37,11 @@ export const SerialPortConnect = ({ serialPort }) => {
     return () => sub.unsubscribe()
   }, [connectClick$])
   return (
-    <React.Fragment>
+    <Fragment>
       <FormGroup>
         <FormControl>
           <NativeSelect value={state.port} disabled={connected} onClick={_ => portClick()} onChange={e => changeState({ port: e.target.value })}>
-            <option value="">Manual</option>
+            <option value="">{t('lbl.manual')}</option>
             {portInfo?.map(v =>
               <option key={v.path} value={v.path}>{v.path}</option>
             )}
@@ -55,10 +57,10 @@ export const SerialPortConnect = ({ serialPort }) => {
         <FormControl>
           <FormControlLabel
             control={<Switch checked={connected} onClick={_ => connectClick()}/>}
-            label="Connect"
+            label={t('btn.connect')}
           />
         </FormControl>
       </FormGroup>
-    </React.Fragment>
+    </Fragment>
   )
 }

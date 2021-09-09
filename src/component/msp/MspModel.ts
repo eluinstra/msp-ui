@@ -1,5 +1,5 @@
-import _ from 'lodash'
 import { MspCmd, MspMsg } from '@/component/msp/MspDriver'
+import _ from 'lodash'
 
 const hexInt = (num: number, width: number) => num.toString(16).padStart(width,"0").toUpperCase()
 const hexInt8 = (num: number) => hexInt(num & 0xFF, 2)
@@ -48,25 +48,7 @@ mspOutputParser[MspCmd.MSP_BUILD_INFO] = (msg: MspMsg) => {
   }
 }
 
-mspOutputParser[MspCmd.MSP_ECHO] = parseString
-
-mspOutputParser[MspCmd.MSP_READ_TEMP] = parseInt16LE
-
-mspOutputParser[MspCmd.MSP_SET_TEMP_LOW] = parseInt16LE
-
-mspOutputParser[MspCmd.MSP_SET_TEMP_HIGH] = parseInt16LE
-
-mspOutputParser[MspCmd.MSP_GET_TEMP_LOW] = parseInt16LE
-
-mspOutputParser[MspCmd.MSP_GET_TEMP_HIGH] = parseInt16LE
-
-mspOutputParser[MspCmd.MSP_READ_PRESS] = parseString
-
-mspOutputParser[MspCmd.MSP_ECHO_NR] = parseInt16LE
-
 mspOutputParser[MspCmd.MSP_REBOOT] = parseString
-
-mspOutputParser[MspCmd.MSP_SAVE] = parseString
 
 mspOutputParser[MspCmd.MSP_STATUS] = parseString
 

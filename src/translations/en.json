@@ -1,3 +1,12 @@
 {
-  "app.title": "Alpha|BOT"
+  "app.title": "Alpha|BOT",
+  "lbl.about": "About",
+  "lbl.configuration": "Configuration",
+  "lbl.home": "Home",
+  "lbl.manual": "Manual",
+  "lbl.msp": "MSP",
+  "lbl.ports": "Ports",
+  "btn.connect": "Connect",
+  "btn.mspRun": "MSP Go",
+  "btn.refresh": "Refresh"
 }

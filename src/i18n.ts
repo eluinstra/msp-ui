@@ -1,7 +1,7 @@
 import i18n from "i18next"
+import LanguageDetector from 'i18next-electron-language-detector'
 import { initReactI18next } from "react-i18next"
-​import LanguageDetector from 'i18next-electron-language-detector'
-const en = require('./translations/en.json')
+import en from './translations/en.json'
 
 const resources = {
   en: {

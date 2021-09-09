@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react';
 import { Observable, Subject } from 'rxjs';
 
 export function useStatefulObservable<T>(observable: Observable<T>, initState?: T): T {
@@ -14,6 +14,11 @@ export function useObservableState<T>(observable: Subject<T> = new Subject<T>())
   const state = useStatefulObservable(observable)
   const setState = (v: T) => observable.next(v)
   return [state, setState, observable]
+}
+
+export function useObservableEvent(observable: Subject<any> = new Subject()): [() => void, Observable<any>] {
+  const next = () => observable.next()
+  return [next, observable]
 }
 
 export function useBehaviour<T>(props: T): [T, (v: Partial<T>) => void] {
@@ -32,9 +37,4 @@ export function useObservableBehaviourOf<T>(initState: T, observable: Subject<T>
   const state = useStatefulObservable(observable, initState)
   const changeState = (v: Partial<T>) => observable.next({ ...state, ...v })
   return [state, changeState, observable]
-}
-
-export function useObservableEvent(observable: Subject<any> = new Subject()): [() => void, Observable<any>] {
-  const next = () => observable.next()
-  return [next, observable]
 }

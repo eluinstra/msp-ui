@@ -1,8 +1,6 @@
-import { ipcRenderer, IpcRenderer } from "electron";
-import { identity } from 'rxjs'
-import { BehaviorSubject, from, Subject } from 'rxjs'
-import { startWith } from 'rxjs/operators'
-import { PortInfo as SerialPortInfo, serialPortService as driver } from '@/component/serialport/SerialPortService'
+import { PortInfo as SerialPortInfo, serialPortService as driver } from '@/component/serialport/SerialPortService';
+import { ipcRenderer } from "electron";
+import { BehaviorSubject, from, identity } from 'rxjs';
 
 export type PortInfo = SerialPortInfo
 

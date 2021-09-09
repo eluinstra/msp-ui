@@ -1,9 +1,9 @@
-import React from 'react'
-import { from, interval, Observable, of, Subject } from 'rxjs';
-import { distinctUntilChanged, map, mergeMap, startWith, take, tap,  } from 'rxjs/operators';
 import { useStatefulObservable } from '@/common/RxTools';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import { PortInfo, portInfo$ } from '@/component/serialport/SerialPortDriver';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import React from 'react';
+import { interval } from 'rxjs';
+import { map, mergeMap, take } from 'rxjs/operators';
 
 export const PortList = () => {
   const portInfo = useStatefulObservable(interval(1000).pipe(take(1))

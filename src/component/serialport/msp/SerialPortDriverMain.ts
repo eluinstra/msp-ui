@@ -1,7 +1,7 @@
 import { IpcMain, WebContents } from "electron"
 import { IpcMainEvent } from "electron/main"
 import SerialPort, { PortInfo } from "serialport"
-import { encode, MspMsg, MspEncoder, MspDecoder } from "serialport-parser-msp-v2"
+import { encode, MspDecoder, MspMsg } from "serialport-parser-msp-v2"
 import { Command } from "../SerialPortService"
 
 const enum EventType {

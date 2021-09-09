@@ -14,7 +14,7 @@ export enum Command {
   registerErrorEventHandler = 'SerialPort.registerErrorEventHandler',
   unregisterErrorEventHandler = 'SerialPort.unregisterErrorEventHandler',
   onErrorReceived = 'SerialPort.onErrorReceived',
-  write = 'SerialPort.registerErrorEventHandler'
+  write = 'SerialPort.write'
 }
 
 export const serialPortService = {
